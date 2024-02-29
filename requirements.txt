@@ -3,3 +3,4 @@ packaging==23.2
 peewee==3.17.1
 pluggy==1.4.0
 pytest==8.0.2
+pytest-mock==3.12.0
