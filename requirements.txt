@@ -4,6 +4,7 @@ iniconfig==2.0.0
 packaging==23.2
 peewee==3.17.1
 pluggy==1.4.0
+psycopg2==2.9.9
 pydantic==2.6.3
 pydantic-settings==2.2.1
 pydantic_core==2.16.3
