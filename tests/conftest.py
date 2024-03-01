@@ -2,6 +2,7 @@ import sys
 import os
 
 import pytest
+from fastapi.testclient import TestClient
 
 # this will fix issue where the python path won't contain the packages
 # in the main project when running inside pytest
@@ -10,6 +11,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from config.settings import Settings
 from db.models import all_models
 from db.connection import db
+import api
 
 
 @pytest.fixture(autouse=True)
@@ -23,6 +25,7 @@ def tables_setup_teardown():
 def mock_settings(mocker):
     mock_settings = Settings(
         NAME="testsuite",
+        BACKEND_CORS_ORIGINS=["http://localhost:1337"],
         POSTGRES_SERVER="some_server",
         POSTGRES_PORT="some_port",
         POSTGRES_USER="some_user",
@@ -39,3 +42,9 @@ def suppress_logging(mocker):
     mocker.patch('logging.Logger.warning')
     mocker.patch('logging.Logger.error')
     mocker.patch('logging.Logger.critical')
+
+
+@pytest.fixture
+def api_client():
+    client = TestClient(api.get_app())
+    return client
