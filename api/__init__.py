@@ -5,6 +5,7 @@ from config.logger import log
 import config.settings as settings
 from api.routers import (
     index,
+    websocket,
 )
 
 
@@ -18,6 +19,7 @@ def get_app():
         allow_headers=["*"],
     )
     app.include_router(index.router)
+    app.include_router(websocket.router)
 
     return app
 

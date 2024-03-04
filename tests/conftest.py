@@ -26,11 +26,15 @@ def mock_settings(mocker):
     mock_settings = Settings(
         NAME="testsuite",
         BACKEND_CORS_ORIGINS=["http://localhost:1337"],
+        HOST="localhost",
+        PORT="8080",
         POSTGRES_SERVER="some_server",
         POSTGRES_PORT="some_port",
         POSTGRES_USER="some_user",
         POSTGRES_PASSWORD="some_password",
         POSTGRES_DB="some_db",
+        REDIS_HOST="localhost",
+        REDIS_PORT=6379,
     )
     mocker.patch('config.settings.get_settings', return_value=mock_settings)
 

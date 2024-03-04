@@ -32,3 +32,10 @@ def test_modified_at_changes_on_save(mocker):
     handle.save()
 
     assert handle.modified_at == second_mock_time
+
+
+def test_web_socket_uri_is_generated():
+    handle = PromptHandle()
+
+    assert handle.websocket_uri is not None
+    assert len(handle.websocket_uri) > 128

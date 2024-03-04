@@ -7,6 +7,8 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     NAME: str = "kth-assistant"
 
+    HOST: str
+    PORT: int
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
 
     POSTGRES_SERVER: str
@@ -14,6 +16,11 @@ class Settings(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str
+
+    REDIS_HOST: str
+    REDIS_PORT: int
+
+    WEBSOCKET_TIMEOUT_DURATION: int = 30
 
     class Config:
         case_sensitive = True
