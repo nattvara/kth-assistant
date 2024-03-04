@@ -18,9 +18,9 @@ async def handle_websocket_connection_between_worker_and_requester(
     """
     Handle the communication between workers and requesters over a websocket.
 
-    The websocket should be one-to-one, i.e. one requester is listening on the
-    websocket to messages sent by one worker. There is no enforcement of this
-    in the protocol below.
+    The websocket should be one-to-one (although it technically supports many-to-many),
+    i.e. one requester is listening on the websocket to messages sent by one worker.
+    There is no enforcement of this in the protocol below.
 
     :param websocket: The websocket over which the communication happens
     :param session_id: The id of the session. Given a websocket uri "/ws/{session_id}"
