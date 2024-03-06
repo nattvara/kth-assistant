@@ -3,7 +3,7 @@ from fastapi import FastAPI
 
 from config.logger import log
 import config.settings as settings
-from api.routers import (
+from http_api.routers import (
     index,
     websocket,
 )
@@ -25,7 +25,7 @@ def get_app():
 
 
 def main():
-    log().info('api is starting')
+    log().info('http api is starting')
 
     app = get_app()
 

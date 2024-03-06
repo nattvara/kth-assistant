@@ -14,7 +14,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from config.settings import Settings
 from db.models import all_models
 from db.connection import db
-import api
+import http_api
 
 
 @pytest.fixture(autouse=True)
@@ -53,7 +53,7 @@ def suppress_logging(mocker):
 
 @pytest.fixture
 def api_client():
-    client = TestClient(api.get_app())
+    client = TestClient(http_api.get_app())
     return client
 
 
