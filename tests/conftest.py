@@ -1,8 +1,11 @@
+from unittest.mock import AsyncMock
 import sys
 import os
 
-import pytest
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from websockets import WebSocketClientProtocol
 from fastapi.testclient import TestClient
+import pytest
 
 # this will fix issue where the python path won't contain the packages
 # in the main project when running inside pytest
@@ -52,3 +55,40 @@ def suppress_logging(mocker):
 def api_client():
     client = TestClient(api.get_app())
     return client
+
+
+@pytest.fixture
+def mock_load_hf_model(mocker):
+    mock_model = mocker.create_autospec(AutoModelForCausalLM)
+    mock_tokenizer = mocker.create_autospec(AutoTokenizer)
+    load_hf_model = mocker.patch(
+        'text.generate.load_hf_model',
+        return_value=(mock_model, mock_tokenizer)
+    )
+    return load_hf_model
+
+
+@pytest.fixture
+def create_mock_generate_text_streaming(mocker):
+    def create_mock(mock_tokens):
+        async def mock_generate_text_func(model, tokenizer, device, params, prompt):
+            for token in mock_tokens:
+                yield token
+
+        mock_generate_text_streaming = mocker.patch('text.generate.generate_text_streaming', side_effect=mock_generate_text_func)
+        return mock_generate_text_streaming
+
+    return create_mock
+
+
+@pytest.fixture
+def create_websocket_mocks(mocker):
+    def create_mocks():
+        mock_ws = AsyncMock(spec=WebSocketClientProtocol)
+        mock_ctx_manager = AsyncMock()
+        mock_ctx_manager.__aenter__.return_value = mock_ws
+        mock_ctx_manager.__aexit__.return_value = None
+        mock_connect = mocker.patch('websockets.connect', return_value=mock_ctx_manager)
+        return mock_ws, mock_connect
+
+    return create_mocks

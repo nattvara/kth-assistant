@@ -1,2 +1,2 @@
 from .llm import LLMService
-from .worker import Worker
+from .worker import Worker, TERMINATION_STRING
