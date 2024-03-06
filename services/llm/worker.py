@@ -3,11 +3,11 @@ from typing import Callable
 import websockets
 import asyncio
 
-from text.generate import generate_text_streaming, load_hf_model
+from llms.generate import generate_text_streaming, load_hf_model
 from db.models import PromptHandle
 from services.llm import LLMService
 import config.settings as settings
-from text.config import Params
+from llms.config import Params
 from config.logger import log
 
 TERMINATION_STRING = "<<<END_OF_STREAM>>>"

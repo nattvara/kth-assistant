@@ -1,12 +1,12 @@
 """
 The purpose of this example is to show how to generate text from a huggingface model using
-the text generation apis in this repository.
+the llm apis in this repository.
 """
 
 import asyncio
 
-from text.generate import load_hf_model, generate_text_streaming
-from text.config import Params
+from llms.generate import load_hf_model, generate_text_streaming
+from llms.config import Params
 import sys
 
 

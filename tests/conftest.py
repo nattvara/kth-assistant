@@ -62,7 +62,7 @@ def mock_load_hf_model(mocker):
     mock_model = mocker.create_autospec(AutoModelForCausalLM)
     mock_tokenizer = mocker.create_autospec(AutoTokenizer)
     load_hf_model = mocker.patch(
-        'text.generate.load_hf_model',
+        'llms.generate.load_hf_model',
         return_value=(mock_model, mock_tokenizer)
     )
     return load_hf_model
@@ -75,7 +75,7 @@ def create_mock_generate_text_streaming(mocker):
             for token in mock_tokens:
                 yield token
 
-        mock_generate_text_streaming = mocker.patch('text.generate.generate_text_streaming', side_effect=mock_generate_text_func)
+        mock_generate_text_streaming = mocker.patch('llms.generate.generate_text_streaming', side_effect=mock_generate_text_func)
         return mock_generate_text_streaming
 
     return create_mock
