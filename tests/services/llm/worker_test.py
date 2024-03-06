@@ -35,6 +35,7 @@ async def test_worker_will_poll_the_llm_service_every_50_milliseconds_for_next_h
     service_mock.has_next.side_effect = lambda: has_next_side_effects.pop(0) if has_next_side_effects else False
 
     sleep_mock = mocker.patch('asyncio.sleep', side_effect=lambda _: worker.stop() if not has_next_side_effects else None)
+    mocker.patch('services.llm.worker.Worker.process_prompt_handle')
 
     worker = create_worker(service_mock, mock_tokens)
     await worker.run()

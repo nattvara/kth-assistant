@@ -2,6 +2,9 @@ from websockets import ConnectionClosedOK
 from typing import Callable
 import websockets
 import asyncio
+import time
+
+import arrow
 
 from llms.generate import generate_text_streaming, load_hf_model
 from db.models import PromptHandle
@@ -37,10 +40,16 @@ class Worker:
         log().info(f"Processing handle with id {handle.id} created at {handle.created_at}")
         log().debug(f"The prompt of the handle is: \"{handle.prompt}\"")
 
+        current_time = arrow.now()
+        wait_time = current_time - handle.created_at
+        handle.time_spent_pending_ms = wait_time.total_seconds() * 1000
+        handle.save()
+
         websocket_url = f"ws://{settings.get_settings().HOST}:{settings.get_settings().PORT}{handle.websocket_uri}"
 
         response = ""
         number_of_tokens = 0
+        time_taken = None
 
         log().debug(f"connecting to websocket {websocket_url}")
         try:
@@ -49,6 +58,7 @@ class Worker:
 
                 params = Params()
                 index = 1
+                start_time = time.time()
                 async for token in self.text_generator(self.model, self.tokenizer, self.device, params, handle.prompt):
                     await websocket.send(token)
                     response += token
@@ -57,6 +67,8 @@ class Worker:
                     if index % 50 == 0:
                         log().info(f"Generated {index} tokens...")
 
+                end_time = time.time()
+                time_taken = end_time - start_time
                 await websocket.send(TERMINATION_STRING)
                 await websocket.close()
         except ConnectionClosedOK:
@@ -69,6 +81,7 @@ class Worker:
         handle.state = PromptHandle.States.FINISHED
         handle.response = response
         handle.response_length = number_of_tokens
+        handle.response_time_taken = int(time_taken)
         handle.save()
 
     async def run(self):
