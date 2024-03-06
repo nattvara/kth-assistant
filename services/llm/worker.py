@@ -40,6 +40,7 @@ class Worker:
         websocket_url = f"ws://{settings.get_settings().HOST}:{settings.get_settings().PORT}{handle.websocket_uri}"
 
         response = ""
+        number_of_tokens = 0
 
         log().debug(f"connecting to websocket {websocket_url}")
         try:
@@ -52,6 +53,7 @@ class Worker:
                     await websocket.send(token)
                     response += token
                     index += 1
+                    number_of_tokens += 1
                     if index % 50 == 0:
                         log().info(f"Generated {index} tokens...")
 
@@ -66,6 +68,7 @@ class Worker:
         handle.refresh()
         handle.state = PromptHandle.States.FINISHED
         handle.response = response
+        handle.response_length = number_of_tokens
         handle.save()
 
     async def run(self):

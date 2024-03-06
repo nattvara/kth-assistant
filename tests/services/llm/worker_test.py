@@ -118,3 +118,20 @@ async def test_worker_saves_entire_response_when_finished(create_worker, create_
 
     handle.refresh()
     assert handle.response == "baby don't hurt me"
+
+
+@pytest.mark.asyncio
+async def test_worker_saves_number_of_tokens_generated_and_sets_state_when_finished(create_worker, create_websocket_mocks):
+    create_websocket_mocks()
+    mock_tokens = ['baby', ' ', 'don', '\'', 't', ' ', 'hurt', ' ', 'me']
+
+    service = LLMService()
+    handle = PromptHandle(service=service, prompt="what is love?")
+    handle.save()
+
+    worker, mock_generate_text = create_worker(service, mock_tokens, True)
+    await worker.process_prompt_handle(handle)
+
+    handle.refresh()
+    assert handle.state == PromptHandle.States.FINISHED
+    assert handle.response_length == len(mock_tokens)

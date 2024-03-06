@@ -31,3 +31,4 @@ class PromptHandle(BaseModel):
     websocket_uri = peewee.TextField(null=False, index=True, default=generate_websocket_uri)
     prompt = peewee.TextField(null=True)
     response = peewee.TextField(null=True)
+    response_length = peewee.IntegerField(null=True, default=None)
