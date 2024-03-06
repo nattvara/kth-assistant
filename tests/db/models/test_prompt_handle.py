@@ -39,3 +39,21 @@ def test_web_socket_uri_is_generated():
 
     assert handle.websocket_uri is not None
     assert len(handle.websocket_uri) > 128
+
+
+def test_model_can_be_refreshed():
+    handle = PromptHandle()
+    handle.save()
+
+    same_handle = PromptHandle.get(handle.id)
+    same_handle.state = PromptHandle.States.FINISHED
+    same_handle.prompt = "something new"
+    same_handle.save()
+
+    handle.refresh()
+
+    assert handle.state == same_handle.state
+    assert handle.prompt == same_handle.prompt
+    assert handle.modified_at == same_handle.modified_at
+    assert handle.created_at == same_handle.created_at
+    assert handle.id == same_handle.id
