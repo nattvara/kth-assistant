@@ -33,4 +33,4 @@ class PromptHandle(BaseModel):
     time_spent_pending_ms = peewee.IntegerField(null=True, default=None)
     response = peewee.TextField(null=True)
     response_length = peewee.IntegerField(null=True, default=None)
-    response_time_taken = peewee.IntegerField(null=True, default=None)
+    response_time_taken_s = peewee.IntegerField(null=True, default=None)

@@ -81,7 +81,7 @@ class Worker:
         handle.state = PromptHandle.States.FINISHED
         handle.response = response
         handle.response_length = number_of_tokens
-        handle.response_time_taken = int(time_taken)
+        handle.response_time_taken_s = int(time_taken)
         handle.save()
 
     async def run(self):
