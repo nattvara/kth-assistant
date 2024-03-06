@@ -1,6 +1,6 @@
 from fastapi import APIRouter, WebSocket, HTTPException
 
-from websocket.llm_streams import handle_websocket_connection_between_worker_and_requester
+from websocket_protocols.llm_streams import handle_websocket_connection_between_worker_and_requester
 from db.actions.prompt_handles import find_prompt_handle_by_websocket_uri
 from cache.redis import get_redis_connection
 
