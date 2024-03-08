@@ -18,13 +18,13 @@ def test_timestamps_are_set_on_creation():
     assert handle.modified_at <= arrow.utcnow()
 
 
-def test_modified_at_changes_on_save(mocker):
+def test_modified_at_changes_on_save(mocker, llm_model_name, llm_prompt):
     first_mock_time = arrow.get('2024-02-29T11:50:47.810300+01:00')
     second_mock_time = first_mock_time.shift(hours=1)
 
     mock_utcnow = mocker.patch('db.models.base_model.arrow.utcnow', return_value=first_mock_time)
 
-    handle = PromptHandle()
+    handle = PromptHandle(prompt=llm_prompt, model_name=llm_model_name)
 
     mock_utcnow.return_value = second_mock_time
 
@@ -41,8 +41,8 @@ def test_web_socket_uri_is_generated():
     assert len(handle.websocket_uri) > 128
 
 
-def test_model_can_be_refreshed():
-    handle = PromptHandle()
+def test_model_can_be_refreshed(llm_prompt, llm_model_name):
+    handle = PromptHandle(prompt=llm_prompt, model_name=llm_model_name)
     handle.save()
 
     same_handle = PromptHandle.get(handle.id)

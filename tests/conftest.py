@@ -92,3 +92,13 @@ def create_websocket_mocks(mocker):
         return mock_ws, mock_connect
 
     return create_mocks
+
+
+@pytest.fixture
+def llm_model_name():
+    return "llmcorp/some_model"
+
+
+@pytest.fixture
+def llm_prompt():
+    return "tell me a fact"
