@@ -1,15 +1,17 @@
 import pytest
 
+from services.llm.llm import NoPendingPromptHandleError
 from services.llm import LLMService
 from db.models import PromptHandle
-from services.llm.llm import NoPendingPromptHandleError
+from llms.config import Params
 
 
 def test_llm_service_can_dispatch_a_prompt_and_return_handle():
     service = LLMService()
+    model_name = "llmcorp/some_model"
     prompt = "who is the most iconic fashion icon of the 20th century?"
 
-    handle = service.dispatch_prompt(prompt)
+    handle = service.dispatch_prompt(prompt, model_name)
 
     assert isinstance(handle, PromptHandle)
     assert handle.state == PromptHandle.States.PENDING
@@ -94,3 +96,45 @@ def test_checkout_returns_a_handle_and_updates_its_state():
 
     assert handle.id == handle_1.id
     assert handle.state == PromptHandle.States.IN_PROGRESS
+
+
+def test_model_params_can_be_specified():
+    service = LLMService()
+    prompt = "what's the slogan of nike?"
+    model_name = "llmcorp/some_model"
+
+    params = Params(
+        temperature=0.1,
+        max_new_tokens=123,
+        context_length=456,
+        enable_top_k_filter=False,
+        top_k_limit=42,
+        enable_top_p_filter=False,
+        top_p_threshold=0.42,
+        stop_strings=["foo"],
+        system_prompt="bar",
+    )
+
+    handle_id = service.dispatch_prompt(prompt, model_name, model_params=params).id
+    handle = PromptHandle.get(handle_id)
+
+    assert handle.model_params.temperature == 0.1
+    assert handle.model_params.max_new_tokens == 123
+    assert handle.model_params.context_length == 456
+    assert handle.model_params.enable_top_k_filter == False
+    assert handle.model_params.top_k_limit == 42
+    assert handle.model_params.enable_top_p_filter == False
+    assert handle.model_params.top_p_threshold == 0.42
+    assert handle.model_params.stop_strings == ["foo"]
+    assert handle.model_params.system_prompt == "bar"
+
+
+def test_model_params_can_be_specified():
+    service = LLMService()
+    prompt = "tell me a joke"
+    model_name = "llmcorp/funny_model"
+
+    handle_id = service.dispatch_prompt(prompt, model_name).id
+    handle = PromptHandle.get(handle_id)
+
+    assert handle.model_name == model_name
