@@ -29,8 +29,8 @@ class PromptHandle(BaseModel):
 
     state = peewee.CharField(null=False, index=True, default=States.PENDING)
     websocket_uri = peewee.TextField(null=False, index=True, default=generate_websocket_uri)
-    prompt = peewee.TextField(null=True)
-    model_name = peewee.CharField(null=True, index=True)
+    prompt = peewee.TextField(null=False)
+    model_name = peewee.CharField(null=False, index=True)
     model_params = ModelParamsField(null=True)
     time_spent_pending_ms = peewee.IntegerField(null=True, default=None)
     response = peewee.TextField(null=True)
