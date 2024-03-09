@@ -10,7 +10,7 @@ $ docker run -p 6379:6379 -it redis/redis-stack:latest
 
 Also needs at least one worker to be running:
 
-$ python services/llm/worker.py
+$ llm_worker MISTRAL_7B_INSTRUCT
 """
 
 

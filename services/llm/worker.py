@@ -102,9 +102,3 @@ class Worker:
 
     def stop(self):
         self.running = False
-
-
-if __name__ == '__main__':
-    log().info("Starting worker")
-    worker = Worker(llm_service=LLMService(), model_name='mistralai/Mistral-7B-Instruct-v0.2', device='mps')
-    asyncio.run(worker.run())
