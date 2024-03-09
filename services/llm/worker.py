@@ -22,14 +22,14 @@ class Worker:
     def __init__(
             self,
             llm_service: LLMService,
-            model_name: str,
+            model_name: LLMModel,
             device: str,
             model_loader_func: Callable = load_hf_model,
             text_generator: Callable = generate_text_streaming,
     ):
         self.service = llm_service
         self.running = False
-        self.model_name = model_name
+        self.model_name = model_name.value
         self.device = device
         self.text_generator = text_generator
 

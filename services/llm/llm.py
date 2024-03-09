@@ -16,7 +16,7 @@ class LLMService:
         self.model = model
 
     @staticmethod
-    def dispatch_prompt(prompt: str, model_name: str, model_params: Optional[Params] = None) -> PromptHandle:
+    def dispatch_prompt(prompt: str, model_name: LLMModel, model_params: Optional[Params] = None) -> PromptHandle:
         handle = PromptHandle(prompt=prompt, model_name=model_name, model_params=model_params)
         handle.save()
         return handle

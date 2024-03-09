@@ -98,7 +98,7 @@ def create_websocket_mocks(mocker):
 
 @pytest.fixture
 def llm_model_name():
-    return "llmcorp/some_model"
+    return LLMModel.MISTRAL_7B_INSTRUCT
 
 
 @pytest.fixture

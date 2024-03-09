@@ -19,11 +19,8 @@ from db.models import PromptHandle
 
 async def main():
     try:
-        llm = LLMService()
-        prompt = "recite the first page of moby dick"
-        handle = llm.dispatch_prompt(prompt)
-
-        print(handle)
+        handle = PromptHandle(prompt="some prompt...", model_name=LLMModel.MISTRAL_7B_INSTRUCT)
+        handle.save()
 
         worker_ws_uri = 'ws://localhost:8000' + handle.websocket_uri
         requester_ws_uri = 'ws://localhost:8000' + handle.websocket_uri

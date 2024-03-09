@@ -11,12 +11,12 @@ from llms.config import Params
 
 
 @pytest.fixture
-def create_worker(mock_load_hf_model, create_mock_generate_text_streaming):
+def create_worker(mock_load_hf_model, create_mock_generate_text_streaming, llm_model_name):
     def create_worker_func(service, mock_tokens, return_mock_generate_text=False):
         mock_generate_text = create_mock_generate_text_streaming(mock_tokens)
         worker = Worker(
             llm_service=service,
-            model_name='some_org/some_model',
+            model_name=llm_model_name,
             device='cuda',
             model_loader_func=mock_load_hf_model,
             text_generator=mock_generate_text

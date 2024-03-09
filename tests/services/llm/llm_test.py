@@ -78,8 +78,8 @@ def test_has_next_returns_true_only_if_any_pending_handles_exist(llm_prompt, llm
 
 
 def test_next_returns_handles_matching_model_name(llm_prompt):
-    model_1 = 'model_1'
-    model_2 = 'model_2'
+    model_1 = LLMModel.MISTRAL_7B_INSTRUCT
+    model_2 = LLMModel.GOOGLE_GEMMA_7B
 
     service = LLMService(model_1)
 
@@ -147,7 +147,7 @@ def test_model_params_can_be_specified(llm_model_name):
 
 def test_model_params_can_be_specified():
     prompt = "tell me a joke"
-    model_name = "llmcorp/funny_model"
+    model_name = LLMModel.MISTRAL_7B_INSTRUCT
 
     handle_id = LLMService.dispatch_prompt(prompt, model_name).id
     handle = PromptHandle.get(handle_id)
