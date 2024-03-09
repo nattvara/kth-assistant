@@ -27,4 +27,4 @@ jobs:
 
     - name: Run the Testsuite
       run: |
-        python -m pytest
+        python -m pytest --verbose
