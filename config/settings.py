@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from pydantic import AnyHttpUrl
 from pydantic_settings import BaseSettings
@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     REDIS_PORT: int
 
     WEBSOCKET_TIMEOUT_DURATION: int = 30
+
+    HUGGINGFACE_ACCESS_TOKEN: Optional[str] = None
 
     class Config:
         case_sensitive = True

@@ -4,12 +4,13 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 
 from .sampling_strategies import top_k_sampling, top_p_sampling, top_k_and_p_sampling
+from config.settings import get_settings
 from .config import Params
 
 
 def load_hf_model(model_path: str, device: str) -> (AutoModelForCausalLM, AutoTokenizer):
-    tokenizer = AutoTokenizer.from_pretrained(model_path)
-    model = AutoModelForCausalLM.from_pretrained(model_path, torch_dtype=torch.float16)
+    tokenizer = AutoTokenizer.from_pretrained(model_path, token=get_settings().HUGGINGFACE_ACCESS_TOKEN)
+    model = AutoModelForCausalLM.from_pretrained(model_path, torch_dtype=torch.float16, token=get_settings().HUGGINGFACE_ACCESS_TOKEN)
 
     model.to(device)
 
