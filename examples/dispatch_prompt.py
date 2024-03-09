@@ -28,7 +28,7 @@ import config.settings as settings
 
 async def main():
     prompt = "recite the first page of moby dick"
-    handle = LLMService.dispatch_prompt(prompt, LLMModel.GOOGLE_GEMMA_7B)
+    handle = LLMService.dispatch_prompt(prompt, LLMModel.MISTRAL_7B_INSTRUCT)
 
     pp(handle)
 
