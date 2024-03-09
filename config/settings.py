@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     WEBSOCKET_TIMEOUT_DURATION: int = 30
 
     HUGGINGFACE_ACCESS_TOKEN: Optional[str] = None
+    OPENAI_API_KEY: Optional[str] = None
 
     class Config:
         case_sensitive = True
