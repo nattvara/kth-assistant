@@ -1,7 +1,7 @@
 import pytest
 
-from services.llm.llm import NoPendingPromptHandleError
-from services.llm import LLMService
+from services.llm.llm import NoPendingPromptHandleError, LLMService
+from services.llm.supported_models import LLMModel
 from db.models import PromptHandle
 from llms.config import Params
 

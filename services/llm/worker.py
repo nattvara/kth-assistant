@@ -7,8 +7,9 @@ import time
 import arrow
 
 from llms.generate import generate_text_streaming, load_hf_model
+from services.llm.supported_models import LLMModel
+from services.llm.llm import LLMService
 from db.models import PromptHandle
-from services.llm import LLMService
 import config.settings as settings
 from llms.config import Params
 from config.logger import log

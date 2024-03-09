@@ -13,7 +13,8 @@ $ docker run -p 6379:6379 -it redis/redis-stack:latest
 import asyncio
 import websockets
 
-from services.llm import LLMService
+from services.llm.supported_models import LLMModel
+from db.models import PromptHandle
 
 
 async def main():

@@ -7,6 +7,8 @@ from websockets import WebSocketClientProtocol
 from fastapi.testclient import TestClient
 import pytest
 
+from services.llm.supported_models import LLMModel
+
 # this will fix issue where the python path won't contain the packages
 # in the main project when running inside pytest
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))

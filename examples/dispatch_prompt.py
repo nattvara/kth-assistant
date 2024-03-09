@@ -20,7 +20,9 @@ import sys
 
 from beeprint import pp
 
-from services.llm import LLMService, TERMINATION_STRING
+from services.llm.worker import TERMINATION_STRING
+from services.llm.supported_models import LLMModel
+from services.llm.llm import LLMService
 import config.settings as settings
 
 

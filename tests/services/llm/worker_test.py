@@ -2,8 +2,9 @@ from unittest.mock import call
 
 import pytest
 
-from services.llm import LLMService, Worker, TERMINATION_STRING
+from services.llm.worker import Worker, TERMINATION_STRING
 from tests.assertions import assert_model_params_equal
+from services.llm.llm import LLMService
 import config.settings as settings
 from db.models import PromptHandle
 from llms.config import Params
