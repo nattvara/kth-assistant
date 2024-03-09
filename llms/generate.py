@@ -1,3 +1,4 @@
+from typing import AsyncGenerator
 import asyncio
 
 from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -37,7 +38,7 @@ async def generate_text_streaming(
     device: str,
     params: Params,
     prompt: str,
-) -> str:
+) -> AsyncGenerator[str, None]:
     prompt = params.system_prompt + prompt
 
     input_ids = _initialize_prompt(tokenizer, prompt)
