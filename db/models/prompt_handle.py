@@ -4,7 +4,7 @@ import string
 
 import peewee
 
-from db.custom_fields import ModelParamsField
+from db.custom_fields import ModelParamsField, ModelNameField
 from . import BaseModel
 
 # Suppress specific DeprecationWarning about db_table, this is needed for migrations to work
@@ -30,7 +30,7 @@ class PromptHandle(BaseModel):
     state = peewee.CharField(null=False, index=True, default=States.PENDING)
     websocket_uri = peewee.TextField(null=False, index=True, default=generate_websocket_uri)
     prompt = peewee.TextField(null=False)
-    model_name = peewee.CharField(null=False, index=True)
+    model_name = ModelNameField(null=False, index=True)
     model_params = ModelParamsField(null=True)
     time_spent_pending_ms = peewee.IntegerField(null=True, default=None)
     response = peewee.TextField(null=True)
