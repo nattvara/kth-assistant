@@ -57,6 +57,9 @@ class Worker:
                 log().debug(f"generating response...")
 
                 params = Params()
+                if handle.model_params is not None:
+                    params = handle.model_params
+
                 index = 1
                 start_time = time.time()
                 async for token in self.text_generator(self.model, self.tokenizer, self.device, params, handle.prompt):

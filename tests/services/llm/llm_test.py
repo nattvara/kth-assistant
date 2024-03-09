@@ -7,10 +7,9 @@ from llms.config import Params
 
 
 def test_llm_service_can_dispatch_a_prompt_and_return_handle(llm_model_name):
-    service = LLMService()
     prompt = "who is the most iconic fashion icon of the 20th century?"
 
-    handle = service.dispatch_prompt(prompt, llm_model_name)
+    handle = LLMService.dispatch_prompt(prompt, llm_model_name)
 
     assert isinstance(handle, PromptHandle)
     assert handle.state == PromptHandle.States.PENDING
@@ -18,7 +17,7 @@ def test_llm_service_can_dispatch_a_prompt_and_return_handle(llm_model_name):
 
 
 def test_next_handle_from_service_is_the_most_recent_handle(llm_prompt, llm_model_name):
-    service = LLMService()
+    service = LLMService(llm_model_name)
 
     handle_1 = PromptHandle(prompt=llm_prompt, model_name=llm_model_name)
     handle_2 = PromptHandle(prompt=llm_prompt, model_name=llm_model_name)
@@ -33,7 +32,7 @@ def test_next_handle_from_service_is_the_most_recent_handle(llm_prompt, llm_mode
 
 
 def test_next_handle_from_service_is_always_in_pending_state(llm_prompt, llm_model_name):
-    service = LLMService()
+    service = LLMService(llm_model_name)
 
     handle_1 = PromptHandle(prompt=llm_prompt, model_name=llm_model_name)
     handle_2 = PromptHandle(prompt=llm_prompt, model_name=llm_model_name)
@@ -51,7 +50,7 @@ def test_next_handle_from_service_is_always_in_pending_state(llm_prompt, llm_mod
 
 
 def test_has_next_returns_true_only_if_any_pending_handles_exist(llm_prompt, llm_model_name):
-    service = LLMService()
+    service = LLMService(llm_model_name)
 
     handle_1 = PromptHandle(prompt=llm_prompt, model_name=llm_model_name)
     handle_2 = PromptHandle(prompt=llm_prompt, model_name=llm_model_name)
@@ -78,15 +77,35 @@ def test_has_next_returns_true_only_if_any_pending_handles_exist(llm_prompt, llm
     assert not service.has_next()
 
 
-def test_next_throws_exception_if_no_pending_handle_exists():
-    service = LLMService()
+def test_next_returns_handles_matching_model_name(llm_prompt):
+    model_1 = 'model_1'
+    model_2 = 'model_2'
+
+    service = LLMService(model_1)
+
+    handle_1 = PromptHandle(prompt=llm_prompt, model_name=model_1)
+    handle_2 = PromptHandle(prompt=llm_prompt, model_name=model_2)
+    handle_3 = PromptHandle(prompt=llm_prompt, model_name=model_1)
+    handle_1.save()
+    handle_2.save()
+    handle_3.save()
+
+    handle = service.checkout()
+    assert handle.id == handle_1.id
+
+    handle = service.checkout()
+    assert handle.id == handle_3.id
+
+
+def test_next_throws_exception_if_no_pending_handle_exists(llm_model_name):
+    service = LLMService(llm_model_name)
 
     with pytest.raises(NoPendingPromptHandleError):
         service.next()
 
 
 def test_checkout_returns_a_handle_and_updates_its_state(llm_prompt, llm_model_name):
-    service = LLMService()
+    service = LLMService(llm_model_name)
 
     handle_1 = PromptHandle(prompt=llm_prompt, model_name=llm_model_name)
     handle_1.save()
@@ -98,7 +117,6 @@ def test_checkout_returns_a_handle_and_updates_its_state(llm_prompt, llm_model_n
 
 
 def test_model_params_can_be_specified(llm_model_name):
-    service = LLMService()
     prompt = "what's the slogan of nike?"
 
     params = Params(
@@ -113,7 +131,7 @@ def test_model_params_can_be_specified(llm_model_name):
         system_prompt="bar",
     )
 
-    handle_id = service.dispatch_prompt(prompt, llm_model_name, model_params=params).id
+    handle_id = LLMService.dispatch_prompt(prompt, llm_model_name, model_params=params).id
     handle = PromptHandle.get(handle_id)
 
     assert handle.model_params.temperature == 0.1
@@ -128,11 +146,10 @@ def test_model_params_can_be_specified(llm_model_name):
 
 
 def test_model_params_can_be_specified():
-    service = LLMService()
     prompt = "tell me a joke"
     model_name = "llmcorp/funny_model"
 
-    handle_id = service.dispatch_prompt(prompt, model_name).id
+    handle_id = LLMService.dispatch_prompt(prompt, model_name).id
     handle = PromptHandle.get(handle_id)
 
     assert handle.model_name == model_name

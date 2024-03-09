@@ -1,6 +1,7 @@
 from typing import Optional
 
-from db.actions.prompt_handles import find_most_recent_pending_handle
+from db.actions.prompt_handles import find_most_recent_pending_handle_for_model
+from services.llm.supported_models import LLMModel
 from db.models import PromptHandle
 from llms.config import Params
 
@@ -11,10 +12,11 @@ class NoPendingPromptHandleError(Exception):
 
 class LLMService:
 
-    def __init__(self):
-        pass
+    def __init__(self, model: LLMModel):
+        self.model = model
 
-    def dispatch_prompt(self, prompt: str, model_name: str, model_params: Optional[Params] = None) -> PromptHandle:
+    @staticmethod
+    def dispatch_prompt(prompt: str, model_name: str, model_params: Optional[Params] = None) -> PromptHandle:
         handle = PromptHandle(prompt=prompt, model_name=model_name, model_params=model_params)
         handle.save()
         return handle
@@ -26,11 +28,11 @@ class LLMService:
         return handle
 
     def next(self) -> PromptHandle:
-        handle = find_most_recent_pending_handle()
+        handle = find_most_recent_pending_handle_for_model(self.model)
         if handle is None:
             raise NoPendingPromptHandleError("no pending handles was found")
         return handle
 
     def has_next(self) -> bool:
-        handle = find_most_recent_pending_handle()
+        handle = find_most_recent_pending_handle_for_model(self.model)
         return handle is not None

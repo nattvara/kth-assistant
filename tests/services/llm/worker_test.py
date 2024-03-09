@@ -3,8 +3,10 @@ from unittest.mock import call
 import pytest
 
 from services.llm import LLMService, Worker, TERMINATION_STRING
+from tests.assertions import assert_model_params_equal
 import config.settings as settings
 from db.models import PromptHandle
+from llms.config import Params
 
 
 @pytest.fixture
@@ -54,7 +56,7 @@ async def test_worker_generates_text_from_the_handles_prompt(create_worker, crea
 
     mock_tokens = ['baby', ' ', 'don', '\'', 't', ' ', 'hurt', ' ', 'me']
 
-    service = LLMService()
+    service = LLMService(llm_model_name)
     handle = PromptHandle(service=service, prompt="what is love?", model_name=llm_model_name)
     handle.save()
 
@@ -71,7 +73,7 @@ async def test_worker_connects_to_the_websocket_of_the_handle(create_worker, cre
     _, mock_connect = create_websocket_mocks()
     mock_tokens = ['baby', ' ', 'don', '\'', 't', ' ', 'hurt', ' ', 'me']
 
-    service = LLMService()
+    service = LLMService(llm_model_name)
     handle = PromptHandle(service=service, prompt="what is love?", model_name=llm_model_name)
     handle.save()
 
@@ -87,7 +89,7 @@ async def test_worker_sends_all_generated_tokens_to_the_websocket_with_end_token
     mock_ws, mock_connect = create_websocket_mocks()
     mock_tokens = ['baby', ' ', 'don', '\'', 't', ' ', 'hurt', ' ', 'me']
 
-    service = LLMService()
+    service = LLMService(llm_model_name)
     handle = PromptHandle(service=service, prompt="what is love?", model_name=llm_model_name)
     handle.save()
 
@@ -110,7 +112,7 @@ async def test_worker_saves_entire_response_when_finished(create_worker, create_
     create_websocket_mocks()
     mock_tokens = ['baby', ' ', 'don', '\'', 't', ' ', 'hurt', ' ', 'me']
 
-    service = LLMService()
+    service = LLMService(llm_model_name)
     handle = PromptHandle(service=service, prompt="what is love?", model_name=llm_model_name)
     handle.save()
 
@@ -126,7 +128,7 @@ async def test_worker_saves_number_of_tokens_generated_and_sets_state_when_finis
     create_websocket_mocks()
     mock_tokens = ['baby', ' ', 'don', '\'', 't', ' ', 'hurt', ' ', 'me']
 
-    service = LLMService()
+    service = LLMService(llm_model_name)
     handle = PromptHandle(service=service, prompt="what is love?", model_name=llm_model_name)
     handle.save()
 
@@ -136,3 +138,47 @@ async def test_worker_saves_number_of_tokens_generated_and_sets_state_when_finis
     handle.refresh()
     assert handle.state == PromptHandle.States.FINISHED
     assert handle.response_length == len(mock_tokens)
+
+
+@pytest.mark.asyncio
+async def test_model_parameters_from_the_handle_is_used_by_the_worker(create_worker, create_websocket_mocks, llm_model_name):
+    create_websocket_mocks()
+    mock_tokens = ['baby', ' ', 'don', '\'', 't', ' ', 'hurt', ' ', 'me']
+
+    params = Params(
+        temperature=0.1,
+        max_new_tokens=123,
+        context_length=456,
+        enable_top_k_filter=False,
+        top_k_limit=42,
+        enable_top_p_filter=False,
+        top_p_threshold=0.42,
+        stop_strings=["foo"],
+        system_prompt="bar",
+    )
+
+    service = LLMService(llm_model_name)
+    handle = PromptHandle(service=service, prompt="what is love?", model_name=llm_model_name, model_params=params)
+    handle.save()
+
+    worker, mock_generate_text = create_worker(service, mock_tokens, True)
+    await worker.process_prompt_handle(handle)
+
+    called_args, _ = mock_generate_text.call_args
+    assert_model_params_equal(params, called_args[3])
+
+
+@pytest.mark.asyncio
+async def test_default_parameters_are_used_if_not_defined(create_worker, create_websocket_mocks, llm_model_name):
+    create_websocket_mocks()
+    mock_tokens = ['baby', ' ', 'don', '\'', 't', ' ', 'hurt', ' ', 'me']
+
+    service = LLMService(llm_model_name)
+    handle = PromptHandle(service=service, prompt="what is love?", model_name=llm_model_name)
+    handle.save()
+
+    worker, mock_generate_text = create_worker(service, mock_tokens, True)
+    await worker.process_prompt_handle(handle)
+
+    called_args, _ = mock_generate_text.call_args
+    assert_model_params_equal(Params(), called_args[3])
