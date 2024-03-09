@@ -10,21 +10,22 @@ from config.logger import log
 
 def print_help():
     help_message = f"""
-Usage: {basename(sys.argv[0])} MISTRAL_7B_INSTRUCT
+Usage: {basename(sys.argv[0])} MISTRAL_7B_INSTRUCT DEVICE
 
 This program starts a worker for a given model.
 
 Arguments:
     MODEL_NAME    The name of the model to run (e.g., MISTRAL_7B_INSTRUCT).
+    DEVICE        The device to load the model onto (cpu|cuda|mps)
 
 Example:
-    {basename(sys.argv[0])} MISTRAL_7B_INSTRUCT
+    {basename(sys.argv[0])} MISTRAL_7B_INSTRUCT cuda
 """
     print(help_message)
 
 
 def main():
-    if len(sys.argv) != 2 or sys.argv[1] in ['-h', '--help']:
+    if len(sys.argv) != 3 or sys.argv[1] in ['-h', '--help']:
         print_help()
         exit(1)
 
@@ -37,7 +38,7 @@ def main():
 
     log().info("Starting worker")
     service = LLMService(model_enum)
-    worker = Worker(service, model_enum, device='mps')
+    worker = Worker(service, model_enum, device=sys.argv[2])
     asyncio.run(worker.run())
 
 
