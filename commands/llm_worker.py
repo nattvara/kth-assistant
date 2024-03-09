@@ -2,7 +2,8 @@ from os.path import basename
 import asyncio
 import sys
 
-from services.llm.supported_models import get_enum_from_enum_name
+from services.llm.supported_models import get_enum_from_enum_name, LLMModel
+from llms.openai import load_openai_sdk, generate_text_streaming
 from services.llm.llm import LLMService
 from services.llm.worker import Worker
 from config.logger import log
@@ -37,8 +38,20 @@ def main():
         exit(1)
 
     log().info("Starting worker")
+
     service = LLMService(model_enum)
-    worker = Worker(service, model_enum, device=sys.argv[2])
+
+    if model_enum is not LLMModel.OPENAI_GPT4:
+        worker = Worker(service, model_enum, device=sys.argv[2])
+    else:
+        worker = Worker(
+            service,
+            model_enum,
+            device='python-api',
+            model_loader_func=load_openai_sdk,
+            text_generator=generate_text_streaming
+        )
+
     asyncio.run(worker.run())
 
 

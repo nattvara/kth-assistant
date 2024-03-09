@@ -12,6 +12,9 @@ class LLMModel(Enum):
     # https://huggingface.co/tiiuae/falcon-7b
     FALCON_7B = 'tiiuae/falcon-7b'
 
+    # https://github.com/openai/openai-python
+    OPENAI_GPT4 = 'openai/gpt4'
+
 
 enum_dict = {enum.value: enum for enum in LLMModel}
 
