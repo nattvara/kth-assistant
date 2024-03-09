@@ -9,6 +9,9 @@ class LLMModel(Enum):
     # https://huggingface.co/google/gemma-7b
     GOOGLE_GEMMA_7B = 'google/gemma-7b'
 
+    # https://huggingface.co/tiiuae/falcon-7b
+    FALCON_7B = 'tiiuae/falcon-7b'
+
 
 enum_dict = {enum.value: enum for enum in LLMModel}
 
