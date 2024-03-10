@@ -5,7 +5,7 @@ a worker sending a message that will be received by a requester.
 
 NOTE: this example needs a redis and postgres server to be running
 
-$ docker run --name some-postgres -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 postgres
+$ docker run --name postgres -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 postgres
 $ docker run -p 6379:6379 -it redis/redis-stack:latest
 
 """

@@ -55,7 +55,7 @@ class Worker:
         log().debug(f"connecting to websocket {websocket_url}")
         try:
             async with websockets.connect(websocket_url) as websocket:
-                log().debug(f"generating response...")
+                log().debug("generating response...")
 
                 params = Params()
                 if handle.model_params is not None:
@@ -76,9 +76,9 @@ class Worker:
                 await websocket.send(TERMINATION_STRING)
                 await websocket.close()
         except ConnectionClosedOK:
-            log().warning(f"Websocket closed by the server, with: ConnectionClosedOK.")
+            log().warning("Websocket closed by the server, with: ConnectionClosedOK.")
 
-        log().debug(f"Disconnected from the websocket")
+        log().debug("Disconnected from the websocket")
         log().debug(f"The complete response was: {response}")
 
         handle.refresh()

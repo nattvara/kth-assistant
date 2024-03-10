@@ -1,3 +1,5 @@
+# flake8: noqa
+
 from .base_model import BaseModel
 from .prompt_handle import PromptHandle
 

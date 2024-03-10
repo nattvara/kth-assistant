@@ -137,15 +137,15 @@ def test_model_params_can_be_specified(llm_model_name):
     assert handle.model_params.temperature == 0.1
     assert handle.model_params.max_new_tokens == 123
     assert handle.model_params.context_length == 456
-    assert handle.model_params.enable_top_k_filter == False
+    assert handle.model_params.enable_top_k_filter is False
     assert handle.model_params.top_k_limit == 42
-    assert handle.model_params.enable_top_p_filter == False
+    assert handle.model_params.enable_top_p_filter is False
     assert handle.model_params.top_p_threshold == 0.42
     assert handle.model_params.stop_strings == ["foo"]
     assert handle.model_params.system_prompt == "bar"
 
 
-def test_model_params_can_be_specified():
+def test_model_to_use_for_prompt_can_be_specified():
     prompt = "tell me a joke"
     model_name = LLMModel.MISTRAL_7B_INSTRUCT
 

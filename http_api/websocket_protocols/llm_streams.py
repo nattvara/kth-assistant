@@ -94,8 +94,8 @@ async def check_timeout(websocket: WebSocket, websocket_session: dict, timeout_d
                     f"seconds elapsed since last activity.")
 
         if websocket_session['tokens_transmitted'] == 0 and not websocket_session['write_only']:
-            log().info(f"[websocket_id:{websocket_session['id']}] Ignoring timout since no tokens have been transmitted "
-                       f"and this is not a write only thread. No worker has picked-up the prompt handle. "
+            log().info(f"[websocket_id:{websocket_session['id']}] Ignoring timout since no tokens have been "
+                       f"transmitted and this is not a write only thread. No worker has picked-up the prompt handle. "
                        f"Waiting for next token.")
             continue
 
