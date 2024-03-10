@@ -2,9 +2,11 @@
 Here are various sampling methods used in the text generation. These functions used to determine the next token to
 be generated during the text creation process. Each function implements a different sampling strategy:
 
-- top_k_sampling: selects the next token from the top K most likely tokens, as determined by the model's output.
-- top_p_sampling: implements nucleus sampling, tokens are selected from a subset that cumulatively holds a probability mass of P.
-- top_k_p_sampling: hybrid approach that combines top-k and top-p sampling methods to produce the best choice for the next token.
+- top_k_sampling:   selects the next token from the top K most likely tokens, as determined by the model's output.
+- top_p_sampling:   implements nucleus sampling, tokens are selected from a subset that cumulatively holds a probability
+                    mass of P.
+- top_k_p_sampling: hybrid approach that combines top-k and top-p sampling methods to produce the best choice for the
+                    next token.
 """
 
 from torch import Tensor

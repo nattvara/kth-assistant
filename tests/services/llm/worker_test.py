@@ -29,7 +29,11 @@ def create_worker(mock_load_hf_model, create_mock_generate_text_streaming, llm_m
 
 
 @pytest.mark.asyncio
-async def test_worker_will_poll_the_llm_service_every_50_milliseconds_for_next_handle(mocker, create_worker, create_websocket_mocks):
+async def test_worker_will_poll_the_llm_service_every_50_milliseconds_for_next_handle(
+    mocker,
+    create_worker,
+    create_websocket_mocks
+):
     create_websocket_mocks()
     mock_tokens = ['some', ' ', 'tokens']
 
@@ -37,7 +41,10 @@ async def test_worker_will_poll_the_llm_service_every_50_milliseconds_for_next_h
     has_next_side_effects = [False, False, False, True]
     service_mock.has_next.side_effect = lambda: has_next_side_effects.pop(0) if has_next_side_effects else False
 
-    sleep_mock = mocker.patch('asyncio.sleep', side_effect=lambda _: worker.stop() if not has_next_side_effects else None)
+    sleep_mock = mocker.patch(
+        'asyncio.sleep',
+        side_effect=lambda _: worker.stop() if not has_next_side_effects else None
+    )
     mocker.patch('services.llm.worker.Worker.process_prompt_handle')
 
     worker = create_worker(service_mock, mock_tokens)
@@ -86,7 +93,11 @@ async def test_worker_connects_to_the_websocket_of_the_handle(create_worker, cre
 
 
 @pytest.mark.asyncio
-async def test_worker_sends_all_generated_tokens_to_the_websocket_with_end_token(create_worker, create_websocket_mocks, llm_model_name):
+async def test_worker_sends_all_generated_tokens_to_the_websocket_with_end_token(
+    create_worker,
+    create_websocket_mocks,
+    llm_model_name
+):
     mock_ws, mock_connect = create_websocket_mocks()
     mock_tokens = ['baby', ' ', 'don', '\'', 't', ' ', 'hurt', ' ', 'me']
 
@@ -125,7 +136,11 @@ async def test_worker_saves_entire_response_when_finished(create_worker, create_
 
 
 @pytest.mark.asyncio
-async def test_worker_saves_number_of_tokens_generated_and_sets_state_when_finished(create_worker, create_websocket_mocks, llm_model_name):
+async def test_worker_saves_number_of_tokens_generated_and_sets_state_when_finished(
+    create_worker,
+    create_websocket_mocks,
+    llm_model_name
+):
     create_websocket_mocks()
     mock_tokens = ['baby', ' ', 'don', '\'', 't', ' ', 'hurt', ' ', 'me']
 
@@ -142,7 +157,11 @@ async def test_worker_saves_number_of_tokens_generated_and_sets_state_when_finis
 
 
 @pytest.mark.asyncio
-async def test_model_parameters_from_the_handle_is_used_by_the_worker(create_worker, create_websocket_mocks, llm_model_name):
+async def test_model_parameters_from_the_handle_is_used_by_the_worker(
+    create_worker,
+    create_websocket_mocks,
+    llm_model_name
+):
     create_websocket_mocks()
     mock_tokens = ['baby', ' ', 'don', '\'', 't', ' ', 'hurt', ' ', 'me']
 

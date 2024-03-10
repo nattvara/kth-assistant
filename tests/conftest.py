@@ -13,10 +13,10 @@ from services.llm.supported_models import LLMModel
 # in the main project when running inside pytest
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from config.settings import Settings
-from db.models import all_models
-from db.connection import db
-import http_api
+from config.settings import Settings  # noqa
+from db.models import all_models  # noqa
+from db.connection import db  # noqa
+import http_api  # noqa
 
 
 @pytest.fixture(autouse=True)
@@ -77,7 +77,10 @@ def create_mock_generate_text_streaming(mocker):
             for token in mock_tokens:
                 yield token
 
-        mock_generate_text_streaming = mocker.patch('llms.generate.generate_text_streaming', side_effect=mock_generate_text_func)
+        mock_generate_text_streaming = mocker.patch(
+            'llms.generate.generate_text_streaming',
+            side_effect=mock_generate_text_func
+        )
         return mock_generate_text_streaming
 
     return create_mock

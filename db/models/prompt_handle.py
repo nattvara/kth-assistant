@@ -8,7 +8,12 @@ from db.custom_fields import ModelParamsField, ModelNameField
 from . import BaseModel
 
 # Suppress specific DeprecationWarning about db_table, this is needed for migrations to work
-warnings.filterwarnings("ignore", message='"db_table" has been deprecated in favor of "table_name" for Models.', category=DeprecationWarning, module='peewee')
+warnings.filterwarnings(
+    "ignore",
+    message='"db_table" has been deprecated in favor of "table_name" for Models.',
+    category=DeprecationWarning,
+    module='peewee'
+)
 
 
 def generate_websocket_uri():

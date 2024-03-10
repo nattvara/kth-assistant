@@ -11,7 +11,11 @@ from .config import Params
 
 def load_hf_model(model_path: str, device: str) -> (AutoModelForCausalLM, AutoTokenizer):
     tokenizer = AutoTokenizer.from_pretrained(model_path, token=get_settings().HUGGINGFACE_ACCESS_TOKEN)
-    model = AutoModelForCausalLM.from_pretrained(model_path, torch_dtype=torch.float16, token=get_settings().HUGGINGFACE_ACCESS_TOKEN)
+    model = AutoModelForCausalLM.from_pretrained(
+        model_path,
+        torch_dtype=torch.float16,
+        token=get_settings().HUGGINGFACE_ACCESS_TOKEN
+    )
 
     model.to(device)
 
@@ -90,7 +94,14 @@ def _generate_output(
     if iteration == 0:
         out = model(input_ids=torch.as_tensor([input_ids], device=device), use_cache=True)
     else:
-        out = model(input_ids=torch.as_tensor([[input_ids[-1]]], device=device), use_cache=True, past_key_values=past_key_values)
+        out = model(
+            input_ids=torch.as_tensor(
+                [[input_ids[-1]]],
+                device=device
+            ),
+            use_cache=True,
+            past_key_values=past_key_values
+        )
     return out, out.past_key_values
 
 
