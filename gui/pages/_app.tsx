@@ -1,8 +1,8 @@
 import { Group, MantineProvider, Skeleton } from "@mantine/core";
-import { AppShell, Burger } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import "@mantine/core/styles.css";
+import { AppShell, Burger } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 import Head from "next/head";
+import "@mantine/core/styles.css";
 
 import { theme } from "../theme";
 
@@ -23,14 +23,14 @@ export default function App({ Component, pageProps }: any) {
         header={{ height: 60 }}
         navbar={{
           width: 300,
-          breakpoint: 'sm',
-          collapsed: { mobile: !opened },
+          breakpoint: "sm",
+          collapsed: { mobile: !opened, desktop: !opened },
         }}
-        padding="md"
+        padding="0"
       >
         <AppShell.Header>
           <Group h="100%" px="md">
-            <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
+            <Burger opened={opened} onClick={toggle} size="sm" />
             KTH Assistant
           </Group>
         </AppShell.Header>
