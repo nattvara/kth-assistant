@@ -6,6 +6,7 @@ database class when running the testsuite.
 import threading
 
 from peewee import SqliteDatabase
+import peewee
 
 
 class ThreadLocalSqliteDatabase(SqliteDatabase):
