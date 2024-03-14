@@ -4,8 +4,9 @@ from fastapi import FastAPI
 from config.logger import log
 import config.settings as settings
 from http_api.routers import (
-    index,
     websocket,
+    sessions,
+    index,
 )
 
 
@@ -20,6 +21,7 @@ def get_app():
     )
     app.include_router(index.router)
     app.include_router(websocket.router)
+    app.include_router(sessions.router)
 
     return app
 
