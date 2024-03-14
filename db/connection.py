@@ -2,8 +2,8 @@ from contextvars import ContextVar
 import peewee
 import sys
 
+from db.connection_test import ThreadLocalSqliteDatabase
 from config.settings import get_settings
-
 
 db_state_default = {'closed': None, 'conn': None, 'ctx': None, 'transactions': None}
 db_state = ContextVar('db_state', default=db_state_default.copy())
@@ -32,7 +32,7 @@ def create_postgres_database_connection():
 
 
 def create_test_database_connection():
-    return peewee.SqliteDatabase('/tmp/kth-assistant.test.db')
+    return ThreadLocalSqliteDatabase('/tmp/kth-assistant.test.db')
 
 
 if 'pytest' in sys.modules:
