@@ -31,13 +31,13 @@ class ThreadLocalSqliteDatabase(SqliteDatabase):
         if hasattr(self._locals, 'conn'):
             return self._locals.conn.commit()
         else:
-            raise peewee.InterfaceError('Database connection not available to commit.')
+            raise peewee.InterfaceError("Database connection not available to commit.")
 
     def rollback(self):
         if hasattr(self._locals, 'conn'):
             return self._locals.conn.rollback()
         else:
-            raise peewee.InterfaceError('Database connection not available to rollback.')
+            raise peewee.InterfaceError("Database connection not available to rollback.")
 
     def cursor(self, *args, **kwargs):
         self.connect()  # Ensure connection for the current thread before getting cursor
