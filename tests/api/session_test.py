@@ -14,7 +14,7 @@ def test_protected_route_with_valid_session(api_client):
     valid_session = Session()
     valid_session.save()
 
-    headers = {'X-Session-ID': valid_session.public_id}
+    headers = {'X-Session-ID': valid_session.public_id, 'Content-Type': 'application/json'}
     response = api_client.get('/session/me', headers=headers)
     data = response.json()
 
@@ -23,7 +23,7 @@ def test_protected_route_with_valid_session(api_client):
 
 
 def test_protected_route_with_invalid_session(api_client):
-    headers = {'X-Session-ID': 'something-invalid'}
+    headers = {'X-Session-ID': 'something-invalid', 'Content-Type': 'application/json'}
     response = api_client.get('/session/me', headers=headers)
 
     assert response.status_code == 401
