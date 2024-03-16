@@ -7,6 +7,7 @@ from http_api.routers import (
     websocket,
     sessions,
     index,
+    chat,
 )
 
 
@@ -22,6 +23,7 @@ def get_app():
     app.include_router(index.router)
     app.include_router(websocket.router)
     app.include_router(sessions.router)
+    app.include_router(chat.router)
 
     return app
 

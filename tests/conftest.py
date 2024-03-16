@@ -5,6 +5,7 @@ import os
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from websockets import WebSocketClientProtocol
 from fastapi.testclient import TestClient
+from numpy.random import rand, randint
 import pytest
 
 from services.llm.supported_models import LLMModel
@@ -13,8 +14,8 @@ from services.llm.supported_models import LLMModel
 # in the main project when running inside pytest
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+from db.models import all_models, Session, Course, Chat, Message  # noqa
 from config.settings import Settings  # noqa
-from db.models import all_models  # noqa
 from db.connection import db  # noqa
 import http_api  # noqa
 
@@ -107,3 +108,46 @@ def llm_model_name():
 @pytest.fixture
 def llm_prompt():
     return "tell me a fact"
+
+
+@pytest.fixture
+def authenticated_session():
+    class AuthenticatedSession:
+        def __init__(self, session: Session):
+            self.session = session
+            self.headers = {'X-Session-ID': valid_session.public_id}
+
+    valid_session = Session()
+    valid_session.save()
+
+    return AuthenticatedSession(valid_session)
+
+
+@pytest.fixture
+def valid_course():
+    course = Course(canvas_id="41428")
+    course.save()
+    return course
+
+
+@pytest.fixture
+def new_chat(authenticated_session, valid_course):
+    class NewChat:
+        def __init__(self, chat: Chat, course: Course):
+            self.course = course
+            self.chat = chat
+
+        def add_some_messages(self):
+            for _ in range(randint(5, 10)):
+                if rand() > 0.5:
+                    sender = Message.Sender.STUDENT
+                else:
+                    sender = Message.Sender.ASSISTANT
+
+                msg = Message(sender=sender, content=f'Hello from {sender}!', chat=self.chat)
+                msg.save()
+
+    c = Chat(course=valid_course, session=authenticated_session.session)
+    c.save()
+
+    return NewChat(c, valid_course)
