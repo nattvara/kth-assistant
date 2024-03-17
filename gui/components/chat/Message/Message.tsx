@@ -3,19 +3,19 @@ import styles from "./styles.module.css";
 
 interface MessageProps {
   sender: string;
-  message: string;
+  content: string;
 }
 
 export default function Message(props: MessageProps) {
-  const { sender, message } = props;
+  const { sender, content } = props;
 
   return (
     <SimpleGrid cols={1} className={styles.root}>
       <Grid>
-        {sender}
+        <strong>{sender}</strong>
       </Grid>
       <Grid>
-        {message}
+        {content}
       </Grid>
     </SimpleGrid>
   );
