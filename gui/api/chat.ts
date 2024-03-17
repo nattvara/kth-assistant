@@ -8,9 +8,11 @@ export interface Chat {
 
 export interface Message {
   message_id: string;
-  content: string;
+  content: string | null;
   sender: string;
   created_at: string;
+  streaming: boolean;
+  websocket: string | null;
 }
 
 export interface Messages {

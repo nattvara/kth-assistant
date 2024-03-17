@@ -42,10 +42,7 @@ export default function MessageFeed(props: MessageFeedProps) {
             key={message.message_id}
             ref={index === data.messages.length - 1 ? lastMessageRef : null}
           >
-            <Message
-              sender={message.sender}
-              content={message.content}
-            />
+            <Message message={message} />
           </div>
         ))}
       </div>

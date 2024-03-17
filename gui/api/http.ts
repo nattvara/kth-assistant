@@ -22,11 +22,15 @@ export class HttpError extends Error {
 }
 
 let baseURL: string;
+let baseWebsocketURL: string;
 
 if (process.env.NODE_ENV === "production") {
   baseURL = "/";
+  baseWebsocketURL = "/";
 } else {
   baseURL = "http://localhost:8000";
+  baseWebsocketURL = "ws://localhost:8000";
 }
 
 export const makeUrl = (uri: string) => `${baseURL}${uri}`;
+export const makeWebsocketUrl = (uri: string) => `${baseWebsocketURL}${uri}`;
