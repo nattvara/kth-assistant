@@ -50,6 +50,12 @@ jobs:
         cache: 'yarn'
         cache-dependency-path: gui/yarn.lock
 
+    - name: Enable Corepack
+      run: corepack enable
+
+    - name: Prepare Yarn
+      run: yarn set version stable
+
     - name: Install Dependencies
       run: |
         cd gui && yarn install
