@@ -38,3 +38,20 @@ jobs:
     - name: Run flake8
       run: |
         flake8 . --count --max-complexity=20 --max-line-length=120 --statistics --exclude venv
+
+  lint_ts:
+    name: Lint Typescript files
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'yarn'
+
+    - name: Install Dependencies
+      run: |
+        cd gui && yarn install
+
+    - name: Run eslint
+      run: cd gui && yarn lint
