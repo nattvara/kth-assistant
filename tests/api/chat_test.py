@@ -1,4 +1,4 @@
-from db.models import Course, Chat, Message
+from db.models import Chat, Message, PromptHandle
 
 
 def test_chats_are_tied_to_course_room(api_client, authenticated_session, valid_course):
@@ -57,3 +57,47 @@ def test_user_get_messages_in_chat(api_client, authenticated_session, new_chat):
     for idx, message in enumerate(messages):
         assert new_chat.chat.messages[idx].content == message['content']
         assert new_chat.chat.messages[idx].sender == message['sender']
+
+
+def test_new_student_message_creates_streaming_assistant_message(api_client, authenticated_session, new_chat, llm_prompt):
+    url = f'/course/{new_chat.course.canvas_id}/chat/{new_chat.chat.public_id}/messages'
+    api_client.post(url, json={'content': llm_prompt}, headers=authenticated_session.headers)
+    response = api_client.get(url, headers=authenticated_session.headers).json()
+
+    assistant_msg = new_chat.chat.messages[1]
+    new_chat.chat.refresh()
+
+    assert len(new_chat.chat.messages) == 2
+    assert assistant_msg.sender == Message.Sender.ASSISTANT
+    assert response['messages'][1]['streaming']
+
+
+def test_new_student_messages_creates_prompt_handle(api_client, authenticated_session, new_chat, llm_prompt):
+    url = f'/course/{new_chat.course.canvas_id}/chat/{new_chat.chat.public_id}/messages'
+    api_client.post(url, json={'content': llm_prompt}, headers=authenticated_session.headers)
+
+    assistant_msg = new_chat.chat.messages[1]
+    new_chat.chat.refresh()
+
+    assert PromptHandle.select().filter(PromptHandle.id == assistant_msg.prompt_handle).exists()
+
+
+def test_assistant_messages_returns_prompt_handle_response_if_done_streaming(
+    api_client,
+    authenticated_session,
+    new_chat,
+    llm_prompt
+):
+    url = f'/course/{new_chat.course.canvas_id}/chat/{new_chat.chat.public_id}/messages'
+    api_client.post(url, json={'content': llm_prompt}, headers=authenticated_session.headers)
+
+    assistant_msg = new_chat.chat.messages[1]
+    handle = assistant_msg.prompt_handle
+    handle.state = PromptHandle.States.FINISHED
+    handle.response = "foo"
+    handle.save()
+
+    url = f'/course/{new_chat.course.canvas_id}/chat/{new_chat.chat.public_id}/messages'
+    response = api_client.get(url, headers=authenticated_session.headers).json()
+
+    assert response['messages'][1]['content'] == 'foo'

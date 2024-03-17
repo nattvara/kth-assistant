@@ -147,7 +147,7 @@ def new_chat(authenticated_session, valid_course):
                 msg = Message(sender=sender, content=f'Hello from {sender}!', chat=self.chat)
                 msg.save()
 
-    c = Chat(course=valid_course, session=authenticated_session.session)
+    c = Chat(course=valid_course, session=authenticated_session.session, model_name=LLMModel.MISTRAL_7B_INSTRUCT)
     c.save()
 
     return NewChat(c, valid_course)

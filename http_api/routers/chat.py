@@ -1,14 +1,15 @@
-from typing import List
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, constr
 
 from db.actions.course import find_course_by_canvas_id
 from db.actions.message import all_messages_in_chat
+from services.llm.supported_models import LLMModel
 from http_api.auth import get_current_session
 from db.actions.chat import find_chat_by_id
-from db.models import Chat, Session, Message
-
+from db.models import Chat, Session, Message, PromptHandle
+from services.llm.llm import LLMService
 
 router = APIRouter()
 
@@ -19,8 +20,10 @@ class ChatResponse(BaseModel):
 
 class MessageResponse(BaseModel):
     message_id: str
-    content: str
+    content: Optional[str]
     sender: str
+    streaming: bool
+    websocket: Optional[str]
     created_at: str
 
 
@@ -38,7 +41,7 @@ async def start_new_chat(course_canvas_id: str, session: Session = Depends(get_c
     if course is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found")
 
-    chat = Chat(course=course, session=session)
+    chat = Chat(course=course, session=session, model_name=LLMModel.MISTRAL_7B_INSTRUCT)
     chat.save()
 
     return ChatResponse(public_id=chat.public_id)
@@ -66,11 +69,18 @@ async def send_message(
     msg = Message(chat=chat, content=body.content, sender=Message.Sender.STUDENT)
     msg.save()
 
+    handle = LLMService.dispatch_prompt(body.content, chat.model_name, chat.model_params)
+
+    response_msg = Message(chat=chat, content=None, sender=Message.Sender.ASSISTANT, prompt_handle=handle)
+    response_msg.save()
+
     return MessageResponse(
         message_id=msg.message_id,
         content=msg.content,
         sender=msg.sender,
         created_at=str(msg.created_at),
+        streaming=False,
+        websocket=None,
     )
 
 
@@ -95,11 +105,30 @@ async def get_messages(
     messages = all_messages_in_chat(chat.id)
     out = []
     for msg in messages:
+        streaming = False
+        websocket = None
+        content = msg.content
+        if msg.prompt_handle:
+            if msg.prompt_handle.state == PromptHandle.States.PENDING:
+                streaming = True
+                websocket = msg.prompt_handle.websocket_uri
+                content = None
+            elif msg.prompt_handle.state == PromptHandle.States.IN_PROGRESS:
+                streaming = True
+                websocket = msg.prompt_handle.websocket_uri
+                content = None
+            elif msg.prompt_handle.state == PromptHandle.States.FINISHED:
+                streaming = False
+                websocket = None
+                content = msg.prompt_handle.response
+
         out.append(MessageResponse(
             message_id=msg.message_id,
-            content=msg.content,
+            content=content,
             sender=msg.sender,
             created_at=str(msg.created_at),
+            streaming=streaming,
+            websocket=websocket,
         ))
 
     return MessagesResponse(messages=out)
