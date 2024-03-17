@@ -58,3 +58,23 @@ jobs:
 
     - name: Run eslint
       run: cd gui && yarn lint
+
+  build_ts:
+    name: Build GUI
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Enable Corepack
+      run: corepack enable
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'yarn'
+        cache-dependency-path: gui/yarn.lock
+
+    - name: Install Dependencies
+      run: |
+        cd gui && yarn install
+
+    - name: Build application
+      run: cd gui && yarn build
