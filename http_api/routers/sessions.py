@@ -9,17 +9,19 @@ router = APIRouter()
 
 class SessionResponse(BaseModel):
     public_id: str
+    message: str
 
 
 @router.post('/session', response_model=SessionResponse)
 async def create_session() -> SessionResponse:
     session = Session()
     session.save()
-    return SessionResponse(public_id=session.public_id)
+    return SessionResponse(public_id=session.public_id, message="welcome.")
 
 
-@router.get('/session/me', dependencies=[Depends(get_current_session)])
+@router.get('/session/me', dependencies=[Depends(get_current_session)], response_model=SessionResponse)
 async def get_current_session(session: Session = Depends(get_current_session)):
-    return {
-        'message': f"hello there your session is '{session.public_id}', it was started at {session.created_at}."
-    }
+    return SessionResponse(
+        public_id=session.public_id,
+        message=f"hello there your session is '{session.public_id}', it was started at {session.created_at}.",
+    )
