@@ -35,7 +35,11 @@ class MessageRequestBody(BaseModel):
     content: constr(min_length=1, max_length=2048)
 
 
-@router.post('/course/{course_canvas_id}/chat', dependencies=[Depends(get_current_session)], response_model=ChatResponse)
+@router.post(
+    '/course/{course_canvas_id}/chat',
+    dependencies=[Depends(get_current_session)],
+    response_model=ChatResponse
+)
 async def start_new_chat(course_canvas_id: str, session: Session = Depends(get_current_session)) -> ChatResponse:
     course = find_course_by_canvas_id(course_canvas_id)
     if course is None:

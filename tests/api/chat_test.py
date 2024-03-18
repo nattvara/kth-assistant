@@ -59,7 +59,12 @@ def test_user_get_messages_in_chat(api_client, authenticated_session, new_chat):
         assert new_chat.chat.messages[idx].sender == message['sender']
 
 
-def test_new_student_message_creates_streaming_assistant_message(api_client, authenticated_session, new_chat, llm_prompt):
+def test_new_student_message_creates_streaming_assistant_message(
+    api_client,
+    authenticated_session,
+    new_chat,
+    llm_prompt
+):
     url = f'/course/{new_chat.course.canvas_id}/chat/{new_chat.chat.public_id}/messages'
     api_client.post(url, json={'content': llm_prompt}, headers=authenticated_session.headers)
     response = api_client.get(url, headers=authenticated_session.headers).json()
