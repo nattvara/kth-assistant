@@ -1,4 +1,5 @@
 import Cookies from "js-cookie";
+
 import { HttpError, makeUrl } from "./http";
 
 export interface Session {
@@ -19,7 +20,7 @@ export async function startSession(): Promise<Session> {
     throw new HttpError(response, errorBody);
   }
 
-  const data = await response.json() as Session;
+  const data = (await response.json()) as Session;
   return data;
 }
 
@@ -39,6 +40,6 @@ export async function getSession(): Promise<Session> {
     throw new HttpError(response, errorBody);
   }
 
-  const data = await response.json() as Session;
+  const data = (await response.json()) as Session;
   return data;
 }

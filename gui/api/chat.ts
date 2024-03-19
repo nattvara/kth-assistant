@@ -1,4 +1,5 @@
 import Cookies from "js-cookie";
+
 import { HttpError, makeUrl } from "./http";
 
 export interface Chat {
@@ -35,7 +36,7 @@ export async function startChat(canvasId: string): Promise<Chat> {
     throw new HttpError(response, errorBody);
   }
 
-  const data = await response.json() as Chat;
+  const data = (await response.json()) as Chat;
   return data;
 }
 
@@ -55,7 +56,7 @@ export async function fetchMessages(canvasId: string, chatId: string): Promise<M
     throw new HttpError(response, errorBody);
   }
 
-  const data = await response.json() as Messages;
+  const data = (await response.json()) as Messages;
   return data;
 }
 
@@ -70,7 +71,7 @@ export async function sendMessage(canvasId: string, chatId: string, content: str
     },
     body: JSON.stringify({
       content,
-    })
+    }),
   });
 
   if (!response.ok) {
@@ -78,6 +79,6 @@ export async function sendMessage(canvasId: string, chatId: string, content: str
     throw new HttpError(response, errorBody);
   }
 
-  const data = await response.json() as Message;
+  const data = (await response.json()) as Message;
   return data;
 }
