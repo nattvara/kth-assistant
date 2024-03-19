@@ -6,6 +6,10 @@ on: push
 #       # Tags must be on the format vx.x.x, eg. v1.2.0
 #       - v*.*.*
 
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+
 jobs:
   deploy:
     name: HTTP API
