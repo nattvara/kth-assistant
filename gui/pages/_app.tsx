@@ -18,7 +18,7 @@ import { theme } from "../theme";
 export default function App({ Component, pageProps }: AppProps) {
   const [opened, { toggle }] = useDisclosure();
   const queryClient = new QueryClient();
-  const [hasValidSession, setValidSession] = useState(false);
+  const [hasValidSession, setValidSession] = useState<null | boolean>(null);
   const sessionInitiated = useRef(false);
 
   useEffect(() => {
@@ -42,9 +42,11 @@ export default function App({ Component, pageProps }: AppProps) {
             await getSession();
             setValidSession(true);
           } catch (error) {
+            setValidSession(false);
             const typedError = error as HttpError;
             if (typedError.statusCode === 401) {
               await startNewSession();
+              setValidSession(true);
             }
           }
         }
@@ -89,7 +91,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
           <AppShell.Main>
             {hasValidSession && <Component {...pageProps} />}
-            {!hasValidSession && (
+            {!hasValidSession && hasValidSession !== null && (
               <Alert variant="light" color="red" title="Failed to connect to cloud" icon={<IconPlugConnectedX />}>
                 There is no valid session. The application is most likely misconfigured.
               </Alert>
