@@ -1,50 +1,59 @@
-import { Group, MantineProvider, Skeleton } from "@mantine/core";
-import { AppShell, Burger } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
-import { Notifications } from '@mantine/notifications';
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import Head from "next/head";
-import { useEffect, useState } from "react";
-import Cookies from "js-cookie";
+import { AppShell, Burger, Group, MantineProvider, Skeleton } from "@mantine/core";
 import "@mantine/core/styles.css";
-import '@mantine/notifications/styles.css';
+import { useDisclosure } from "@mantine/hooks";
+import { Notifications } from "@mantine/notifications";
+import "@mantine/notifications/styles.css";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Cookies from "js-cookie";
+import { AppProps } from "next/app";
+import Head from "next/head";
+import { useEffect, useRef, useState } from "react";
 
-import { startSession, getSession } from "@/api/session";
+import { HttpError } from "@/api/http";
+import { getSession, startSession } from "@/api/session";
+
 import { theme } from "../theme";
 
-export default function App({ Component, pageProps }: any) {
-  const [ opened, { toggle } ] = useDisclosure();
+export default function App({ Component, pageProps }: AppProps) {
+  const [opened, { toggle }] = useDisclosure();
   const queryClient = new QueryClient();
-  const [ hasValidSession, setValidSession ] = useState(false);
-  const sessionCookie = Cookies.get("session_id");
+  const [hasValidSession, setValidSession] = useState(false);
+  const sessionInitiated = useRef(false);
 
   useEffect(() => {
     const manageSession = async () => {
+      if (!sessionInitiated.current) {
+        sessionInitiated.current = true;
 
-      const startNewSession = async () => {
-        console.log("Starting new session");
+        const sessionCookie = Cookies.get("session_id");
+        const startNewSession = async () => {
+          console.log("Starting new session");
 
-        const newSession = await startSession();
-        Cookies.set("session_id", newSession.public_id, { expires: 365 });
-        await setValidSession(true);
-      };
+          const newSession = await startSession();
+          Cookies.set("session_id", newSession.public_id, { expires: 365 });
+          setValidSession(true);
+        };
 
-      if (!sessionCookie) {
-        await startNewSession();
-      } else {
-        try {
-          await getSession();
-          await setValidSession(true);
-        } catch (error: any) {
-          if (error.response && error.response.status === 401) {
-            await startNewSession();
+        if (!sessionCookie) {
+          await startNewSession();
+        } else {
+          try {
+            await getSession();
+            setValidSession(true);
+          } catch (error) {
+            const typedError = error as HttpError;
+            if (typedError.statusCode === 401) {
+              await startNewSession();
+            }
           }
         }
+
+        sessionInitiated.current = false;
       }
     };
 
     manageSession();
-  }, [sessionCookie]);
+  }, []);
 
   if (!hasValidSession) {
     return <></>;
@@ -56,10 +65,7 @@ export default function App({ Component, pageProps }: any) {
       <QueryClientProvider client={queryClient}>
         <Head>
           <title>KTH Assistant</title>
-          <meta
-            name="viewport"
-            content="minimum-scale=1, initial-scale=1, width=device-width, user-scalable=no"
-          />
+          <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width, user-scalable=no" />
           <link rel="shortcut icon" href="/favicon.svg" />
         </Head>
         <AppShell
