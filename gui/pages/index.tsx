@@ -1,5 +1,3 @@
 export default function IndexPage() {
-  return (
-    <p>app</p>
-  );
+  return <p>app</p>;
 }

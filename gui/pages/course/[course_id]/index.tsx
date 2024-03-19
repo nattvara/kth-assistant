@@ -1,10 +1,11 @@
-import { useRouter } from "next/router";
 import { Flex } from "@mantine/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 import { ChatWindow } from "@/components/chat";
+
 import { startChat } from "@/api/chat";
-import { useEffect } from "react";
 
 const CoursePage = () => {
   const router = useRouter();
@@ -24,18 +25,14 @@ const CoursePage = () => {
 
   if (isFetching) {
     return (
-      <Flex
-        direction={{ base: "column", sm: "row" }}
-        gap={{ base: "sm", sm: "lg" }}
-        justify={{ sm: "center" }}
-      >
+      <Flex direction={{ base: "column", sm: "row" }} gap={{ base: "sm", sm: "lg" }} justify={{ sm: "center" }}>
         <p>Starting chat...</p>
       </Flex>
     );
   }
 
   if (isError) {
-    return <span>Error: {error.message}</span>
+    return <span>Error: {error.message}</span>;
   }
 
   return <span></span>;

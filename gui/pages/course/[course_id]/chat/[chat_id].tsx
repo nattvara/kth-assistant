@@ -10,9 +10,7 @@ const CoursePage = () => {
 
   if (!chat_id) return <></>;
 
-  return (
-    <ChatWindow courseId={course_id as string} chatId={chat_id as string} />
-  );
+  return <ChatWindow courseId={course_id as string} chatId={chat_id as string} />;
 };
 
 export default CoursePage;
