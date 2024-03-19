@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from pydantic import AnyHttpUrl
+from pydantic import HttpUrl
 from pydantic_settings import BaseSettings
 
 
@@ -9,7 +9,7 @@ class Settings(BaseSettings):
 
     HOST: str
     PORT: int
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
+    BACKEND_CORS_ORIGINS: List[HttpUrl] = []
 
     POSTGRES_SERVER: str
     POSTGRES_PORT: str
