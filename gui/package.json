@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint 'pages/**/*.{ts,tsx}' 'components/**/*.{ts,tsx}' 'api/**/*.{ts,tsx}'",
+    "lint:fix": "eslint 'pages/**/*.{ts,tsx}' 'components/**/*.{ts,tsx}' 'api/**/*.{ts,tsx}' --fix"
   },
   "dependencies": {
     "@mantine/core": "7.6.1",
