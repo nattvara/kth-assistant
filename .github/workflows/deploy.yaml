@@ -43,17 +43,16 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAGS: ${{ steps.meta.outputs.tags }}
         run: |
-          IFS=',' read -ra TAGS <<< "$IMAGE_TAGS"
-          IMAGE_NAME="${ECR_REGISTRY}/${ECR_REPOSITORY}"
+          IFS=$'\n' read -r -a TAGS <<< "$IMAGE_TAGS"
 
-          docker build -t "${IMAGE_NAME}:${TAGS[0]}" -f http_api/Dockerfile .
+          docker build -t "${TAGS[0]}" -f http_api/Dockerfile .
 
           for TAG in "${TAGS[@]:1}"; do
-            docker tag "${IMAGE_NAME}:${TAGS[0]}" "${IMAGE_NAME}:$TAG"
+            docker tag "${TAGS[0]}" "$TAG"
           done
 
           for TAG in "${TAGS[@]}"; do
-            docker push "${IMAGE_NAME}:$TAG"
+            docker push "$TAG"
           done
 
-          echo "image=${IMAGE_NAME}:${TAGS[0]}" >> $GITHUB_ENV
+          echo "image=${TAGS[0]}" >> $GITHUB_ENV
