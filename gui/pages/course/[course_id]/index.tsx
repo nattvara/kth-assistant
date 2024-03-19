@@ -1,9 +1,7 @@
 import { Flex } from "@mantine/core";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-
-import { ChatWindow } from "@/components/chat";
 
 import { startChat } from "@/api/chat";
 
