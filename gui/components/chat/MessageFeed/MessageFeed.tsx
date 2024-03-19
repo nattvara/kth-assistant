@@ -1,9 +1,12 @@
-import React, { useEffect, useRef } from 'react';
-import { fetchMessages } from "@/api/chat";
-import { Message } from "@/components/chat";
-import { useQuery } from "@tanstack/react-query";
-import styles from "./styles.module.css";
 import { Box } from "@mantine/core";
+import { useQuery } from "@tanstack/react-query";
+import React, { useEffect, useRef } from "react";
+
+import { Message } from "@/components/chat";
+
+import { fetchMessages } from "@/api/chat";
+
+import styles from "./styles.module.css";
 
 interface MessageFeedProps {
   courseId: string;
@@ -22,7 +25,7 @@ export default function MessageFeed(props: MessageFeedProps) {
   useEffect(() => {
     if (data && lastMessageRef.current) {
       const el = lastMessageRef.current;
-      el.scrollIntoView({ behavior: 'smooth' });
+      el.scrollIntoView({ behavior: "smooth" });
     }
   }, [data]);
 
@@ -38,10 +41,7 @@ export default function MessageFeed(props: MessageFeedProps) {
     <Box className={styles.message_feed_container}>
       <div className={styles.message_feed}>
         {data.messages.map((message, index) => (
-          <div
-            key={message.message_id}
-            ref={index === data.messages.length - 1 ? lastMessageRef : null}
-          >
+          <div key={message.message_id} ref={index === data.messages.length - 1 ? lastMessageRef : null}>
             <Message message={message} />
           </div>
         ))}

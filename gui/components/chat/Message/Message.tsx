@@ -1,18 +1,20 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { Grid, Loader, SimpleGrid } from '@mantine/core';
-import styles from './styles.module.css';
-import { makeWebsocketUrl } from '@/api/http';
-import { Message } from '@/api/chat';
-import { TERMINATION_STRING } from '@/api/websocket';
+import { Grid, Loader, SimpleGrid } from "@mantine/core";
+import React, { useEffect, useRef, useState } from "react";
+
+import { Message as MessageType } from "@/api/chat";
+import { makeWebsocketUrl } from "@/api/http";
+import { TERMINATION_STRING } from "@/api/websocket";
+
+import styles from "./styles.module.css";
 
 interface MessageProps {
-  message: Message;
+  message: MessageType;
 }
 
 export default function Message(props: MessageProps) {
   const { message } = props;
-  const [ displayedContent, setDisplayedContent ] = useState('');
-  const [ showLoading, setShowLoading ] = useState(false);
+  const [displayedContent, setDisplayedContent] = useState("");
+  const [showLoading, setShowLoading] = useState(false);
   const wsInitialized = useRef(false);
 
   useEffect(() => {
@@ -30,12 +32,12 @@ export default function Message(props: MessageProps) {
         setDisplayedContent((prevContent) => prevContent + event.data);
       };
       ws.onclose = () => {
-        console.log('WebSocket closed');
+        console.log("WebSocket closed");
         setShowLoading(false);
         wsInitialized.current = false;
       };
       ws.onerror = (error) => {
-        console.log('WebSocket error:', error);
+        console.log("WebSocket error:", error);
         setShowLoading(false);
         wsInitialized.current = false;
       };
@@ -46,7 +48,7 @@ export default function Message(props: MessageProps) {
         }
       };
     } else if (!message.streaming) {
-      setDisplayedContent(message.content || '');
+      setDisplayedContent(message.content || "");
       wsInitialized.current = false;
     }
 
@@ -63,7 +65,11 @@ export default function Message(props: MessageProps) {
       <Grid>
         <span>
           {displayedContent}
-          {showLoading && <span> <Loader color="black" size={12}/></span>}
+          {showLoading && (
+            <span>
+              <Loader className={styles.loader} color="black" size={12} />
+            </span>
+          )}
         </span>
       </Grid>
     </SimpleGrid>

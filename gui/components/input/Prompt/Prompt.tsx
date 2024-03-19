@@ -1,11 +1,13 @@
-import { Button, Group, Textarea } from '@mantine/core';
-import { IconExclamationCircle, IconSend } from '@tabler/icons-react';
-import { useState } from 'react';
-import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { notifications } from '@mantine/notifications';
-import { sendMessage } from '@/api/chat';
-import styles from './styles.module.css';
-import { HttpError } from '@/api/http';
+import { Button, Group, Textarea } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
+import { IconExclamationCircle, IconSend } from "@tabler/icons-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+
+import { sendMessage } from "@/api/chat";
+import { HttpError } from "@/api/http";
+
+import styles from "./styles.module.css";
 
 interface PromptProps {
   courseId: string;
@@ -15,27 +17,26 @@ interface PromptProps {
 export default function Prompt(props: PromptProps) {
   const { courseId, chatId } = props;
   const queryClient = useQueryClient();
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
 
   const sendMutation = useMutation({
-      mutationFn: (newMessage: string) => sendMessage(courseId, chatId, newMessage),
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: ['messages', courseId, chatId],
-        });
-        setMessage('');
-      },
-      onError: (error: HttpError) => {
-        console.error(error);
-        notifications.show({
-          title: 'Failed to send message',
-          color: 'red',
-          message: error.errorDetail,
-          icon: <IconExclamationCircle />,
-        });
-      }
-    }
-  );
+    mutationFn: (newMessage: string) => sendMessage(courseId, chatId, newMessage),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["messages", courseId, chatId],
+      });
+      setMessage("");
+    },
+    onError: (error: HttpError) => {
+      console.error(error);
+      notifications.show({
+        title: "Failed to send message",
+        color: "red",
+        message: error.errorDetail,
+        icon: <IconExclamationCircle />,
+      });
+    },
+  });
 
   const handleSendMessage = () => {
     if (message.trim()) {
@@ -44,7 +45,7 @@ export default function Prompt(props: PromptProps) {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }

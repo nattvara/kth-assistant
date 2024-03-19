@@ -1,6 +1,8 @@
 import { Box, SimpleGrid } from "@mantine/core";
+
 import { MessageFeed } from "@/components/chat";
 import { Prompt } from "@/components/input";
+
 import styles from "./styles.module.css";
 
 interface ChatWindowProps {
