@@ -1,10 +1,9 @@
 name: Deploy Images to AWS
-on: push
-# on:
-#   push:
-#     tags:
-#       # Tags must be on the format vx.x.x, eg. v1.2.0
-#       - v*.*.*
+on:
+ push:
+   tags:
+     # Tags must be on the format vx.x.x, eg. v1.2.0
+     - v*.*.*
 
 env:
   AWS_REGION: ${{ vars.AWS_REGION }}
