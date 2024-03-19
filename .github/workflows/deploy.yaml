@@ -41,8 +41,19 @@ jobs:
       - name: Build, tag, and push image to Amazon ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ steps.meta.outputs.tags }}
+          IMAGE_TAGS: ${{ steps.meta.outputs.tags }}
         run: |
-          docker build -t $IMAGE_TAG -f http_api/Dockerfile .
-          docker push $IMAGE_TAG
-          echo "image=$IMAGE_TAG" >> $GITHUB_ENV
+          IFS=',' read -ra TAGS <<< "$IMAGE_TAGS"
+          IMAGE_NAME="${ECR_REGISTRY}/${ECR_REPOSITORY}"
+
+          docker build -t "${IMAGE_NAME}:${TAGS[0]}" -f http_api/Dockerfile .
+
+          for TAG in "${TAGS[@]:1}"; do
+            docker tag "${IMAGE_NAME}:${TAGS[0]}" "${IMAGE_NAME}:$TAG"
+          done
+
+          for TAG in "${TAGS[@]}"; do
+            docker push "${IMAGE_NAME}:$TAG"
+          done
+
+          echo "image=${IMAGE_NAME}:${TAGS[0]}" >> $GITHUB_ENV
