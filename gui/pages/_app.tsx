@@ -1,8 +1,9 @@
-import { AppShell, Burger, Group, MantineProvider, Skeleton } from "@mantine/core";
+import { Alert, AppShell, Burger, Group, MantineProvider, Skeleton } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { useDisclosure } from "@mantine/hooks";
 import { Notifications } from "@mantine/notifications";
 import "@mantine/notifications/styles.css";
+import { IconPlugConnectedX } from "@tabler/icons-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { AppProps } from "next/app";
@@ -55,10 +56,6 @@ export default function App({ Component, pageProps }: AppProps) {
     manageSession();
   }, []);
 
-  if (!hasValidSession) {
-    return <></>;
-  }
-
   return (
     <MantineProvider theme={theme}>
       <Notifications />
@@ -91,7 +88,12 @@ export default function App({ Component, pageProps }: AppProps) {
           </AppShell.Navbar>
 
           <AppShell.Main>
-            <Component {...pageProps} />
+            {hasValidSession && <Component {...pageProps} />}
+            {!hasValidSession && (
+              <Alert variant="light" color="red" title="Failed to connect to cloud" icon={<IconPlugConnectedX />}>
+                There is no valid session. The application is most likely misconfigured.
+              </Alert>
+            )}
           </AppShell.Main>
         </AppShell>
       </QueryClientProvider>
