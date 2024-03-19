@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 
-import { HttpError, makeUrl } from "./http";
+import { HttpError, makeUrl } from "@/api/http";
 
 export interface Chat {
   chat_id: Chat;
