@@ -1,9 +1,15 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Response
+from pydantic import BaseModel
 
 from cache.redis import get_redis_connection
 from db.connection import db
 
 router = APIRouter()
+
+
+class HealthResponse(BaseModel):
+    database: str
+    redis: str
 
 
 def test_db() -> str:
@@ -18,9 +24,22 @@ async def test_redis() -> str:
     return await redis.get('greeting')
 
 
-@router.get('/health')
-async def index():
-    return {
-        'database': test_db(),
-        'redis': await test_redis(),
-    }
+@router.get('/health', response_model=HealthResponse)
+async def index(response: Response):
+    try:
+        redis_result = await test_redis()
+    except:  # noqa
+        redis_result = 'redis is NOT working.'
+        response.status_code = 503
+
+    try:
+        db_result = test_db()
+    except:  # noqa
+        db_result = 'db is NOT working.'
+        response.status_code = 503
+
+    health_response = HealthResponse(
+        database=db_result,
+        redis=redis_result
+    )
+    return health_response
