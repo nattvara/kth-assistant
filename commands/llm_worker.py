@@ -15,9 +15,11 @@ Usage: {basename(sys.argv[0])} MISTRAL_7B_INSTRUCT DEVICE
 
 This program starts a worker for a given model.
 
+Running the program with DEVICE=download-only will just download the model, not start the worker.
+
 Arguments:
     MODEL_NAME    The name of the model to run (e.g., MISTRAL_7B_INSTRUCT).
-    DEVICE        The device to load the model onto (cpu|cuda|mps)
+    DEVICE        The device to load the model onto (cpu|cuda|mps|download-only)
 
 Example:
     {basename(sys.argv[0])} MISTRAL_7B_INSTRUCT cuda
@@ -37,12 +39,21 @@ def main():
         print("Invalid model name")
         exit(1)
 
+    download_only = False
+    if sys.argv[2] == 'download-only':
+        download_only = True
+
     log().info("Starting worker")
 
     service = LLMService(model_enum)
 
     if model_enum is not LLMModel.OPENAI_GPT4:
-        worker = Worker(service, model_enum, device=sys.argv[2])
+        if not download_only:
+            device_name = sys.argv[2]
+        else:
+            device_name = 'cpu'
+
+        worker = Worker(service, model_enum, device=device_name)
     else:
         worker = Worker(
             service,
@@ -51,6 +62,10 @@ def main():
             model_loader_func=load_openai_sdk,
             text_generator=generate_text_streaming
         )
+
+    if download_only:
+        log().info("agent is running in 'download-only' mode, exiting.")
+        return
 
     asyncio.run(worker.run())
 
