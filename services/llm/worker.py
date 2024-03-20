@@ -46,7 +46,10 @@ class Worker:
         handle.time_spent_pending_ms = wait_time.total_seconds() * 1000
         handle.save()
 
-        websocket_url = f"ws://{settings.get_settings().HOST}:{settings.get_settings().PORT}{handle.websocket_uri}"
+        if settings.get_settings().PORT == 80:
+            websocket_url = f"ws://{settings.get_settings().HOST}{handle.websocket_uri}"
+        else:
+            websocket_url = f"ws://{settings.get_settings().HOST}:{settings.get_settings().PORT}{handle.websocket_uri}"
 
         response = ""
         number_of_tokens = 0
