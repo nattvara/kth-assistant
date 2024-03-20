@@ -18,4 +18,6 @@ COPY . .
 
 RUN python setup.py install
 
+RUN migrate_up
+
 CMD ["uvicorn", "http_api:main", "--host", "0.0.0.0", "--port", "80"]
