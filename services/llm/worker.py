@@ -17,6 +17,20 @@ from config.logger import log
 TERMINATION_STRING = "<<<END_OF_STREAM>>>"
 
 
+def _get_websocket_url(handle: PromptHandle) -> str:
+    if settings.get_settings().PORT == 443:
+        protocol = "wss://"
+    else:
+        protocol = "ws://"
+
+    if settings.get_settings().PORT == 80 or settings.get_settings().PORT == 443:
+        websocket_url = f"{protocol}{settings.get_settings().HOST}{handle.websocket_uri}"
+    else:
+        websocket_url = f"{protocol}{settings.get_settings().HOST}:{settings.get_settings().PORT}{handle.websocket_uri}"
+
+    return websocket_url
+
+
 class Worker:
 
     def __init__(
@@ -46,10 +60,7 @@ class Worker:
         handle.time_spent_pending_ms = wait_time.total_seconds() * 1000
         handle.save()
 
-        if settings.get_settings().PORT == 80:
-            websocket_url = f"ws://{settings.get_settings().HOST}{handle.websocket_uri}"
-        else:
-            websocket_url = f"ws://{settings.get_settings().HOST}:{settings.get_settings().PORT}{handle.websocket_uri}"
+        websocket_url = _get_websocket_url(handle)
 
         response = ""
         number_of_tokens = 0
