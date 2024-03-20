@@ -63,7 +63,7 @@ export default function Message(props: MessageProps) {
         <strong>{message.sender}</strong>
       </Grid>
       <Grid>
-        <span>
+        <span className={styles.content}>
           {displayedContent}
           {showLoading && (
             <span>

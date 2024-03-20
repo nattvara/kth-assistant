@@ -31,8 +31,8 @@ let baseURL: string;
 let baseWebsocketURL: string;
 
 if (process.env.NODE_ENV === "production") {
-  baseURL = "/";
-  baseWebsocketURL = "/";
+  baseURL = "https://copilot.openuni.ai/api";
+  baseWebsocketURL = "wss://copilot.openuni.ai/api";
 } else {
   baseURL = "http://localhost:8000";
   baseWebsocketURL = "ws://localhost:8000";

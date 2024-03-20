@@ -6,6 +6,7 @@ import config.settings as settings
 from http_api.routers import (
     websocket,
     sessions,
+    health,
     index,
     chat,
 )
@@ -24,6 +25,7 @@ def get_app():
     app.include_router(websocket.router)
     app.include_router(sessions.router)
     app.include_router(chat.router)
+    app.include_router(health.router)
 
     return app
 
