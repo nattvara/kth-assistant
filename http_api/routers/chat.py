@@ -16,6 +16,7 @@ router = APIRouter()
 class ChatResponse(BaseModel):
     public_id: str
     model_name: str
+    index_type: str
 
 
 class MessageResponse(BaseModel):
@@ -47,7 +48,24 @@ async def start_new_chat(course_canvas_id: str, session: Session = Depends(get_c
 
     chat = ChatService.start_new_chat_for_session_and_course(session, course)
 
-    return ChatResponse(public_id=chat.public_id, model_name=chat.model_name)
+    return ChatResponse(public_id=chat.public_id, model_name=chat.model_name, index_type=chat.index_type)
+
+
+@router.get(
+    '/course/{course_canvas_id}/chat/{chat_id}',
+    dependencies=[Depends(get_current_session)],
+    response_model=ChatResponse
+)
+async def get_chat_details(course_canvas_id: str, chat_id: str,) -> ChatResponse:
+    course = find_course_by_canvas_id(course_canvas_id)
+    if course is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found")
+
+    chat = find_chat_by_id(chat_id)
+    if chat is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Chat not found")
+
+    return ChatResponse(public_id=chat.public_id, model_name=chat.model_name, index_type=chat.index_type)
 
 
 @router.post(
