@@ -60,7 +60,10 @@ export default function Message(props: MessageProps) {
   return (
     <SimpleGrid cols={1} className={styles.root}>
       <Grid>
-        <strong>{message.sender}</strong>
+        <strong>
+          {message.sender === "student" && <>You</>}
+          {message.sender === "assistant" && <>Copilot</>}
+        </strong>
       </Grid>
       <Grid>
         <span className={styles.content}>
