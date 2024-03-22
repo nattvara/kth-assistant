@@ -18,6 +18,4 @@ def format_message(message: Message) -> str:
     else:
         sender = SYSTEM_NAME
         content = message.prompt_handle.response
-    return f"""
-<{sender}>: {content}
-"""
+    return f"<{sender}>: {content}"

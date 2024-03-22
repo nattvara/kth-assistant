@@ -19,8 +19,7 @@ Chat rules:
 def prompt_make_next_ai_message(messages: List[Message]) -> str:
     return f"""
 Chat history:
+===================================
 {format_messages(messages)}
-
-Next message from {SYSTEM_NAME}:
 <{SYSTEM_NAME}>:
 """
