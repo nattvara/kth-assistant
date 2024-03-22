@@ -15,7 +15,6 @@ class ModelParamsField(JSONField):
 
     def python_value(self, value: str) -> Optional[Params]:
         if value is not None:
-            params_dict = json.loads(value)
-            return Params(**params_dict)
+            return Params(**value)
 
         return None
