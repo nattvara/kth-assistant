@@ -3,12 +3,12 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, constr
 
+from db.models import Chat, Session, Message, PromptHandle
+from db.actions.chat_config import get_random_chat_config
 from db.actions.course import find_course_by_canvas_id
 from db.actions.message import all_messages_in_chat
-from services.llm.supported_models import LLMModel
 from http_api.auth import get_current_session
 from db.actions.chat import find_chat_by_id
-from db.models import Chat, Session, Message, PromptHandle
 from services.llm.llm import LLMService
 
 router = APIRouter()
@@ -16,6 +16,7 @@ router = APIRouter()
 
 class ChatResponse(BaseModel):
     public_id: str
+    model_name: str
 
 
 class MessageResponse(BaseModel):
@@ -45,10 +46,14 @@ async def start_new_chat(course_canvas_id: str, session: Session = Depends(get_c
     if course is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found")
 
-    chat = Chat(course=course, session=session, model_name=LLMModel.MISTRAL_7B_INSTRUCT)
+    config = get_random_chat_config()
+    if config is None:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="No valid chat config")
+
+    chat = Chat(course=course, session=session, model_name=config.model_name)
     chat.save()
 
-    return ChatResponse(public_id=chat.public_id)
+    return ChatResponse(public_id=chat.public_id, model_name=chat.model_name)
 
 
 @router.post(
