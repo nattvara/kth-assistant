@@ -3,13 +3,12 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, constr
 
-from db.models import Chat, Session, Message, PromptHandle
 from db.actions.course import find_course_by_canvas_id
+from db.models import Session, Message, PromptHandle
 from db.actions.message import all_messages_in_chat
+from services.chat.chat_service import ChatService
 from http_api.auth import get_current_session
 from db.actions.chat import find_chat_by_id
-from services.llm.llm import LLMService
-import db.actions.chat_config
 
 router = APIRouter()
 
@@ -46,12 +45,7 @@ async def start_new_chat(course_canvas_id: str, session: Session = Depends(get_c
     if course is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found")
 
-    config = db.actions.chat_config.get_random_chat_config()
-    if config is None:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="No valid chat config")
-
-    chat = Chat(course=course, session=session, model_name=config.model_name)
-    chat.save()
+    chat = ChatService.start_new_chat_for_session_and_course(session, course)
 
     return ChatResponse(public_id=chat.public_id, model_name=chat.model_name)
 
@@ -78,10 +72,7 @@ async def send_message(
     msg = Message(chat=chat, content=body.content, sender=Message.Sender.STUDENT)
     msg.save()
 
-    handle = LLMService.dispatch_prompt(body.content, chat.model_name, chat.model_params)
-
-    response_msg = Message(chat=chat, content=None, sender=Message.Sender.ASSISTANT, prompt_handle=handle)
-    response_msg.save()
+    ChatService.request_next_message(chat)
 
     return MessageResponse(
         message_id=msg.message_id,
