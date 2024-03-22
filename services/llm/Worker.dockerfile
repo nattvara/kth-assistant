@@ -17,3 +17,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 RUN python setup.py install
+
+RUN llm_worker MISTRAL_7B_INSTRUCT download-only
