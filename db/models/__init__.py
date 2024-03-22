@@ -5,6 +5,7 @@ from .prompt_handle import PromptHandle
 from .session import Session
 from .course import Course
 from .chat import Chat
+from .chat_config import ChatConfig
 from .message import Message
 
 all_models = [
@@ -12,5 +13,6 @@ all_models = [
     Session,
     Course,
     Chat,
-    Message
+    Message,
+    ChatConfig
 ]

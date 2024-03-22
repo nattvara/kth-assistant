@@ -15,7 +15,9 @@ export default function Message(props: MessageProps) {
   const { message } = props;
   const [displayedContent, setDisplayedContent] = useState("");
   const [showLoading, setShowLoading] = useState(false);
+  const [numberOfWords, setNumberOfWords] = useState(0);
   const wsInitialized = useRef(false);
+  const loadingRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (message.streaming && message.websocket && !wsInitialized.current) {
@@ -29,7 +31,11 @@ export default function Message(props: MessageProps) {
           ws.close();
           return;
         }
-        setDisplayedContent((prevContent) => prevContent + event.data);
+        setDisplayedContent((prevContent) => {
+          const newContent = prevContent + event.data;
+          setNumberOfWords(newContent.split(" ").length);
+          return newContent;
+        });
       };
       ws.onclose = () => {
         console.log("WebSocket closed");
@@ -49,6 +55,7 @@ export default function Message(props: MessageProps) {
       };
     } else if (!message.streaming) {
       setDisplayedContent(message.content || "");
+      setNumberOfWords(0);
       wsInitialized.current = false;
     }
 
@@ -57,17 +64,26 @@ export default function Message(props: MessageProps) {
     };
   }, [message.message_id, message.streaming, message.websocket, message.content]);
 
+  useEffect(() => {
+    if (numberOfWords % 5 === 0 && numberOfWords > 0) {
+      loadingRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [numberOfWords]);
+
   return (
     <SimpleGrid cols={1} className={styles.root}>
       <Grid>
-        <strong>{message.sender}</strong>
+        <strong>
+          {message.sender === "student" && <>You</>}
+          {message.sender === "assistant" && <>Copilot</>}
+        </strong>
       </Grid>
       <Grid>
         <span className={styles.content}>
           {displayedContent}
           {showLoading && (
             <span>
-              <Loader className={styles.loader} color="black" size={12} />
+              <Loader className={styles.loader} ref={loadingRef} color="black" size={12} />
             </span>
           )}
         </span>

@@ -7,6 +7,7 @@ import time
 import arrow
 
 from llms.generate import generate_text_streaming, load_hf_model
+from services.llm.prompts import prepend_system_prompt
 from services.llm.supported_models import LLMModel
 from services.llm.llm import LLMService
 from db.models import PromptHandle
@@ -75,10 +76,27 @@ class Worker:
                 if handle.model_params is not None:
                     params = handle.model_params
 
+                prompt = handle.prompt
+                if handle.model_name != LLMModel.OPENAI_GPT4:
+                    prompt = prepend_system_prompt(params.system_prompt, handle.prompt)
+
                 index = 1
                 start_time = time.time()
-                async for token in self.text_generator(self.model, self.tokenizer, self.device, params, handle.prompt):
+                found_less_than = False
+                async for token in self.text_generator(self.model, self.tokenizer, self.device, params, prompt):
+                    # since the model has a tendency to generate <student> strings
+                    # this check is here to ensure the model doesn't start generating
+                    # dangling "<" tokens at the end of messages
+                    if found_less_than:
+                        token = f'<{token}'
+                        found_less_than = False
+
+                    if token == '<':
+                        found_less_than = True
+                        continue
+
                     await websocket.send(token)
+
                     response += token
                     index += 1
                     number_of_tokens += 1

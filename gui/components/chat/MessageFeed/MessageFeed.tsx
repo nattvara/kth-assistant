@@ -2,7 +2,7 @@ import { Box } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import React, { useEffect, useRef } from "react";
 
-import { Message } from "@/components/chat";
+import { ChatProperties, Message } from "@/components/chat";
 
 import { fetchMessages } from "@/api/chat";
 
@@ -25,7 +25,12 @@ export default function MessageFeed(props: MessageFeedProps) {
   useEffect(() => {
     if (data && lastMessageRef.current) {
       const el = lastMessageRef.current;
-      el.scrollIntoView({ behavior: "smooth" });
+
+      // wrapping the call in a timeout allows for a repaint
+      // before triggering the scroll
+      setTimeout(() => {
+        el.scrollIntoView({ behavior: "smooth" });
+      }, 0);
     }
   }, [data]);
 
@@ -40,6 +45,8 @@ export default function MessageFeed(props: MessageFeedProps) {
   return (
     <Box className={styles.message_feed_container}>
       <div className={styles.message_feed}>
+        <ChatProperties courseId={courseId} chatId={chatId} />
+
         {data.messages.map((message, index) => (
           <div key={message.message_id} ref={index === data.messages.length - 1 ? lastMessageRef : null}>
             <Message message={message} />

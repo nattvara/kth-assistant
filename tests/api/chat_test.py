@@ -1,7 +1,12 @@
-from db.models import Chat, Message, PromptHandle
+from db.models import Chat, Message, PromptHandle, ChatConfig
+from services.index.supported_indices import IndexType
+from services.llm.supported_models import LLMModel
 
 
 def test_chats_are_tied_to_course_room(api_client, authenticated_session, valid_course):
+    config = ChatConfig(model_name=LLMModel.MISTRAL_7B_INSTRUCT, index_type=IndexType.NO_INDEX)
+    config.save()
+
     response = api_client.post(f'/course/{valid_course.canvas_id}/chat', headers=authenticated_session.headers)
     chat = Chat.filter(Chat.public_id == response.json()['public_id']).first()
 
@@ -10,6 +15,9 @@ def test_chats_are_tied_to_course_room(api_client, authenticated_session, valid_
 
 
 def test_chats_are_tied_to_session(api_client, authenticated_session, valid_course):
+    config = ChatConfig(model_name=LLMModel.MISTRAL_7B_INSTRUCT, index_type=IndexType.NO_INDEX)
+    config.save()
+
     response = api_client.post(f'/course/{valid_course.canvas_id}/chat', headers=authenticated_session.headers)
     chat = Chat.filter(Chat.public_id == response.json()['public_id']).first()
 
@@ -106,3 +114,30 @@ def test_assistant_messages_returns_prompt_handle_response_if_done_streaming(
     response = api_client.get(url, headers=authenticated_session.headers).json()
 
     assert response['messages'][1]['content'] == 'foo'
+
+
+def test_chat_config_is_selected_randomly_from_chat_configs(
+    mocker,
+    api_client,
+    authenticated_session,
+    valid_course,
+):
+    config_1 = ChatConfig(model_name=LLMModel.MISTRAL_7B_INSTRUCT, index_type=IndexType.NO_INDEX)
+    config_2 = ChatConfig(model_name=LLMModel.OPENAI_GPT4, index_type=IndexType.NO_INDEX)
+    config_1.save()
+    config_2.save()
+    mocker.patch(
+        'db.actions.chat_config.get_random_chat_config',
+        side_effect=[config_1, config_2]
+    )
+
+    url = f'/course/{valid_course.canvas_id}/chat'
+
+    response = api_client.post(url, headers=authenticated_session.headers)
+    chat = Chat.filter(Chat.public_id == response.json()['public_id']).first()
+
+    assert chat.model_name == config_1.model_name
+
+    response = api_client.post(url, headers=authenticated_session.headers)
+    chat = Chat.filter(Chat.public_id == response.json()['public_id']).first()
+    assert chat.model_name == config_2.model_name

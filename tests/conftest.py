@@ -8,13 +8,13 @@ from fastapi.testclient import TestClient
 from numpy.random import rand, randint
 import pytest
 
-from services.llm.supported_models import LLMModel
-
 # this will fix issue where the python path won't contain the packages
 # in the main project when running inside pytest
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from db.models import all_models, Session, Course, Chat, Message  # noqa
+from db.models import all_models, Session, Course, Chat, Message, ChatConfig  # noqa
+from services.index.supported_indices import IndexType  # noqa
+from services.llm.supported_models import LLMModel  # noqa
 from config.settings import Settings  # noqa
 from db.connection import db  # noqa
 import http_api  # noqa
@@ -147,7 +147,15 @@ def new_chat(authenticated_session, valid_course):
                 msg = Message(sender=sender, content=f'Hello from {sender}!', chat=self.chat)
                 msg.save()
 
-    c = Chat(course=valid_course, session=authenticated_session.session, model_name=LLMModel.MISTRAL_7B_INSTRUCT)
+    config = ChatConfig(model_name=LLMModel.MISTRAL_7B_INSTRUCT, index_type=IndexType.NO_INDEX)
+    config.save()
+
+    c = Chat(
+        course=valid_course,
+        session=authenticated_session.session,
+        model_name=config.model_name,
+        index_type=config.index_type
+    )
     c.save()
 
     return NewChat(c, valid_course)
