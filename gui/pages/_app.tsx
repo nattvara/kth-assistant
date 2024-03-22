@@ -1,13 +1,14 @@
-import { Alert, AppShell, Burger, Group, MantineProvider, Skeleton } from "@mantine/core";
+import { Alert, AppShell, Burger, Button, Group, MantineProvider, SimpleGrid, Skeleton } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { useDisclosure } from "@mantine/hooks";
 import { Notifications } from "@mantine/notifications";
 import "@mantine/notifications/styles.css";
-import { IconPlugConnectedX } from "@tabler/icons-react";
+import { IconMessageCircle, IconPlugConnectedX } from "@tabler/icons-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { AppProps } from "next/app";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 
 import { HttpError } from "@/api/http";
@@ -16,10 +17,16 @@ import { getSession, startSession } from "@/api/session";
 import { theme } from "../theme";
 
 export default function App({ Component, pageProps }: AppProps) {
+  const router = useRouter();
+  const { course_id } = router.query;
   const [opened, { toggle }] = useDisclosure();
   const queryClient = new QueryClient();
   const [hasValidSession, setValidSession] = useState<null | boolean>(null);
   const sessionInitiated = useRef(false);
+
+  const startNewChat = () => {
+    router.push(`/course/${course_id}`);
+  };
 
   useEffect(() => {
     const manageSession = async () => {
@@ -77,10 +84,17 @@ export default function App({ Component, pageProps }: AppProps) {
           padding="0"
         >
           <AppShell.Header>
-            <Group h="100%" px="md">
-              <Burger opened={opened} onClick={toggle} size="sm" />
-              KTH Assistant
-            </Group>
+            <SimpleGrid cols={2} h="100%" w="100%" px="md">
+              <Group>
+                <Burger opened={opened} onClick={toggle} size="sm" />
+                KTH Assistant
+              </Group>
+              <Group justify="flex-end">
+                <Button variant="light" rightSection={<IconMessageCircle />} onClick={() => startNewChat()}>
+                  New Chat
+                </Button>
+              </Group>
+            </SimpleGrid>
           </AppShell.Header>
 
           <AppShell.Navbar p="md">
