@@ -3,3 +3,4 @@
 from .arrow_datetime_field import ArrowDateTimeField
 from .model_params import ModelParamsField
 from .model_name import ModelNameField
+from .index_type import IndexTypeField
