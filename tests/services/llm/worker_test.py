@@ -2,6 +2,7 @@ from unittest.mock import call
 
 import pytest
 
+from services.llm.prompts import prepend_system_prompt
 from services.llm.worker import Worker, TERMINATION_STRING
 from tests.assertions import assert_model_params_equal
 from services.llm.llm import LLMService
@@ -73,7 +74,8 @@ async def test_worker_generates_text_from_the_handles_prompt(create_worker, crea
 
     mock_generate_text.assert_called_once()
     called_args, _ = mock_generate_text.call_args
-    assert called_args[4] == handle.prompt, "generate_text was not called with the correct prompt"
+    assert called_args[4] == prepend_system_prompt('', handle.prompt), \
+        "generate_text was not called with the correct prompt"
 
 
 @pytest.mark.asyncio
