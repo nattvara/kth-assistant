@@ -1,5 +1,5 @@
 from db.models import Chat, Message, Session, Course
-from services.chat.system import SYSTEM_PROMPT
+from services.chat.system import get_system_prompt
 from services.llm.llm import LLMService
 import services.llm.prompts as prompts
 from llms.config import Params
@@ -19,7 +19,7 @@ class ChatService:
             raise ChatServiceException("no valid chat config.")
 
         params = Params()
-        params.system_prompt = SYSTEM_PROMPT
+        params.system_prompt = get_system_prompt()
         params.stop_strings = ['<student>', '<student', '<Student', '<Student>']
         chat = Chat(
             course=course,
