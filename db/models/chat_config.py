@@ -1,10 +1,9 @@
 import warnings
-import uuid
 
 import peewee
 
-from db.custom_fields import ModelParamsField, ModelNameField
-from . import BaseModel, Course, Session
+from db.custom_fields import ModelNameField
+from . import BaseModel
 
 # Suppress specific DeprecationWarning about db_table, this is needed for migrations to work
 warnings.filterwarnings(
