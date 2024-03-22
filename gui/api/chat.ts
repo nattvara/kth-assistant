@@ -3,8 +3,9 @@ import Cookies from "js-cookie";
 import { HttpError, makeUrl } from "@/api/http";
 
 export interface Chat {
-  chat_id: Chat;
   public_id: string;
+  model_name: string;
+  index_type: string;
 }
 
 export interface Message {
@@ -25,6 +26,26 @@ export async function startChat(canvasId: string): Promise<Chat> {
 
   const response = await fetch(makeUrl(`/course/${canvasId}/chat`), {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Session-ID": sessionCookie,
+    },
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.json();
+    throw new HttpError(response, errorBody);
+  }
+
+  const data = (await response.json()) as Chat;
+  return data;
+}
+
+export async function fetchChat(canvasId: string, chatId: string): Promise<Chat> {
+  const sessionCookie = Cookies.get("session_id") as string;
+
+  const response = await fetch(makeUrl(`/course/${canvasId}/chat/${chatId}`), {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
       "X-Session-ID": sessionCookie,
