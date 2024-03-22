@@ -3,7 +3,7 @@ import uuid
 
 import peewee
 
-from db.custom_fields import ModelParamsField, ModelNameField
+from db.custom_fields import ModelParamsField, ModelNameField, IndexTypeField
 from . import BaseModel, Course, Session
 
 # Suppress specific DeprecationWarning about db_table, this is needed for migrations to work
@@ -31,3 +31,4 @@ class Chat(BaseModel):
     session = peewee.ForeignKeyField(Session, null=False, backref='sessions', on_delete='CASCADE')
     model_name = ModelNameField(null=False, index=True)
     model_params = ModelParamsField(null=True)
+    index_type = IndexTypeField(null=False, index=True)
