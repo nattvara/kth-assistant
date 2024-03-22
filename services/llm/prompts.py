@@ -21,5 +21,8 @@ def prompt_make_next_ai_message(messages: List[Message]) -> str:
 Chat history:
 ===================================
 {format_messages(messages)}
+
+The next message in the conversion:
+===================================
 <{SYSTEM_NAME}>:
 """

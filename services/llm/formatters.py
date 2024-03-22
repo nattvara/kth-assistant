@@ -7,7 +7,7 @@ from db.models import Message
 def format_messages(messages: List[Message]) -> str:
     out = ""
     for message in messages:
-        out += format_message(message)
+        out += format_message(message) + "\n"
     return out
 
 
