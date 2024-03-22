@@ -18,6 +18,4 @@ COPY . .
 
 RUN python setup.py install
 
-RUN cp .env.example .env
-RUN llm_worker MISTRAL_7B_INSTRUCT download-only
-RUN rm .env
+RUN huggingface-cli download mistralai/Mistral-7B-Instruct-v0.2
