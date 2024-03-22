@@ -25,7 +25,12 @@ export default function MessageFeed(props: MessageFeedProps) {
   useEffect(() => {
     if (data && lastMessageRef.current) {
       const el = lastMessageRef.current;
-      el.scrollIntoView({ behavior: "smooth" });
+
+      // wrapping the call in a timeout allows for a repaint
+      // before triggering the scroll
+      setTimeout(() => {
+        el.scrollIntoView({ behavior: "smooth" });
+      }, 0);
     }
   }, [data]);
 
