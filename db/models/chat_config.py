@@ -2,7 +2,7 @@ import warnings
 
 import peewee
 
-from db.custom_fields import ModelNameField
+from db.custom_fields import ModelNameField, IndexTypeField
 from . import BaseModel
 
 # Suppress specific DeprecationWarning about db_table, this is needed for migrations to work
@@ -22,3 +22,4 @@ class ChatConfig(BaseModel):
     id = peewee.AutoField()
     is_active = peewee.BooleanField(null=False, default=True)
     model_name = ModelNameField(null=False, index=True)
+    index_type = IndexTypeField(null=False, index=True)
