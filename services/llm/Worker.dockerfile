@@ -17,5 +17,3 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 RUN python setup.py install
-
-RUN huggingface-cli download mistralai/Mistral-7B-Instruct-v0.2
