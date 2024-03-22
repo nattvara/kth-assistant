@@ -82,8 +82,21 @@ class Worker:
 
                 index = 1
                 start_time = time.time()
+                found_less_than = False
                 async for token in self.text_generator(self.model, self.tokenizer, self.device, params, prompt):
+                    # since the model has a tendency to generate <student> strings
+                    # this check is here to ensure the model doesn't start generating
+                    # dangling "<" tokens at the end of messages
+                    if found_less_than:
+                        token = f'<{token}'
+                        found_less_than = False
+
+                    if token == '<':
+                        found_less_than = True
+                        continue
+
                     await websocket.send(token)
+
                     response += token
                     index += 1
                     number_of_tokens += 1
