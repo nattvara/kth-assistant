@@ -8,6 +8,7 @@ import arrow
 
 from llms.generate import generate_text_streaming, load_hf_model
 from services.llm.prompts import prepend_system_prompt
+from cache.mutex import LockAlreadyAcquiredException
 from services.llm.supported_models import LLMModel
 from services.llm.llm import LLMService
 from db.models import PromptHandle
@@ -125,8 +126,11 @@ class Worker:
         while self.running:
             try:
                 if self.service.has_next():
-                    handle = self.service.checkout()
-                    await self.process_prompt_handle(handle)
+                    try:
+                        handle = await self.service.checkout()
+                        await self.process_prompt_handle(handle)
+                    except LockAlreadyAcquiredException:
+                        log().debug("Found a lock the handle. Skipping for now.")
                 await asyncio.sleep(0.05)
             except KeyboardInterrupt:
                 log().info("Stopping worker...")
