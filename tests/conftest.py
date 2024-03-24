@@ -1,7 +1,8 @@
-from unittest.mock import AsyncMock, create_autospec
+from unittest.mock import AsyncMock, create_autospec, MagicMock
 import sys
 import os
 
+from playwright.async_api import Browser, BrowserContext, Page
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from websockets import WebSocketClientProtocol
 from fastapi.testclient import TestClient
@@ -13,9 +14,10 @@ import pytest
 # in the main project when running inside pytest
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from db.models import all_models, Session, Course, Chat, Message, ChatConfig  # noqa
+from db.models import all_models, Session, Course, Chat, Message, ChatConfig, Snapshot, Url  # noqa
 from services.index.supported_indices import IndexType  # noqa
 from services.llm.supported_models import LLMModel  # noqa
+from services.crawler.crawler import CrawlerService  # noqa
 from config.settings import Settings  # noqa
 from db.connection import db  # noqa
 import http_api  # noqa
@@ -126,7 +128,7 @@ def authenticated_session():
 
 @pytest.fixture
 def valid_course():
-    course = Course(canvas_id="41428")
+    course = Course(canvas_id="41428", snapshot_lifetime_in_mins=60)
     course.save()
     return course
 
@@ -166,3 +168,79 @@ def new_chat(authenticated_session, valid_course):
 def redis_connection(mocker) -> Redis:
     mock_redis = create_autospec(Redis, instance=True)
     return mocker.patch('cache.redis.get_redis_connection', return_value=mock_redis)
+
+
+@pytest.fixture
+def new_snapshot(valid_course: Course):
+    class NewSnapshot:
+        def __init__(self, course: Course, snapshot: Snapshot):
+            self.course = course
+            self.snapshot = snapshot
+
+        def add_unvisited_url(self) -> Url:
+            url = Url(snapshot=self.snapshot, href=f"https://example.com/1")
+            url.save()
+            return url
+
+    s = Snapshot(course=valid_course)
+    s.save()
+
+    return NewSnapshot(valid_course, s)
+
+
+@pytest.fixture
+async def get_crawler_service(redis_connection, playwright_session):
+    p_session = await playwright_session
+
+    class CrawlerServiceFixture:
+
+        def __init__(self, service: CrawlerService, playwright: object, redis_conn: Redis):
+            self.service = service
+            self.playwright = playwright
+            self.redis_conn = redis_conn
+
+    s = CrawlerService(
+        redis_connection,
+        p_session.browser,
+        p_session.context,
+        p_session.page
+    )
+
+    return CrawlerServiceFixture(s, p_session, redis_connection)
+
+
+@pytest.fixture
+async def playwright_session(mocker):
+    class PlaywrightSession:
+        def __init__(self, browser: Browser, context: BrowserContext, page: Page):
+            self.browser = browser
+            self.context = context
+            self.page = page
+
+    mock_response = AsyncMock()
+    mock_browser = mocker.MagicMock()
+    mock_context = mocker.MagicMock()
+    mock_page = mocker.MagicMock()
+
+    mock_browser.new_context = AsyncMock(return_value=mock_context)
+
+    mock_context.new_page = AsyncMock(return_value=mock_page)
+
+    mock_page.goto = AsyncMock()
+    mock_page.wait_for_load_state = AsyncMock()
+    mock_page.goto = AsyncMock(return_value=mock_response)
+
+    mock_chromium = MagicMock()
+    mock_chromium.launch = AsyncMock(return_value=mock_browser)
+
+    mock_playwright = MagicMock()
+    mock_playwright.chromium = mock_chromium
+
+    mocker.patch('playwright.async_api.async_playwright', return_value=AsyncMock(
+        __aenter__=AsyncMock(return_value=mock_playwright),
+        __aexit__=AsyncMock(),
+    ))
+
+    session = PlaywrightSession(mock_browser, mock_context, mock_page)
+
+    return session
