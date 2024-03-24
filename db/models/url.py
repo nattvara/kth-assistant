@@ -22,6 +22,7 @@ class Url(BaseModel):
         UNVISITED = 'unvisited'
         VISITED = 'visited'
         CRAWLING = 'crawling'
+        FAILED = 'failed'
 
     id = peewee.AutoField()
     snapshot = peewee.ForeignKeyField(Snapshot, null=False, backref='urls', on_delete='CASCADE')

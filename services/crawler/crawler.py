@@ -92,6 +92,8 @@ class CrawlerService:
             await response.body()
             await self.page.wait_for_load_state('load')
         except PlaywrightError as e:
+            url.state = Url.States.FAILED
+            url.save()
             raise e
 
         url.state = Url.States.VISITED
