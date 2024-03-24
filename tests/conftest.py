@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, create_autospec
 import sys
 import os
 
@@ -6,6 +6,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from websockets import WebSocketClientProtocol
 from fastapi.testclient import TestClient
 from numpy.random import rand, randint
+from redis.asyncio import Redis
 import pytest
 
 # this will fix issue where the python path won't contain the packages
@@ -159,3 +160,9 @@ def new_chat(authenticated_session, valid_course):
     c.save()
 
     return NewChat(c, valid_course)
+
+
+@pytest.fixture
+def redis_connection(mocker) -> Redis:
+    mock_redis = create_autospec(Redis, instance=True)
+    return mocker.patch('cache.redis.get_redis_connection', return_value=mock_redis)

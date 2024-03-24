@@ -1,9 +1,12 @@
 from typing import Optional
 
+from redis.asyncio import Redis
+
 from db.actions.prompt_handles import find_most_recent_pending_handle_for_model
 from services.llm.supported_models import LLMModel
 from db.models import PromptHandle
 from llms.config import Params
+import cache.mutex as mutex
 
 
 class NoPendingPromptHandleError(Exception):
@@ -12,8 +15,9 @@ class NoPendingPromptHandleError(Exception):
 
 class LLMService:
 
-    def __init__(self, model: LLMModel):
+    def __init__(self, model: LLMModel, redis: Redis):
         self.model = model
+        self.redis = redis
 
     @staticmethod
     def dispatch_prompt(prompt: str, model_name: LLMModel, model_params: Optional[Params] = None) -> PromptHandle:
@@ -21,10 +25,18 @@ class LLMService:
         handle.save()
         return handle
 
-    def checkout(self) -> PromptHandle:
+    async def checkout(self) -> PromptHandle:
         handle = self.next()
-        handle.state = PromptHandle.States.IN_PROGRESS
-        handle.save()
+
+        lock_name = f'prompt_handle_{handle.id}'
+        await mutex.acquire_lock(self.redis, lock_name)
+
+        try:
+            handle.state = PromptHandle.States.IN_PROGRESS
+            handle.save()
+        finally:
+            await mutex.release_lock(self.redis, lock_name)
+
         return handle
 
     def next(self) -> PromptHandle:
