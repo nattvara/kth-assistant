@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     HOST: str
     PORT: int
     BACKEND_CORS_ORIGINS: List[HttpUrl] = []
+    WEBSOCKET_TIMEOUT_DURATION: int = 30
+
+    NUMBER_OF_CRAWLER_WORKERS: int = 3
 
     POSTGRES_SERVER: str
     POSTGRES_PORT: str
@@ -19,8 +22,6 @@ class Settings(BaseSettings):
 
     REDIS_HOST: str
     REDIS_PORT: int
-
-    WEBSOCKET_TIMEOUT_DURATION: int = 30
 
     HUGGINGFACE_ACCESS_TOKEN: Optional[str] = None
     OPENAI_API_KEY: Optional[str] = None
