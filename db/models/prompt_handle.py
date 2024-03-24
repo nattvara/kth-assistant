@@ -32,6 +32,7 @@ class PromptHandle(BaseModel):
         FINISHED = 'finished'
         IN_PROGRESS = 'in_progress'
 
+    id = peewee.AutoField()
     state = peewee.CharField(null=False, index=True, default=States.PENDING)
     websocket_uri = peewee.TextField(null=False, index=True, default=generate_websocket_uri)
     prompt = peewee.TextField(null=False)
