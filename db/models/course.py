@@ -19,3 +19,4 @@ class Course(BaseModel):
         table_name = 'courses'
 
     canvas_id = peewee.CharField(null=False, index=True, unique=True)
+    snapshot_lifetime_in_mins = peewee.IntegerField(null=False, default=180)
