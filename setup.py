@@ -14,7 +14,7 @@ setup(
             'migration_create = db.migrations:create_migration',
             'migrate_up = db.migrations:run_migrations',
             'migrate_down = db.migrations:rollback',
-            'llm_worker = commands.llm_worker:main'
+            'llm_worker = commands.llm_worker:sync_main'
         ]
     },
     tests_require=[],
