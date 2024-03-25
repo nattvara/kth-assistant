@@ -37,6 +37,8 @@ def mock_settings(mocker):
         BACKEND_CORS_ORIGINS=["http://localhost:1337"],
         HOST="localhost",
         PORT="8080",
+        COOKIE_IDENTIFIER="the-cookie",
+        CANVAS_PROFILE_PAGE_VALIDATION_SEARCH_STRING="Test Testsson",
         POSTGRES_SERVER="some_server",
         POSTGRES_PORT="some_port",
         POSTGRES_USER="some_user",
