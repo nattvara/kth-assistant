@@ -11,5 +11,6 @@ async def download_content(url: Url, page: Page):
     await asyncio.sleep(2)
 
     content_html = await page.inner_html('body')
+    title = await page.title()
 
-    return content_html
+    return content_html, title

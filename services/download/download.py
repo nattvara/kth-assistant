@@ -50,15 +50,15 @@ class DownloadService:
         return content
 
     async def _save_canvas_url_content(self, url: Url):
-        html = await canvas.download_content(url, self.page)
+        html, title = await canvas.download_content(url, self.page)
         text = extract_text_from_html(html)
-        content = Content(text=text)
+        content = Content(text=text, name=title)
         content.save()
         return content
 
     async def _save_web_url_content(self, url: Url):
-        html = await web.download_content(url, self.page)
+        html, title = await web.download_content(url, self.page)
         text = extract_text_from_html(html)
-        content = Content(text=text)
+        content = Content(text=text, name=title)
         content.save()
         return content

@@ -14,10 +14,11 @@ async def download_content(url: Url, page: Page):
 
     content = await page.query_selector('#content')
     content_html = await content.inner_html()
+    title = await page.title()
 
     def make_absolute(m):
         return f'src="{urljoin(url.href, m.group(1))}"'
 
     content_html = re.sub(r'src="([^"]+)"', make_absolute, content_html)
 
-    return content_html
+    return content_html, title

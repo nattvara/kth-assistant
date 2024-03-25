@@ -20,7 +20,10 @@ async def test_download_service_throws_exception_if_trying_to_save_content_from_
 
 @pytest.mark.asyncio
 async def test_download_service_can_download_content_from_canvas_url(mocker, get_download_service, new_snapshot):
-    mocker.patch("services.download.canvas.download_content", AsyncMock(return_value='<p>some text</p>'))
+    mocker.patch("services.download.canvas.download_content", AsyncMock(return_value=(
+        '<p>some text</p>',
+        'some title'
+    )))
     download_service = await get_download_service
 
     url = new_snapshot.add_visited_url()
@@ -33,11 +36,15 @@ async def test_download_service_can_download_content_from_canvas_url(mocker, get
 
     assert url.content is not None
     assert url.content.text == 'some text'
+    assert url.content.name == 'some title'
 
 
 @pytest.mark.asyncio
 async def test_download_service_can_download_content_from_non_canvas_url(mocker, get_download_service, new_snapshot):
-    mocker.patch("services.download.web.download_content", AsyncMock(return_value='<p>some example text</p>'))
+    mocker.patch("services.download.web.download_content", AsyncMock(return_value=(
+        '<p>some example text</p>',
+        'some title'
+    )))
     download_service = await get_download_service
 
     url = new_snapshot.add_visited_url()
@@ -50,6 +57,7 @@ async def test_download_service_can_download_content_from_non_canvas_url(mocker,
 
     assert url.content is not None
     assert url.content.text == 'some example text'
+    assert url.content.name == 'some title'
 
 
 @pytest.mark.asyncio
