@@ -5,7 +5,6 @@ from playwright.async_api import Error as PlaywrightError
 from redis.asyncio import Redis
 import arrow
 
-from db.actions.url import get_most_recent_url, exists_any_unvisited_urls_in_snapshot
 from db.actions.snapshot import all_snapshots_of_course_in_most_recent_order
 import services.crawler.content_extraction as content_extraction
 from services.crawler.url_filters import domain_is_canvas, get_domain
@@ -13,6 +12,11 @@ import services.crawler.url_filters as url_filters
 from db.models import Course, Snapshot, Url
 import config.settings as settings
 from config.logger import log
+from db.actions.url import (
+    exists_any_unvisited_urls_in_snapshot,
+    find_url_with_href_sha_in_snapshot,
+    get_most_recent_url,
+)
 import cache.mutex as mutex
 
 
@@ -58,6 +62,11 @@ class CrawlerService:
         if arrow.now() >= snapshot.created_at.shift(minutes=course.snapshot_lifetime_in_mins):
             return True
         return False
+
+    @staticmethod
+    def snapshot_contains_url(snapshot: Snapshot, url: str) -> bool:
+        href_sha = Url.make_href_sha(url)
+        return find_url_with_href_sha_in_snapshot(href_sha, snapshot) is not None
 
     @staticmethod
     def current_snapshot(course: Course) -> Snapshot:
@@ -112,6 +121,9 @@ class CrawlerService:
 
             links = await content_extraction.get_all_links_from_page(self.page)
             for link in links:
+                if CrawlerService.snapshot_contains_url(url.snapshot, link):
+                    continue
+
                 if get_domain(link) in url_filters.DOMAIN_DENY_LIST:
                     log().info(f"ignoring href {link} since the domain {get_domain(link)} was found"
                                f"on url domain deny list")

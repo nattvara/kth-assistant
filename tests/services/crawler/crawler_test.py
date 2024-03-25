@@ -187,7 +187,7 @@ async def test_urls_that_that_are_non_canvas_links_have_their_distance_increased
 ):
     mocker.patch("asyncio.sleep")
     mocker.patch("services.crawler.content_extraction.get_all_links_from_page", return_value=[
-        "https://example.com/1",
+        "https://example.com/foo",
         "https://canvas.kth.se"
     ])
     crawler_service = await get_crawler_service
@@ -329,5 +329,25 @@ async def test_links_that_match_deny_listed_regexes_are_ignored(
     url = new_snapshot.add_unvisited_url()
 
     assert len(new_snapshot.snapshot.urls) == 1
+    await crawler_service.service.crawl_url(url)
+    assert len(new_snapshot.snapshot.urls) == 2
+
+
+@pytest.mark.asyncio
+async def test_links_that_have_already_been_added_to_snapshot_are_ignored(
+    mocker,
+    get_crawler_service,
+    new_snapshot
+):
+    mocker.patch("asyncio.sleep")
+    mocker.patch("services.crawler.content_extraction.get_all_links_from_page", return_value=[
+        "https://example.com/1234",
+    ])
+    crawler_service = await get_crawler_service
+
+    url = new_snapshot.add_unvisited_url()
+    crawler_service.service.register_url("https://example.com/1234", found_on=url)
+
+    assert len(new_snapshot.snapshot.urls) == 2
     await crawler_service.service.crawl_url(url)
     assert len(new_snapshot.snapshot.urls) == 2
