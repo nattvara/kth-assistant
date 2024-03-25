@@ -50,3 +50,22 @@ async def test_download_service_can_download_content_from_non_canvas_url(mocker,
 
     assert url.content is not None
     assert url.content.text == 'some example text'
+
+
+@pytest.mark.asyncio
+async def test_download_service_can_download_content_from_pdf_urls(mocker, get_download_service, new_snapshot):
+    mocker.patch("services.download.pdf.download_content", return_value=('/tmp/file.pdf', 'somefile.pdf'))
+    mocker.patch("pdfminer.high_level.extract_text", return_value="pdf content...")
+    download_service = await get_download_service
+
+    url = new_snapshot.add_visited_url()
+    url.is_download = True
+    url.save()
+
+    await download_service.service.save_url_content(url)
+
+    url.refresh()
+
+    assert url.content is not None
+    assert url.content.text == 'pdf content...'
+    assert url.content.name == 'somefile.pdf'

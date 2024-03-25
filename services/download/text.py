@@ -1,5 +1,6 @@
 import unicodedata
 
+import pdfminer.high_level as pmine
 from bs4 import BeautifulSoup
 
 
@@ -24,7 +25,6 @@ def replace_nonsafe_characters_with_spaces(input_str):
     return cleaned_str
 
 
-
 def extract_text_from_html(html: str) -> str:
     soup = BeautifulSoup(html, 'html.parser')
     text = soup.get_text()
@@ -33,3 +33,7 @@ def extract_text_from_html(html: str) -> str:
     text = strip_air(text)
     text = replace_nonsafe_characters_with_spaces(text)
     return text
+
+
+def extract_text_from_pdf_file(file_path: str) -> str:
+    return pmine.extract_text(file_path)
