@@ -8,6 +8,9 @@ from services.crawler.crawler import CrawlerService
 from config.logger import log
 import cache.redis
 
+# 60 minute timeout
+TIMEOUT = 60 * 60
+
 
 def get_crawler_service(redis: Redis, browser: Browser, context: BrowserContext, page: Page) -> CrawlerService:
     return CrawlerService(redis, browser, context, page)

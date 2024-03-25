@@ -3,6 +3,9 @@ from services.crawler.crawler import CrawlerService
 from config.logger import log
 from db.models import Course
 
+# 1 minute timeout
+TIMEOUT = 60
+
 
 def start_job_again_in(seconds: int):
     from jobs.schedule import schedule_job_capture_snapshots
