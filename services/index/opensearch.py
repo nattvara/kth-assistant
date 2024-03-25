@@ -1,6 +1,16 @@
+from typing import List
+
 from opensearchpy import OpenSearch
 import config.settings as settings
 from config.logger import log
+
+
+class Document:
+
+    def __init__(self, name: str, url: str, text: str):
+        self.name = name
+        self.url = url
+        self.text = text
 
 
 def get_client():
@@ -55,3 +65,34 @@ def index_document(client: OpenSearch, index_name: str, doc_id: str, body: dict)
         body=body,
         refresh=True,
     )
+
+
+def search_index(client: OpenSearch, index_name: str, query_string: str, max_docs: int = 4) -> List[Document]:
+    log().info(f"searching index '{index_name}'")
+
+    query = {
+        'query': {
+            'multi_match': {
+                'query': query_string,
+                'fields': [
+                    'text',
+                    'name'
+                ]
+            }
+        },
+        'size': max_docs,
+        '_source': False,
+        'fields': ['text', 'name', 'url']
+    }
+
+    res = client.search(index=index_name, body=query)
+
+    out = []
+    for doc in res['hits']['hits']:
+        out.append(Document(
+            doc['fields']['name'][0],
+            doc['fields']['url'][0],
+            doc['fields']['text'][0],
+        ))
+
+    return out
