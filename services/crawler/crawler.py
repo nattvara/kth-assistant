@@ -100,6 +100,15 @@ class CrawlerService:
             response = await self.page.goto(url.href, wait_until='load')
             await self.page.wait_for_load_state('load')
             await asyncio.sleep(2)
+
+            if 200 <= response.status <= 399:
+                url.response_was_ok = True
+            else:
+                url.response_was_ok = False
+
+            if url.href.endswith('.pdf'):
+                url.is_download = True
+
             links = await content_extraction.get_all_links_from_page(self.page)
             for link in links:
                 if url.distance >= settings.get_settings().MAX_CRAWL_DISTANCE_ALLOWED:
@@ -109,9 +118,13 @@ class CrawlerService:
                     self.register_url(href=link, found_on=url)
 
         except PlaywrightError as e:
-            url.state = Url.States.FAILED
-            url.save()
-            raise e
+            if 'net::ERR_ABORTED' in str(e):
+                log().info(f'Download triggered at {url.href}, continuing with next link.')
+                url.is_download = True
+            else:
+                url.state = Url.States.FAILED
+                url.save()
+                raise e
 
         url.state = Url.States.VISITED
         url.save()
