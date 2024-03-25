@@ -5,8 +5,10 @@ async-timeout==4.0.3
 beautifulsoup4==4.12.3
 beeprint==2.4.11
 certifi==2024.2.2
+cffi==1.16.0
 charset-normalizer==3.3.2
 click==8.1.7
+cryptography==42.0.5
 distro==1.9.0
 fastapi==0.110.0
 filelock==3.13.1
@@ -28,12 +30,14 @@ networkx==3.2.1
 numpy==1.26.4
 openai==1.13.3
 packaging==23.2
+pdfminer.six==20231228
 peewee==3.17.1
 peewee-migrate==1.12.2
 playwright==1.42.0
 pluggy==1.4.0
 psycopg2==2.9.9
 pycodestyle==2.11.1
+pycparser==2.21
 pydantic==2.6.3
 pydantic-settings==2.2.1
 pydantic_core==2.16.3
