@@ -77,3 +77,34 @@ async def test_download_service_can_download_content_from_pdf_urls(mocker, get_d
     assert url.content is not None
     assert url.content.text == 'pdf content...'
     assert url.content.name == 'somefile.pdf'
+
+
+@pytest.mark.asyncio
+async def test_download_service_marks_url_as_duplicate_if_content_already_exists(
+    mocker,
+    get_download_service,
+    new_snapshot
+):
+    mocker.patch("services.download.canvas.download_content", AsyncMock(return_value=(
+        '<p>some text</p>',
+        'some title'
+    )))
+    download_service = await get_download_service
+
+    url_1 = new_snapshot.add_visited_url()
+    url_1.href = 'https://canvas.kth.se/foo'
+    url_1.save()
+
+    url_2 = new_snapshot.add_visited_url()
+    url_2.href = 'https://canvas.kth.se/bar'
+    url_2.save()
+
+    await download_service.service.save_url_content(url_1)
+    await download_service.service.save_url_content(url_2)
+
+    assert url_1.content is not None
+    assert url_2.content is not None
+    assert url_1.content.sha == url_2.content.sha
+
+    assert not url_1.content_is_duplicate
+    assert url_2.content_is_duplicate

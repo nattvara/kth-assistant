@@ -26,3 +26,12 @@ def find_url_with_href_sha_in_snapshot(href_sha: str, snapshot):
     ).filter(
         Url.snapshot == snapshot
     ).first()
+
+
+def find_url_referencing_content_in_snapshot(snapshot, content):
+    from db.models.url import Url
+    return Url.select().filter(
+        Url.content == content
+    ).filter(
+        Url.snapshot == snapshot
+    ).first()

@@ -24,13 +24,12 @@ class Content(BaseModel):
     name = peewee.CharField(null=True)
     text = peewee.TextField(null=False)
 
-    @staticmethod
-    def make_sha(text: str):
-        if text is None:
+    def make_sha(self):
+        if self.text is None:
             raise ValueError("cannot generate sha if text is not defined")
 
-        return hashlib.sha256(str(text).encode('utf-8')).hexdigest()
+        return hashlib.sha256(str(self.text).encode('utf-8')).hexdigest()
 
     def save(self, *args, **kwargs):
-        self.sha = Content.make_sha(str(self.text))
+        self.sha = self.make_sha()
         return super(Content, self).save(*args, **kwargs)
