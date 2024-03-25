@@ -3,7 +3,7 @@ import hashlib
 
 import peewee
 
-from . import BaseModel, Snapshot
+from . import BaseModel, Snapshot, Content
 
 # Suppress specific DeprecationWarning about db_table, this is needed for migrations to work
 warnings.filterwarnings(
@@ -34,6 +34,8 @@ class Url(BaseModel):
     distance = peewee.IntegerField(null=False)
     is_download = peewee.BooleanField(null=False, index=True, default=False)
     response_was_ok = peewee.BooleanField(null=False, index=True, default=False)
+    content = peewee.ForeignKeyField(Content, null=True, backref='urls', on_delete='CASCADE')
+    content_is_duplicate = peewee.BooleanField(null=False, index=True, default=False)
 
     @staticmethod
     def make_href_sha(href: str):
