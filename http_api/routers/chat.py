@@ -90,7 +90,7 @@ async def send_message(
     msg = Message(chat=chat, content=body.content, sender=Message.Sender.STUDENT)
     msg.save()
 
-    ChatService.request_next_message(chat)
+    await ChatService.request_next_message(chat)
 
     return MessageResponse(
         message_id=msg.message_id,

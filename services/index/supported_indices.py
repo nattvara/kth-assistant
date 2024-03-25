@@ -5,6 +5,8 @@ class IndexType(Enum):
 
     NO_INDEX = 'no_index'
 
+    FULL_TEXT_SEARCH = 'full_text_search'
+
 
 enum_dict = {enum.value: enum for enum in IndexType}
 

@@ -29,6 +29,22 @@ The next message in the conversion:
 """
 
 
+def prompt_make_next_ai_message_with_documents(messages: List[Message], documents: List[PostProcessedDocument]) -> str:
+    return f"""
+Documents you may source information from if useful (use citations):
+===================================
+{format_documents(documents)}
+
+Chat history:
+===================================
+{format_messages(messages)}
+
+The next message in the conversion:
+===================================
+<{SYSTEM_NAME}>:
+"""
+
+
 def prompt_generate_question_from_chat_history(messages: List[Message]) -> str:
     history = messages[:-1]
     last = messages[-1]
