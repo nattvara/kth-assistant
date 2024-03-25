@@ -3,6 +3,7 @@ from playwright.async_api import Browser, BrowserContext, Page
 from services.crawler.url_filters import domain_is_canvas
 from services.download.text import extract_text_from_html
 import services.download.canvas as canvas
+import services.download.web as web
 from db.models import Url, Content
 from config.logger import log
 
@@ -32,12 +33,21 @@ class DownloadService:
 
         if domain_is_canvas(url.href):
             content = await self._save_canvas_url_content(url)
+        else:
+            content = await self._save_web_url_content(url)
 
         url.content = content
         url.save()
 
     async def _save_canvas_url_content(self, url: Url):
         html = await canvas.download_content(url, self.page)
+        text = extract_text_from_html(html)
+        content = Content(text=text)
+        content.save()
+        return content
+
+    async def _save_web_url_content(self, url: Url):
+        html = await web.download_content(url, self.page)
         text = extract_text_from_html(html)
         content = Content(text=text)
         content.save()

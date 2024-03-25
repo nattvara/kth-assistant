@@ -33,3 +33,20 @@ async def test_download_service_can_download_content_from_canvas_url(mocker, get
 
     assert url.content is not None
     assert url.content.text == 'some text'
+
+
+@pytest.mark.asyncio
+async def test_download_service_can_download_content_from_non_canvas_url(mocker, get_download_service, new_snapshot):
+    mocker.patch("services.download.web.download_content", AsyncMock(return_value='<p>some example text</p>'))
+    download_service = await get_download_service
+
+    url = new_snapshot.add_visited_url()
+    url.href = 'https://example.com/'
+    url.save()
+
+    await download_service.service.save_url_content(url)
+
+    url.refresh()
+
+    assert url.content is not None
+    assert url.content.text == 'some example text'
