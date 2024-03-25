@@ -9,6 +9,7 @@ from .chat_config import ChatConfig
 from .message import Message
 from .snapshot import Snapshot
 from .url import Url
+from .cookie import Cookie
 
 all_models = [
     PromptHandle,
@@ -19,4 +20,5 @@ all_models = [
     ChatConfig,
     Snapshot,
     Url,
+    Cookie,
 ]
