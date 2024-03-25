@@ -10,6 +10,7 @@ env:
   ECR_REPOSITORY_HTTP_API: ${{ vars.ECR_REPOSITORY_HTTP_API }}
   ECR_REPOSITORY_GUI: ${{ vars.ECR_REPOSITORY_GUI }}
   ECR_REPOSITORY_WORKER: ${{ vars.ECR_REPOSITORY_WORKER }}
+  ECR_REPOSITORY_QUEUE_WORKER: ${{ vars.ECR_REPOSITORY_QUEUE_WORKER }}
 
 jobs:
   deploy-http-api:
@@ -142,6 +143,53 @@ jobs:
           IFS=$'\n' read -r -a TAGS <<< "$IMAGE_TAGS"
 
           docker build -t "${TAGS[0]}" -f services/llm/Worker.dockerfile .
+
+          for TAG in "${TAGS[@]:1}"; do
+            docker tag "${TAGS[0]}" "$TAG"
+          done
+
+          for TAG in "${TAGS[@]}"; do
+            docker push "$TAG"
+          done
+
+          echo "image=${TAGS[0]}" >> $GITHUB_ENV
+
+  deploy-queue-worker:
+    name: Queue Worker
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Extract metadata (tags) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_QUEUE_WORKER }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAGS: ${{ steps.meta.outputs.tags }}
+        run: |
+          IFS=$'\n' read -r -a TAGS <<< "$IMAGE_TAGS"
+
+          docker build -t "${TAGS[0]}" -f jobs/queue_worker/Dockerfile .
 
           for TAG in "${TAGS[@]:1}"; do
             docker tag "${TAGS[0]}" "$TAG"
