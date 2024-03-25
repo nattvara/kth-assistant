@@ -47,6 +47,10 @@ def mock_settings(mocker):
         POSTGRES_DB="some_db",
         REDIS_HOST="localhost",
         REDIS_PORT=6379,
+        OPENSEARCH_HOST="localhost",
+        OPENSEARCH_PORT=9200,
+        OPENSEARCH_USERNAME="admin",
+        OPENSEARCH_PASSWORD="admin",
     )
     mocker.patch('config.settings.get_settings', return_value=mock_settings)
 

@@ -27,6 +27,11 @@ class Settings(BaseSettings):
     REDIS_HOST: str
     REDIS_PORT: int
 
+    OPENSEARCH_HOST: str
+    OPENSEARCH_PORT: int
+    OPENSEARCH_USERNAME: str
+    OPENSEARCH_PASSWORD: str
+
     HUGGINGFACE_ACCESS_TOKEN: Optional[str] = None
     OPENAI_API_KEY: Optional[str] = None
 
