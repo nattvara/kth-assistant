@@ -40,7 +40,7 @@ def main():
     log().info(f"starting {num_crawler_workers} crawler workers")
     for i in range(num_crawler_workers):
         should_empty = True if i == 0 else False
-        schedule_job_start_crawler_worker(1, should_empty)
+        schedule_job_start_crawler_worker(2, should_empty)
 
     schedule_job_capture_snapshots(1, True)
 
