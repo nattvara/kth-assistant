@@ -307,3 +307,27 @@ async def test_links_that_match_contains_deny_list_are_ignored(
     assert len(new_snapshot.snapshot.urls) == 1
     await crawler_service.service.crawl_url(url)
     assert len(new_snapshot.snapshot.urls) == 3
+
+
+@pytest.mark.asyncio
+async def test_links_that_match_deny_listed_regexes_are_ignored(
+        mocker,
+        get_crawler_service,
+        new_snapshot
+):
+    mocker.patch("asyncio.sleep")
+    mocker.patch("services.crawler.content_extraction.get_all_links_from_page", return_value=[
+        "https://example.com/1234/foo",
+        "https://example.com/1234/bar",
+        "https://example.com/1234-doesnt-match/foo",
+    ])
+    mocker.patch('services.crawler.url_filters.DENY_URLS_THAT_MATCHES_REGEX', [
+        r'https://example\.com/1234/.+'
+    ])
+    crawler_service = await get_crawler_service
+
+    url = new_snapshot.add_unvisited_url()
+
+    assert len(new_snapshot.snapshot.urls) == 1
+    await crawler_service.service.crawl_url(url)
+    assert len(new_snapshot.snapshot.urls) == 2

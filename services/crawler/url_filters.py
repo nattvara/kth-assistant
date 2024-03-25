@@ -1,4 +1,5 @@
 from urllib.parse import urlparse
+import re
 
 
 CANVAS_DOMAIN = "canvas.kth.se"
@@ -37,6 +38,15 @@ DENY_URLS_THAT_CONTAINS = {
     "discussion_topics/new": True,
 }
 
+DENY_URLS_THAT_MATCHES_REGEX = [
+    r'https:\/\/canvas\.kth\.se\/[^\/]+\/[^\/]+\/grades\/',
+    r'https://canvas\.kth\.se/courses/\d+/groups',
+    r'https://canvas\.kth\.se/courses/\d+/user_services',
+    r'https://canvas\.kth\.se/courses/\d+/users',
+    r'https://canvas\.kth\.se/courses/\d+/grades',
+    r'https://canvas\.kth\.se/courses/\d+/assignments/\d+/submissions/.*',
+]
+
 
 def get_domain(url: str) -> str:
     parsed_url = urlparse(url)
@@ -57,5 +67,12 @@ def link_begins_with_deny_listed_string(url: str) -> bool:
 def link_contains_deny_listed_string(url: str) -> bool:
     for key in DENY_URLS_THAT_CONTAINS.keys():
         if key in url:
+            return True
+    return False
+
+
+def link_matches_any_deny_listed_regex(url: str) -> bool:
+    for pattern in DENY_URLS_THAT_MATCHES_REGEX:
+        if re.match(pattern, url):
             return True
     return False
