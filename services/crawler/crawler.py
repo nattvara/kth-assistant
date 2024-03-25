@@ -95,6 +95,8 @@ class CrawlerService:
 
     async def crawl_url(self, url: Url):
         try:
+            log().info(f"crawling url {url.href}")
+
             response = await self.page.goto(url.href, wait_until='load')
             await self.page.wait_for_load_state('load')
             await asyncio.sleep(2)
