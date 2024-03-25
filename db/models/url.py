@@ -21,8 +21,10 @@ class Url(BaseModel):
 
     class States:
         UNVISITED = 'unvisited'
-        VISITED = 'visited'
         CRAWLING = 'crawling'
+        VISITED = 'visited'
+        DOWNLOADED = 'downloaded'
+        INDEXED = 'indexed'
         FAILED = 'failed'
 
     id = peewee.AutoField()
