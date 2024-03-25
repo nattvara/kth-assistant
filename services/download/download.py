@@ -47,11 +47,13 @@ class DownloadService:
             if other_url is not None:
                 url.content = other_url.content
                 url.content_is_duplicate = True
+                url.state = Url.States.DOWNLOADED
                 url.save()
                 return
 
         content.save()
         url.content = content
+        url.state = Url.States.DOWNLOADED
         url.save()
 
     async def _save_pdf_url_content(self, url: Url):
