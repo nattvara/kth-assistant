@@ -129,6 +129,10 @@ class CrawlerService:
                                f"on url domain deny list")
                     continue
 
+                if link in url_filters.DENY_URLS_THAT_MATCHES_STRING_EXACTLY:
+                    log().info(f"ignoring href {link} since the url matches exact string to ignore")
+                    continue
+
                 if url_filters.link_begins_with_deny_listed_string(link):
                     log().info(f"ignoring href {link} since the link begins with something that is deny listed")
                     continue

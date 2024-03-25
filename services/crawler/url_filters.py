@@ -56,6 +56,10 @@ DENY_URLS_THAT_MATCHES_REGEX = [
     r'https://canvas\.kth\.se/courses/\d+/assignments/\d+/submissions/.*',
 ]
 
+DENY_URLS_THAT_MATCHES_STRING_EXACTLY = {
+
+}
+
 
 def get_domain(url: str) -> str:
     parsed_url = urlparse(url)
