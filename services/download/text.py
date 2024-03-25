@@ -36,4 +36,7 @@ def extract_text_from_html(html: str) -> str:
 
 
 def extract_text_from_pdf_file(file_path: str) -> str:
-    return pmine.extract_text(file_path)
+    text = pmine.extract_text(file_path)
+    text = text.strip()
+    text = replace_nonsafe_characters_with_spaces(text)
+    return text
