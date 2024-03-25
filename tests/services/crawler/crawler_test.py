@@ -260,9 +260,9 @@ async def test_links_that_are_on_domain_deny_list_are_ignored(
 
 @pytest.mark.asyncio
 async def test_links_that_match_startswith_deny_list_are_ignored(
-        mocker,
-        get_crawler_service,
-        new_snapshot
+    mocker,
+    get_crawler_service,
+    new_snapshot
 ):
     mocker.patch("asyncio.sleep")
     mocker.patch("services.crawler.content_extraction.get_all_links_from_page", return_value=[
@@ -285,9 +285,9 @@ async def test_links_that_match_startswith_deny_list_are_ignored(
 
 @pytest.mark.asyncio
 async def test_links_that_match_contains_deny_list_are_ignored(
-        mocker,
-        get_crawler_service,
-        new_snapshot
+    mocker,
+    get_crawler_service,
+    new_snapshot
 ):
     mocker.patch("asyncio.sleep")
     mocker.patch("services.crawler.content_extraction.get_all_links_from_page", return_value=[
@@ -311,9 +311,9 @@ async def test_links_that_match_contains_deny_list_are_ignored(
 
 @pytest.mark.asyncio
 async def test_links_that_match_deny_listed_regexes_are_ignored(
-        mocker,
-        get_crawler_service,
-        new_snapshot
+    mocker,
+    get_crawler_service,
+    new_snapshot
 ):
     mocker.patch("asyncio.sleep")
     mocker.patch("services.crawler.content_extraction.get_all_links_from_page", return_value=[
