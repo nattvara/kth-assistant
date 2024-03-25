@@ -256,3 +256,29 @@ async def test_links_that_are_on_domain_deny_list_are_ignored(
     assert len(new_snapshot.snapshot.urls) == 1
     await crawler_service.service.crawl_url(url)
     assert len(new_snapshot.snapshot.urls) == 1
+
+
+@pytest.mark.asyncio
+async def test_links_that_match_startswith_deny_list_are_ignored(
+        mocker,
+        get_crawler_service,
+        new_snapshot
+):
+    mocker.patch("asyncio.sleep")
+    mocker.patch("services.crawler.content_extraction.get_all_links_from_page", return_value=[
+        "https://example.com/ignore-this",
+        "https://example.com/ignore-that",
+        "https://example.com/but-not-this",
+    ])
+    mocker.patch('services.crawler.url_filters.DENY_URLS_THAT_STARTS_WITH', {
+        "https://example.com/ignore-this": True,
+        "https://example.com/ignore-that": True
+    })
+    crawler_service = await get_crawler_service
+
+    url = new_snapshot.add_unvisited_url()
+
+    # both links are ignored
+    assert len(new_snapshot.snapshot.urls) == 1
+    await crawler_service.service.crawl_url(url)
+    assert len(new_snapshot.snapshot.urls) == 2
