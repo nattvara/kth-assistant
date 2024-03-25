@@ -15,6 +15,7 @@ import pytest
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from db.models import all_models, Session, Course, Chat, Message, ChatConfig, Snapshot, Url  # noqa
+from services.download.download import DownloadService  # noqa
 from services.index.supported_indices import IndexType  # noqa
 from services.llm.supported_models import LLMModel  # noqa
 from services.crawler.crawler import CrawlerService  # noqa
@@ -184,6 +185,16 @@ def new_snapshot(valid_course: Course):
             url.save()
             return url
 
+        def add_visited_url(self) -> Url:
+            url = Url(
+                snapshot=self.snapshot,
+                href=f"https://example.com/1",
+                distance=0,
+                state=Url.States.VISITED,
+            )
+            url.save()
+            return url
+
     s = Snapshot(course=valid_course)
     s.save()
 
@@ -209,6 +220,25 @@ async def get_crawler_service(redis_connection, playwright_session):
     )
 
     return CrawlerServiceFixture(s, p_session, redis_connection)
+
+
+@pytest.fixture
+async def get_download_service(playwright_session):
+    p_session = await playwright_session
+
+    class DownloadServiceFixture:
+
+        def __init__(self, service: DownloadService, playwright: object):
+            self.service = service
+            self.playwright = playwright
+
+    s = DownloadService(
+        p_session.browser,
+        p_session.context,
+        p_session.page
+    )
+
+    return DownloadServiceFixture(s, p_session)
 
 
 @pytest.fixture
