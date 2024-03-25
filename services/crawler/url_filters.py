@@ -32,6 +32,11 @@ DENY_URLS_THAT_STARTS_WITH = {
     "https://canvas.kth.se/groups": True,
 }
 
+DENY_URLS_THAT_CONTAINS = {
+    "?comment_id=": True,
+    "discussion_topics/new": True,
+}
+
 
 def get_domain(url: str) -> str:
     parsed_url = urlparse(url)
@@ -45,5 +50,12 @@ def domain_is_canvas(url: str) -> bool:
 def link_begins_with_deny_listed_string(url: str) -> bool:
     for key in DENY_URLS_THAT_STARTS_WITH.keys():
         if url.startswith(key):
+            return True
+    return False
+
+
+def link_contains_deny_listed_string(url: str) -> bool:
+    for key in DENY_URLS_THAT_CONTAINS.keys():
+        if key in url:
             return True
     return False

@@ -121,6 +121,10 @@ class CrawlerService:
                     log().info(f"ignoring href {link} since the link begins with something that is deny listed")
                     continue
 
+                if url_filters.link_contains_deny_listed_string(link):
+                    log().info(f"ignoring href {link} since the link contains something that is deny listed")
+                    continue
+
                 if url.distance >= settings.get_settings().MAX_CRAWL_DISTANCE_ALLOWED:
                     log().info(f"ignoring href {link} since it was found"
                                f"on url {url.href} with distance {url.distance}")
