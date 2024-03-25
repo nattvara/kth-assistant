@@ -32,4 +32,4 @@ async def test_download_service_can_download_content_from_canvas_url(mocker, get
     url.refresh()
 
     assert url.content is not None
-    assert url.content.text == '<p>some text</p>'
+    assert url.content.text == 'some text'
