@@ -1,3 +1,5 @@
+import asyncio
+
 from playwright.async_api import Browser, BrowserContext, Page
 from playwright.async_api import Error as PlaywrightError
 from redis.asyncio import Redis
@@ -5,7 +7,11 @@ import arrow
 
 from db.actions.url import get_most_recent_url, exists_any_unvisited_urls_in_snapshot
 from db.actions.snapshot import all_snapshots_of_course_in_most_recent_order
+import services.crawler.content_extraction as content_extraction
+from services.crawler.url_filters import domain_is_canvas
 from db.models import Course, Snapshot, Url
+import config.settings as settings
+from config.logger import log
 import cache.mutex as mutex
 
 
@@ -40,6 +46,7 @@ class CrawlerService:
             snapshot=snapshot,
             href=f"https://canvas.kth.se/courses/{course.canvas_id}",
             root=True,
+            distance=0,
         )
         root_url.save()
 
@@ -89,12 +96,33 @@ class CrawlerService:
     async def crawl_url(self, url: Url):
         try:
             response = await self.page.goto(url.href, wait_until='load')
-            await response.body()
             await self.page.wait_for_load_state('load')
+            await asyncio.sleep(2)
+            links = await content_extraction.get_all_links_from_page(self.page)
+            for link in links:
+                if url.distance >= settings.get_settings().MAX_CRAWL_DISTANCE_ALLOWED:
+                    log().info(f"ignoring href {link} since it was found"
+                               f"on url {url.href} with distance {url.distance}")
+                else:
+                    self.register_url(href=link, found_on=url)
+
         except PlaywrightError as e:
             url.state = Url.States.FAILED
             url.save()
             raise e
 
         url.state = Url.States.VISITED
+        url.save()
+
+    def register_url(self, href: str, found_on: Url):
+        distance = found_on.distance
+        if not domain_is_canvas(href):
+            distance += 1
+
+        url = Url(
+            snapshot=found_on.snapshot,
+            href=href,
+            root=False,
+            distance=distance,
+        )
         url.save()

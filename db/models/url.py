@@ -29,3 +29,4 @@ class Url(BaseModel):
     state = peewee.CharField(null=False, index=True, default=States.UNVISITED)
     href = peewee.CharField(max_length=1024, null=False)
     root = peewee.BooleanField(null=False, index=True, default=False)
+    distance = peewee.IntegerField(null=False)

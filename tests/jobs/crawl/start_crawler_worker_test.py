@@ -7,7 +7,9 @@ from db.models import Url
 @pytest.mark.asyncio
 async def test_start_crawler_worker_will_checkout_url_and_crawl_url(get_crawler_service, new_snapshot, mocker):
     crawler_service = await get_crawler_service
+    mocker.patch("asyncio.sleep")
     mocker.patch("jobs.crawl.start_crawler_worker.get_crawler_service", return_value=crawler_service.service)
+    mocker.patch("services.crawler.content_extraction.get_all_links_from_page", return_value=[])
 
     url = new_snapshot.add_unvisited_url()
 
@@ -20,6 +22,7 @@ async def test_start_crawler_worker_will_checkout_url_and_crawl_url(get_crawler_
 @pytest.mark.asyncio
 async def test_start_crawler_enqueues_itself_the_next_minute(get_crawler_service, new_snapshot, mocker):
     crawler_service = await get_crawler_service
+    mocker.patch("asyncio.sleep")
     mocker.patch("jobs.crawl.start_crawler_worker.get_crawler_service", return_value=crawler_service.service)
     mock_start_job_again_in = mocker.patch(
         "jobs.crawl.start_crawler_worker.start_job_again_in",

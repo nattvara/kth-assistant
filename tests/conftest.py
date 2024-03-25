@@ -178,7 +178,7 @@ def new_snapshot(valid_course: Course):
             self.snapshot = snapshot
 
         def add_unvisited_url(self) -> Url:
-            url = Url(snapshot=self.snapshot, href=f"https://example.com/1")
+            url = Url(snapshot=self.snapshot, href=f"https://example.com/1", distance=0)
             url.save()
             return url
 

@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     WEBSOCKET_TIMEOUT_DURATION: int = 30
 
     NUMBER_OF_CRAWLER_WORKERS: int = 3
+    MAX_CRAWL_DISTANCE_ALLOWED: int = 2
 
     POSTGRES_SERVER: str
     POSTGRES_PORT: str
