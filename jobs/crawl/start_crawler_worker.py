@@ -3,6 +3,7 @@ from redis.asyncio import Redis
 import playwright.async_api
 
 import services.crawler.playwright as playwright_helper
+from services.download.download import DownloadService
 from cache.mutex import LockAlreadyAcquiredException
 from services.crawler.crawler import CrawlerService
 from config.logger import log
@@ -16,6 +17,10 @@ def get_crawler_service(redis: Redis, browser: Browser, context: BrowserContext,
     return CrawlerService(redis, browser, context, page)
 
 
+def get_download_service(browser: Browser, context: BrowserContext, page: Page) -> DownloadService:
+    return DownloadService(browser, context, page)
+
+
 def start_job_again_in(seconds: int):
     from jobs.schedule import schedule_job_start_crawler_worker
     schedule_job_start_crawler_worker(seconds)
@@ -26,12 +31,14 @@ async def run_worker():
         browser, context, page = await playwright_helper.get_logged_in_browser_context_and_page(pl)
 
         redis = await cache.redis.get_redis_connection()
-        service = get_crawler_service(redis, browser, context, page)
+        crawler_service = get_crawler_service(redis, browser, context, page)
+        download_service = get_download_service(browser, context, page)
 
-        while service.has_next():
+        while crawler_service.has_next():
             try:
-                url = await service.checkout()
-                await service.crawl_url(url)
+                url = await crawler_service.checkout()
+                await crawler_service.crawl_url(url)
+                await download_service.save_url_content(url)
             except LockAlreadyAcquiredException:
                 log().debug("Found a lock on the url. Skipping.")
 

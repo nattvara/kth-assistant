@@ -203,7 +203,7 @@ def new_snapshot(valid_course: Course):
 
 @pytest.fixture
 async def get_crawler_service(redis_connection, playwright_session):
-    p_session = await playwright_session
+    playwright_session
 
     class CrawlerServiceFixture:
 
@@ -214,18 +214,16 @@ async def get_crawler_service(redis_connection, playwright_session):
 
     s = CrawlerService(
         redis_connection,
-        p_session.browser,
-        p_session.context,
-        p_session.page
+        playwright_session.browser,
+        playwright_session.context,
+        playwright_session.page
     )
 
-    return CrawlerServiceFixture(s, p_session, redis_connection)
+    return CrawlerServiceFixture(s, playwright_session, redis_connection)
 
 
 @pytest.fixture
 async def get_download_service(playwright_session):
-    p_session = await playwright_session
-
     class DownloadServiceFixture:
 
         def __init__(self, service: DownloadService, playwright: object):
@@ -233,16 +231,16 @@ async def get_download_service(playwright_session):
             self.playwright = playwright
 
     s = DownloadService(
-        p_session.browser,
-        p_session.context,
-        p_session.page
+        playwright_session.browser,
+        playwright_session.context,
+        playwright_session.page
     )
 
-    return DownloadServiceFixture(s, p_session)
+    return DownloadServiceFixture(s, playwright_session)
 
 
 @pytest.fixture
-async def playwright_session(mocker):
+def playwright_session(mocker):
     class PlaywrightSession:
         def __init__(self, browser: Browser, context: BrowserContext, page: Page):
             self.browser = browser
