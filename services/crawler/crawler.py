@@ -145,6 +145,10 @@ class CrawlerService:
                     log().info(f"ignoring href {link} since the link matched a deny listed regex")
                     continue
 
+                if url_filters.link_belongs_to_another_canvas_course_room(link, url.snapshot.course.canvas_id):
+                    log().info(f"ignoring href {link} since the link belonged to another canvas course room")
+                    continue
+
                 if url.distance >= settings.get_settings().MAX_CRAWL_DISTANCE_ALLOWED:
                     log().info(f"ignoring href {link} since it was found"
                                f"on url {url.href} with distance {url.distance}")

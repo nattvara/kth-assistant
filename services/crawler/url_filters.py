@@ -89,3 +89,25 @@ def link_matches_any_deny_listed_regex(url: str) -> bool:
         if re.match(pattern, url):
             return True
     return False
+
+
+def link_belongs_to_another_canvas_course_room(url: str, canvas_id: str) -> bool:
+    def extract_course_id(url: str) -> str:
+        regex = r"https://canvas\.kth\.se/courses/([^/]+)"
+        match = re.search(regex, url)
+        if match:
+            return match.group(1)
+        else:
+            return None
+
+    if not domain_is_canvas(url):
+        return False
+
+    course_id = extract_course_id(url)
+    if course_id is None:
+        return False
+
+    if course_id != canvas_id:
+        return True
+
+    return False
