@@ -19,5 +19,6 @@ COPY . .
 RUN python setup.py install
 
 RUN playwright install chromium
+RUN playwright install-deps
 
 CMD ["sh", "-c", "rq worker --with-scheduler --url=\"redis://:@${REDIS_HOST}:${REDIS_PORT}\" \"${QUEUE_WORKER_QUEUE_NAME}\""]
