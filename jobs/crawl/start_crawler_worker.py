@@ -7,6 +7,7 @@ from services.download.download import DownloadService
 from cache.mutex import LockAlreadyAcquiredException
 from services.crawler.crawler import CrawlerService
 from config.logger import log
+from db.models import Url
 import cache.redis
 
 # 60 minute timeout
@@ -38,7 +39,10 @@ async def run_worker():
             try:
                 url = await crawler_service.checkout()
                 await crawler_service.crawl_url(url)
-                await download_service.save_url_content(url)
+
+                url.refresh()
+                if url.state == Url.States.VISITED:
+                    await download_service.save_url_content(url)
             except LockAlreadyAcquiredException:
                 log().debug("Found a lock on the url. Skipping.")
 
