@@ -66,5 +66,5 @@ async def job():
     try:
         await run_worker()
     finally:
-        log().info(f"start_crawler_worker complete. enqueuing next job in 60 seconds.")
+        log().info("start_crawler_worker complete. enqueuing next job in 60 seconds.")
         start_job_again_in(60)

@@ -185,14 +185,14 @@ def new_snapshot(valid_course: Course):
             self.snapshot = snapshot
 
         def add_unvisited_url(self) -> Url:
-            url = Url(snapshot=self.snapshot, href=f"https://example.com/1", distance=0)
+            url = Url(snapshot=self.snapshot, href="https://example.com/1", distance=0)
             url.save()
             return url
 
         def add_visited_url(self) -> Url:
             url = Url(
                 snapshot=self.snapshot,
-                href=f"https://example.com/1",
+                href="https://example.com/1",
                 distance=0,
                 state=Url.States.VISITED,
             )
@@ -202,7 +202,7 @@ def new_snapshot(valid_course: Course):
         def add_url_with_content(self) -> Url:
             url = Url(
                 snapshot=self.snapshot,
-                href=f"https://example.com/1",
+                href="https://example.com/1",
                 distance=0,
                 state=Url.States.DOWNLOADED,
             )

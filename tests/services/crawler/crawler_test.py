@@ -50,7 +50,7 @@ def test_the_current_snapshot_is_always_the_most_recent_snapshot_without_any_unv
         assert CrawlerService.current_snapshot(valid_course) == snapshot_2
 
         # adding a new url to snapshot_2 would mean snapshot one becomes valid again
-        url = Url(snapshot=snapshot_2, href=f"https://example.com/1", distance=1)
+        url = Url(snapshot=snapshot_2, href="https://example.com/1", distance=1)
         url.save()
 
         assert CrawlerService.current_snapshot(valid_course) == snapshot_1
@@ -66,9 +66,9 @@ def test_the_current_snapshot_is_always_the_most_recent_snapshot_without_any_unv
 async def test_next_url_from_service_is_the_most_recent_url(get_crawler_service, new_snapshot):
     crawler_service = await get_crawler_service
 
-    url_1 = Url(snapshot=new_snapshot.snapshot, href=f"https://example.com/1", distance=0)
-    url_2 = Url(snapshot=new_snapshot.snapshot, href=f"https://example.com/2", distance=0)
-    url_3 = Url(snapshot=new_snapshot.snapshot, href=f"https://example.com/3", distance=0)
+    url_1 = Url(snapshot=new_snapshot.snapshot, href="https://example.com/1", distance=0)
+    url_2 = Url(snapshot=new_snapshot.snapshot, href="https://example.com/2", distance=0)
+    url_3 = Url(snapshot=new_snapshot.snapshot, href="https://example.com/3", distance=0)
     url_1.save()
     url_2.save()
     url_3.save()
@@ -82,9 +82,9 @@ async def test_next_url_from_service_is_the_most_recent_url(get_crawler_service,
 async def test_next_url_from_service_is_always_in_unvisited_state(get_crawler_service, new_snapshot):
     crawler_service = await get_crawler_service
 
-    url_1 = Url(snapshot=new_snapshot.snapshot, href=f"https://example.com/1", distance=0)
-    url_2 = Url(snapshot=new_snapshot.snapshot, href=f"https://example.com/2", distance=0)
-    url_3 = Url(snapshot=new_snapshot.snapshot, href=f"https://example.com/3", distance=0)
+    url_1 = Url(snapshot=new_snapshot.snapshot, href="https://example.com/1", distance=0)
+    url_2 = Url(snapshot=new_snapshot.snapshot, href="https://example.com/2", distance=0)
+    url_3 = Url(snapshot=new_snapshot.snapshot, href="https://example.com/3", distance=0)
     url_1.save()
     url_2.save()
     url_3.save()
@@ -101,9 +101,9 @@ async def test_next_url_from_service_is_always_in_unvisited_state(get_crawler_se
 async def test_has_next_returns_true_only_if_any_unvisited_url_exist(get_crawler_service, new_snapshot):
     crawler_service = await get_crawler_service
 
-    url_1 = Url(snapshot=new_snapshot.snapshot, href=f"https://example.com/1", distance=0)
-    url_2 = Url(snapshot=new_snapshot.snapshot, href=f"https://example.com/2", distance=0)
-    url_3 = Url(snapshot=new_snapshot.snapshot, href=f"https://example.com/3", distance=0)
+    url_1 = Url(snapshot=new_snapshot.snapshot, href="https://example.com/1", distance=0)
+    url_2 = Url(snapshot=new_snapshot.snapshot, href="https://example.com/2", distance=0)
+    url_3 = Url(snapshot=new_snapshot.snapshot, href="https://example.com/3", distance=0)
     url_1.save()
     url_2.save()
     url_3.save()
@@ -138,7 +138,7 @@ async def test_next_throws_exception_if_no_unvisited_url_exists(get_crawler_serv
 async def test_checkout_returns_a_url_and_updates_its_state(get_crawler_service, new_snapshot):
     crawler_service = await get_crawler_service
 
-    url_1 = Url(snapshot=new_snapshot.snapshot, href=f"https://example.com/1", distance=0)
+    url_1 = Url(snapshot=new_snapshot.snapshot, href="https://example.com/1", distance=0)
     url_1.save()
 
     url = await crawler_service.service.checkout()
@@ -154,7 +154,7 @@ async def test_checkout_acquires_a_redis_lock_on_url(mocker, get_crawler_service
     mock_acquire_lock = mocker.patch('cache.mutex.acquire_lock', new_callable=AsyncMock)
     mock_release_lock = mocker.patch('cache.mutex.release_lock', new_callable=AsyncMock)
 
-    url = Url(snapshot=new_snapshot.snapshot, href=f"https://example.com/1", distance=0)
+    url = Url(snapshot=new_snapshot.snapshot, href="https://example.com/1", distance=0)
     url.save()
 
     await crawler_service.service.checkout()
@@ -200,7 +200,6 @@ async def test_urls_that_that_are_non_canvas_links_have_their_distance_increased
     assert new_snapshot.snapshot.urls[0].distance == 0  # this is the root url
     assert new_snapshot.snapshot.urls[1].distance == 1  # https://example.com/1
     assert new_snapshot.snapshot.urls[2].distance == 0  # https://canvas.kth.se/some-link
-
 
     mocker.patch("services.crawler.content_extraction.get_all_links_from_page", return_value=[
         "https://example.com/2",

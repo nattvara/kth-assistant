@@ -21,7 +21,11 @@ def schedule_job_start_crawler_worker(start_in_seconds: int, should_empty: bool 
             for job_id in registry.get_job_ids():
                 registry.remove(job_id)
 
-        q.enqueue_in(timedelta(seconds=start_in_seconds), start_crawler_worker, job_timeout=START_CRAWLER_WORKER_TIMEOUT)
+        q.enqueue_in(
+            timedelta(seconds=start_in_seconds),
+            start_crawler_worker,
+            job_timeout=START_CRAWLER_WORKER_TIMEOUT
+        )
     except ConnectionError:
         log().error("failed to connect to redis, couldn't start_crawler_worker job")
 

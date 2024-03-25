@@ -24,8 +24,8 @@ def create_temp_file():
 def download_content(url: Url) -> (str, str):
     cookie = find_cookie_by_identifier(settings.get_settings().COOKIE_IDENTIFIER)
     if cookie is None:
-        raise DownloadPdfException(f"could not find any cookie"
-                                        f"with identifier: {settings.get_settings().COOKIE_IDENTIFIER}")
+        raise DownloadPdfException(f"could not find any cookie "
+                                   f"with identifier: {settings.get_settings().COOKIE_IDENTIFIER}")
 
     cookies_string = cookie.value.strip()
     cookies = requests.utils.cookiejar_from_dict({c.split('=')[0]: c.split('=')[1] for c in cookies_string.split('; ')})
