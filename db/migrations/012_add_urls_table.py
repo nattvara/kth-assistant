@@ -6,9 +6,8 @@ from db.models import Url
 
 
 def migrate(migrator: Migrator, database: pw.Database, fake=False, **kwargs):
-    # this migration is broken
-    pass
+    db.create_tables([Url])
+
 
 def rollback(migrator: Migrator, database: pw.Database, fake=False, **kwargs):
-    # this migration is broken
-    pass
+    db.drop_tables([Url])
