@@ -243,6 +243,11 @@ async def playwright_session(mocker):
         __aexit__=AsyncMock(),
     ))
 
+    mocker.patch(
+        'services.crawler.playwright.get_logged_in_browser_context_and_page',
+        return_value=(mock_browser, mock_context, mock_page)
+    )
+
     session = PlaywrightSession(mock_browser, mock_context, mock_page)
 
     return session

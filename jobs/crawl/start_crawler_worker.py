@@ -2,7 +2,7 @@ from playwright.async_api import Browser, BrowserContext, Page
 from redis.asyncio import Redis
 import playwright.async_api
 
-from services.crawler.playwright import get_logged_in_browser_context_and_page
+import services.crawler.playwright as playwright_helper
 from cache.mutex import LockAlreadyAcquiredException
 from services.crawler.crawler import CrawlerService
 from config.logger import log
@@ -20,7 +20,7 @@ def start_job_again_in(seconds: int):
 
 async def run_worker():
     async with playwright.async_api.async_playwright() as pl:
-        browser, context, page = await get_logged_in_browser_context_and_page(pl)
+        browser, context, page = await playwright_helper.get_logged_in_browser_context_and_page(pl)
 
         redis = await cache.redis.get_redis_connection()
         service = get_crawler_service(redis, browser, context, page)
