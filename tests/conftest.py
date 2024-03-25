@@ -14,7 +14,7 @@ import pytest
 # in the main project when running inside pytest
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from db.models import all_models, Session, Course, Chat, Message, ChatConfig, Snapshot, Url  # noqa
+from db.models import all_models, Session, Course, Chat, Message, ChatConfig, Snapshot, Url, Content  # noqa
 from services.download.download import DownloadService  # noqa
 from services.index.supported_indices import IndexType  # noqa
 from services.llm.supported_models import LLMModel  # noqa
@@ -197,6 +197,21 @@ def new_snapshot(valid_course: Course):
                 state=Url.States.VISITED,
             )
             url.save()
+            return url
+
+        def add_url_with_content(self) -> Url:
+            url = Url(
+                snapshot=self.snapshot,
+                href=f"https://example.com/1",
+                distance=0,
+                state=Url.States.DOWNLOADED,
+            )
+
+            content = Content(text="some content", name="file.pdf")
+            content.save()
+            url.content = content
+            url.save()
+
             return url
 
     s = Snapshot(course=valid_course)
