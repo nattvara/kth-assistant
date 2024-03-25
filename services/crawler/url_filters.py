@@ -59,6 +59,8 @@ DENY_URLS_THAT_MATCHES_REGEX = [
 DENY_URLS_THAT_MATCHES_STRING_EXACTLY = {
     "https://canvas.kth.se/courses": True,
     "https://canvas.kth.se/courses/": True,
+    "https://canvas.kth.se": True,
+    "https://canvas.kth.se/": True,
 }
 
 
