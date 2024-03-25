@@ -30,3 +30,5 @@ class Url(BaseModel):
     href = peewee.CharField(max_length=1024, null=False)
     root = peewee.BooleanField(null=False, index=True, default=False)
     distance = peewee.IntegerField(null=False)
+    is_download = peewee.BooleanField(null=False, index=True, default=False)
+    response_was_ok = peewee.BooleanField(null=False, index=True, default=False)
