@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     WEBSOCKET_TIMEOUT_DURATION: int = 30
     COOKIE_IDENTIFIER: str
 
+    QUEUE_WORKER_QUEUE_NAME: Optional[str] = None
+
     NUMBER_OF_CRAWLER_WORKERS: int = 3
     MAX_CRAWL_DISTANCE_ALLOWED: int = 2
     CRAWLER_MODE_IS_HEADLESS: bool = True
