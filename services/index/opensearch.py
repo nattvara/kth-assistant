@@ -67,7 +67,7 @@ def index_document(client: OpenSearch, index_name: str, doc_id: str, body: dict)
     )
 
 
-def search_index(client: OpenSearch, index_name: str, query_string: str, max_docs: int = 4) -> List[Document]:
+def search_index(client: OpenSearch, index_name: str, query_string: str, max_docs: int = 3) -> List[Document]:
     log().info(f"searching index '{index_name}'")
 
     query = {
