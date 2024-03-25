@@ -188,7 +188,7 @@ async def test_urls_that_that_are_non_canvas_links_have_their_distance_increased
     mocker.patch("asyncio.sleep")
     mocker.patch("services.crawler.content_extraction.get_all_links_from_page", return_value=[
         "https://example.com/foo",
-        "https://canvas.kth.se"
+        "https://canvas.kth.se/some-link"
     ])
     crawler_service = await get_crawler_service
 
@@ -199,7 +199,7 @@ async def test_urls_that_that_are_non_canvas_links_have_their_distance_increased
     assert len(new_snapshot.snapshot.urls) == 3
     assert new_snapshot.snapshot.urls[0].distance == 0  # this is the root url
     assert new_snapshot.snapshot.urls[1].distance == 1  # https://example.com/1
-    assert new_snapshot.snapshot.urls[2].distance == 0  # https://canvas.kth.se
+    assert new_snapshot.snapshot.urls[2].distance == 0  # https://canvas.kth.se/some-link
 
 
     mocker.patch("services.crawler.content_extraction.get_all_links_from_page", return_value=[
