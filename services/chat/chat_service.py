@@ -72,6 +72,9 @@ class ChatService:
         messages = [message for message in chat.messages]
 
         question = await generate_question_from_messages(messages, chat)
+        if question.strip().upper() == 'NO_QUESTION':
+            return ChatService.request_next_message_without_index(chat)
+
         snapshot = ChatService.find_most_recent_snapshot_for_chat(chat)
 
         index = IndexService()
