@@ -8,7 +8,8 @@ import arrow
 from db.actions.url import get_most_recent_url, exists_any_unvisited_urls_in_snapshot
 from db.actions.snapshot import all_snapshots_of_course_in_most_recent_order
 import services.crawler.content_extraction as content_extraction
-from services.crawler.url_filters import domain_is_canvas
+from services.crawler.url_filters import domain_is_canvas, get_domain
+import services.crawler.url_filters as url_filters
 from db.models import Course, Snapshot, Url
 import config.settings as settings
 from config.logger import log
@@ -111,11 +112,18 @@ class CrawlerService:
 
             links = await content_extraction.get_all_links_from_page(self.page)
             for link in links:
+                if get_domain(link) in url_filters.DOMAIN_DENY_LIST:
+                    log().info(f"ignoring href {link} since the domain {get_domain(link)} was found"
+                               f"on url domain deny list")
+                    continue
+
                 if url.distance >= settings.get_settings().MAX_CRAWL_DISTANCE_ALLOWED:
                     log().info(f"ignoring href {link} since it was found"
                                f"on url {url.href} with distance {url.distance}")
-                else:
-                    self.register_url(href=link, found_on=url)
+                    continue
+
+                # if we've gotten this far we have no reason not to register the domain
+                self.register_url(href=link, found_on=url)
 
         except PlaywrightError as e:
             if 'net::ERR_ABORTED' in str(e):

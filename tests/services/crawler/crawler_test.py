@@ -233,3 +233,26 @@ async def test_hrefs_on_urls_with_distance_equal_to_max_distance_are_ignored(
 
     # should remain the same
     assert len(new_snapshot.snapshot.urls) == 1
+
+
+@pytest.mark.asyncio
+async def test_links_that_are_on_domain_deny_list_are_ignored(
+    mocker,
+    get_crawler_service,
+    new_snapshot
+):
+    mocker.patch("asyncio.sleep")
+    mocker.patch("services.crawler.content_extraction.get_all_links_from_page", return_value=[
+        "https://example.com/1",
+        "http://example.com/1",
+        "http://example2.com/1",
+    ])
+    mocker.patch('services.crawler.url_filters.DOMAIN_DENY_LIST', {"example.com": True, "example2.com": True})
+    crawler_service = await get_crawler_service
+
+    url = new_snapshot.add_unvisited_url()
+
+    # both links are ignored
+    assert len(new_snapshot.snapshot.urls) == 1
+    await crawler_service.service.crawl_url(url)
+    assert len(new_snapshot.snapshot.urls) == 1

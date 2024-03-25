@@ -224,8 +224,9 @@ async def playwright_session(mocker):
     mock_context = mocker.MagicMock()
     mock_page = mocker.MagicMock()
 
-    mock_browser.new_context = AsyncMock(return_value=mock_context)
+    mock_response.status = 200
 
+    mock_browser.new_context = AsyncMock(return_value=mock_context)
     mock_context.new_page = AsyncMock(return_value=mock_page)
 
     mock_page.goto = AsyncMock()
