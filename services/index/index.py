@@ -1,6 +1,8 @@
+from typing import List
+
 from services.index.chunks import split_text_with_overlap
 import services.index.opensearch as search
-from db.models import Url
+from db.models import Url, Snapshot
 
 
 class IndexService:
@@ -23,3 +25,6 @@ class IndexService:
         url.refresh()
         url.state = Url.States.INDEXED
         url.save()
+
+    def query_index(self, snapshot: Snapshot, query: str) -> List[search.Document]:
+        return search.search_index(self.client, snapshot.id, query)
