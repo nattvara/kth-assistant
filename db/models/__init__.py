@@ -8,6 +8,7 @@ from .chat import Chat
 from .chat_config import ChatConfig
 from .message import Message
 from .snapshot import Snapshot
+from .content import Content
 from .url import Url
 from .cookie import Cookie
 
@@ -21,4 +22,5 @@ all_models = [
     Snapshot,
     Url,
     Cookie,
+    Content,
 ]
