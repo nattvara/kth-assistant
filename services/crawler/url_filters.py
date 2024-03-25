@@ -11,6 +11,15 @@ DOMAIN_DENY_LIST = {
 }
 
 DENY_URLS_THAT_STARTS_WITH = {
+    "mailto:": True,
+    "tel:": True,
+    "javascript:": True,
+    "data:": True,
+    "file:": True,
+    "ftp:": True,
+    "blob:": True,
+    "ws:": True,
+    "wss:": True,
     "https://canvas.kth.se/search": True,
     "https://www.instructure.com/policies": True,
     "https://canvas.kth.se/#": True,
