@@ -21,6 +21,7 @@ class Content(BaseModel):
 
     id = peewee.AutoField()
     sha = peewee.CharField(null=False, index=True)
+    name = peewee.CharField(null=True)
     text = peewee.TextField(null=False)
 
     @staticmethod
