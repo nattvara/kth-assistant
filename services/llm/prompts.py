@@ -48,11 +48,11 @@ The next message in the conversion:
 def prompt_generate_question_from_chat_history(messages: List[Message]) -> str:
     if len(messages) == 1:
         return f"""
-You are a completion generator. You should only produce queries used to search in a search engine.
-Combine the chat history and follow up question into a standalone question. If the follow up question isn't a question,
+You are a completion generator. You should produce queries used to search in a search engine.
+Produce a standalone question from the following message from a user. If the message isn't a question,
 respond with the exact string "NO_QUESTION".
 
-Follow up question:
+Message from user:
 {messages[0].content}
 
 Standalone question:
