@@ -19,7 +19,7 @@ async def post_process_document(chat: Chat, doc: Document, question: str) -> Pos
 
     prompt = prompts.prompt_post_process_doc_for_question(doc.text, question)
 
-    handle = LLMService.dispatch_prompt(prompt, chat.model_name, Params())
+    handle = LLMService.dispatch_prompt(prompt, chat.model_name, Params(max_new_tokens=400))
     await LLMService.wait_for_handle(handle)
 
     return PostProcessedDocument(doc.name, doc.url, handle.response)
