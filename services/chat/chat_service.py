@@ -1,3 +1,5 @@
+import asyncio
+
 from services.chat.questions import generate_question_from_messages
 from db.models import Chat, Message, Session, Course, Snapshot
 from services.index.supported_indices import IndexType
@@ -79,9 +81,10 @@ class ChatService:
 
         index = IndexService()
         docs = index.query_index(snapshot, query=question)
-        post_processed_docs = []
-        for doc in docs:
-            post_processed_docs.append(await post_process_document(chat, doc, question))
+
+        post_processed_docs = await asyncio.gather(
+            *[post_process_document(chat, doc, question) for doc in docs]
+        )
 
         prompt = prompts.prompt_make_next_ai_message_with_documents(messages, post_processed_docs)
         handle = LLMService.dispatch_prompt(prompt, chat.model_name, chat.model_params)
