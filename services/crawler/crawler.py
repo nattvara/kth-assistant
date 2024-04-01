@@ -28,6 +28,10 @@ class NoValidSnapshotException(Exception):
     pass
 
 
+class InvalidResponseException(Exception):
+    pass
+
+
 class CrawlerService:
 
     def __init__(
@@ -111,7 +115,9 @@ class CrawlerService:
             await self.page.wait_for_load_state('load')
             await asyncio.sleep(2)
 
-            if 200 <= response.status <= 399:
+            if response is None:
+                raise InvalidResponseException("response was null")
+            elif 200 <= response.status <= 399:
                 url.response_was_ok = True
             else:
                 url.response_was_ok = False
@@ -165,6 +171,12 @@ class CrawlerService:
                 url.state = Url.States.FAILED
                 url.save()
                 raise e
+        except InvalidResponseException:
+            log().error(f"Got an invalid response at {url.href}")
+            url.state = Url.States.FAILED
+            url.response_was_ok = False
+            url.save()
+            return
 
         url.state = Url.States.VISITED
         url.save()
