@@ -19,7 +19,7 @@ async def post_process_document(chat: Chat, doc: Document, question: str) -> Pos
 
     prompt = prompts.prompt_post_process_doc_for_question(doc.text, question)
 
-    params = Params(max_new_tokens=400)
+    params = Params(max_new_tokens=300)
     params.stop_strings = ['</quotes>']
 
     handle = LLMService.dispatch_prompt(prompt, chat.llm_model_name, params)
