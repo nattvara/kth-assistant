@@ -42,7 +42,9 @@ export default function ChatProperties(props: ChatPropertiesProps) {
 
         <Space h="md" />
 
-        <div>{t("properties.course_room")}: <strong>{data.course_name}</strong></div>
+        <div>
+          {t("properties.course_room")}: <strong>{data.course_name}</strong>
+        </div>
 
         <Space h="sm" />
 
