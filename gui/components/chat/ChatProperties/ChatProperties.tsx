@@ -1,4 +1,4 @@
-import { Alert, LoadingOverlay, SimpleGrid } from "@mantine/core";
+import { Alert, Group, Image, LoadingOverlay, SimpleGrid, Space, Text } from "@mantine/core";
 import { IconBrain } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "next-i18next";
@@ -14,7 +14,7 @@ interface ChatPropertiesProps {
 
 export default function ChatProperties(props: ChatPropertiesProps) {
   const { courseId, chatId } = props;
-  const { t } = useTranslation("chat");
+  const { t, i18n } = useTranslation("chat");
 
   const { isFetching, isError, data, error } = useQuery({
     queryKey: ["chat", courseId, chatId],
@@ -39,6 +39,18 @@ export default function ChatProperties(props: ChatPropertiesProps) {
       <Alert variant="light" color="gray" title={t("properties.title")} icon={<IconBrain />} className={styles.alert}>
         <LoadingOverlay visible={isFetching} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
         <div dangerouslySetInnerHTML={{ __html: modelAndIndexType }} />
+
+        <Space h="md" />
+
+        <Group align="center">
+          {i18n.language === "en" && (
+            <Image src="/flag-en.svg" radius="sm" h={30} w="auto" fit="contain" alt="UK flag" />
+          )}
+          {i18n.language === "sv" && (
+            <Image src="/flag-sv.svg" radius="sm" h={30} w="auto" fit="contain" alt="Swedish flag" />
+          )}
+          <Text>{t("properties.language")}</Text>
+        </Group>
       </Alert>
     </SimpleGrid>
   );
