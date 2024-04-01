@@ -10,7 +10,6 @@ import services.crawler.content_extraction as content_extraction
 from services.crawler.url_filters import domain_is_canvas, get_domain
 import services.crawler.url_filters as url_filters
 from db.models import Course, Snapshot, Url
-import config.settings as settings
 from config.logger import log
 from db.actions.url import (
     exists_any_unvisited_urls_in_snapshot,
@@ -155,7 +154,7 @@ class CrawlerService:
                     log().info(f"ignoring href {link} since the link belonged to another canvas course room")
                     continue
 
-                if url.distance >= settings.get_settings().MAX_CRAWL_DISTANCE_ALLOWED:
+                if url.distance >= url.snapshot.course.max_allowed_crawl_distance:
                     log().info(f"ignoring href {link} since it was found"
                                f"on url {url.href} with distance {url.distance}")
                     continue
