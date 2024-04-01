@@ -8,6 +8,7 @@ import arrow
 
 from llms.generate import generate_text_streaming, load_hf_model
 from services.llm.prompts import prepend_system_prompt
+from cache.mutex import LockAlreadyAcquiredException
 from services.llm.supported_models import LLMModel
 from services.llm.llm import LLMService
 from db.models import PromptHandle
@@ -37,19 +38,19 @@ class Worker:
     def __init__(
             self,
             llm_service: LLMService,
-            model_name: LLMModel,
+            llm_model_name: LLMModel,
             device: str,
             model_loader_func: Callable = load_hf_model,
             text_generator: Callable = generate_text_streaming,
     ):
         self.service = llm_service
         self.running = False
-        self.model_name = model_name.value
+        self.llm_model_name = llm_model_name.value
         self.device = device
         self.text_generator = text_generator
 
-        log().info(f"Loading model \"{self.model_name}\" onto device \"{self.device}\"")
-        self.model, self.tokenizer = model_loader_func(self.model_name, self.device)
+        log().info(f"Loading model \"{self.llm_model_name}\" onto device \"{self.device}\"")
+        self.model, self.tokenizer = model_loader_func(self.llm_model_name, self.device)
         log().info("model loaded, worker is ready")
 
     async def process_prompt_handle(self, handle):
@@ -73,26 +74,35 @@ class Worker:
                 log().debug("generating response...")
 
                 params = Params()
-                if handle.model_params is not None:
-                    params = handle.model_params
+                if handle.llm_model_params is not None:
+                    params = handle.llm_model_params
 
                 prompt = handle.prompt
-                if handle.model_name != LLMModel.OPENAI_GPT4:
+                if handle.llm_model_name != LLMModel.OPENAI_GPT4:
                     prompt = prepend_system_prompt(params.system_prompt, handle.prompt)
 
                 index = 1
                 start_time = time.time()
                 found_less_than = False
+                found_less_than_and_pipe = False
                 async for token in self.text_generator(self.model, self.tokenizer, self.device, params, prompt):
-                    # since the model has a tendency to generate <student> strings
+                    # since the model has a tendency to generate <|user|> strings
                     # this check is here to ensure the model doesn't start generating
-                    # dangling "<" tokens at the end of messages
+                    # dangling "<|" tokens at the end of messages
                     if found_less_than:
                         token = f'<{token}'
                         found_less_than = False
 
+                    if found_less_than_and_pipe:
+                        token = f'<|{token}'
+                        found_less_than_and_pipe = False
+
                     if token == '<':
                         found_less_than = True
+                        continue
+
+                    if token == '<|':
+                        found_less_than_and_pipe = True
                         continue
 
                     await websocket.send(token)
@@ -125,8 +135,11 @@ class Worker:
         while self.running:
             try:
                 if self.service.has_next():
-                    handle = self.service.checkout()
-                    await self.process_prompt_handle(handle)
+                    try:
+                        handle = await self.service.checkout()
+                        await self.process_prompt_handle(handle)
+                    except LockAlreadyAcquiredException:
+                        log().debug("Found a lock the handle. Skipping for now.")
                 await asyncio.sleep(0.05)
             except KeyboardInterrupt:
                 log().info("Stopping worker...")

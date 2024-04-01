@@ -10,6 +10,15 @@ class Settings(BaseSettings):
     HOST: str
     PORT: int
     BACKEND_CORS_ORIGINS: List[HttpUrl] = []
+    WEBSOCKET_TIMEOUT_DURATION: int = 30
+    COOKIE_IDENTIFIER: str
+
+    QUEUE_WORKER_QUEUE_NAME: Optional[str] = None
+
+    NUMBER_OF_CRAWLER_WORKERS: int = 3
+    MAX_CRAWL_DISTANCE_ALLOWED: int = 2
+    CRAWLER_MODE_IS_HEADLESS: bool = True
+    CANVAS_PROFILE_PAGE_VALIDATION_SEARCH_STRING: str
 
     POSTGRES_SERVER: str
     POSTGRES_PORT: str
@@ -20,7 +29,10 @@ class Settings(BaseSettings):
     REDIS_HOST: str
     REDIS_PORT: int
 
-    WEBSOCKET_TIMEOUT_DURATION: int = 30
+    OPENSEARCH_HOST: str
+    OPENSEARCH_PORT: int
+    OPENSEARCH_USERNAME: str
+    OPENSEARCH_PASSWORD: str
 
     HUGGINGFACE_ACCESS_TOKEN: Optional[str] = None
     OPENAI_API_KEY: Optional[str] = None

@@ -17,7 +17,7 @@ def create_worker(mock_load_hf_model, create_mock_generate_text_streaming, llm_m
         mock_generate_text = create_mock_generate_text_streaming(mock_tokens)
         worker = Worker(
             llm_service=service,
-            model_name=llm_model_name,
+            llm_model_name=llm_model_name,
             device='cuda',
             model_loader_func=mock_load_hf_model,
             text_generator=mock_generate_text
@@ -60,13 +60,18 @@ async def test_worker_will_poll_the_llm_service_every_50_milliseconds_for_next_h
 
 
 @pytest.mark.asyncio
-async def test_worker_generates_text_from_the_handles_prompt(create_worker, create_websocket_mocks, llm_model_name):
+async def test_worker_generates_text_from_the_handles_prompt(
+    redis_connection,
+    create_worker,
+    create_websocket_mocks,
+    llm_model_name
+):
     create_websocket_mocks()
 
     mock_tokens = ['baby', ' ', 'don', '\'', 't', ' ', 'hurt', ' ', 'me']
 
-    service = LLMService(llm_model_name)
-    handle = PromptHandle(service=service, prompt="what is love?", model_name=llm_model_name)
+    service = LLMService(llm_model_name, redis_connection)
+    handle = PromptHandle(service=service, prompt="what is love?", llm_model_name=llm_model_name)
     handle.save()
 
     worker, mock_generate_text = create_worker(service, mock_tokens, True)
@@ -79,12 +84,17 @@ async def test_worker_generates_text_from_the_handles_prompt(create_worker, crea
 
 
 @pytest.mark.asyncio
-async def test_worker_connects_to_the_websocket_of_the_handle(create_worker, create_websocket_mocks, llm_model_name):
+async def test_worker_connects_to_the_websocket_of_the_handle(
+    redis_connection,
+    create_worker,
+    create_websocket_mocks,
+    llm_model_name
+):
     _, mock_connect = create_websocket_mocks()
     mock_tokens = ['baby', ' ', 'don', '\'', 't', ' ', 'hurt', ' ', 'me']
 
-    service = LLMService(llm_model_name)
-    handle = PromptHandle(service=service, prompt="what is love?", model_name=llm_model_name)
+    service = LLMService(llm_model_name, redis_connection)
+    handle = PromptHandle(service=service, prompt="what is love?", llm_model_name=llm_model_name)
     handle.save()
 
     worker, mock_generate_text = create_worker(service, mock_tokens, True)
@@ -96,6 +106,7 @@ async def test_worker_connects_to_the_websocket_of_the_handle(create_worker, cre
 
 @pytest.mark.asyncio
 async def test_worker_sends_all_generated_tokens_to_the_websocket_with_end_token(
+    redis_connection,
     create_worker,
     create_websocket_mocks,
     llm_model_name
@@ -103,8 +114,8 @@ async def test_worker_sends_all_generated_tokens_to_the_websocket_with_end_token
     mock_ws, mock_connect = create_websocket_mocks()
     mock_tokens = ['baby', ' ', 'don', '\'', 't', ' ', 'hurt', ' ', 'me']
 
-    service = LLMService(llm_model_name)
-    handle = PromptHandle(service=service, prompt="what is love?", model_name=llm_model_name)
+    service = LLMService(llm_model_name, redis_connection)
+    handle = PromptHandle(service=service, prompt="what is love?", llm_model_name=llm_model_name)
     handle.save()
 
     worker, mock_generate_text = create_worker(service, mock_tokens, True)
@@ -122,12 +133,17 @@ async def test_worker_sends_all_generated_tokens_to_the_websocket_with_end_token
 
 
 @pytest.mark.asyncio
-async def test_worker_saves_entire_response_when_finished(create_worker, create_websocket_mocks, llm_model_name):
+async def test_worker_saves_entire_response_when_finished(
+    redis_connection,
+    create_worker,
+    create_websocket_mocks,
+    llm_model_name
+):
     create_websocket_mocks()
     mock_tokens = ['baby', ' ', 'don', '\'', 't', ' ', 'hurt', ' ', 'me']
 
-    service = LLMService(llm_model_name)
-    handle = PromptHandle(service=service, prompt="what is love?", model_name=llm_model_name)
+    service = LLMService(llm_model_name, redis_connection)
+    handle = PromptHandle(service=service, prompt="what is love?", llm_model_name=llm_model_name)
     handle.save()
 
     worker, mock_generate_text = create_worker(service, mock_tokens, True)
@@ -139,6 +155,7 @@ async def test_worker_saves_entire_response_when_finished(create_worker, create_
 
 @pytest.mark.asyncio
 async def test_worker_saves_number_of_tokens_generated_and_sets_state_when_finished(
+    redis_connection,
     create_worker,
     create_websocket_mocks,
     llm_model_name
@@ -146,8 +163,8 @@ async def test_worker_saves_number_of_tokens_generated_and_sets_state_when_finis
     create_websocket_mocks()
     mock_tokens = ['baby', ' ', 'don', '\'', 't', ' ', 'hurt', ' ', 'me']
 
-    service = LLMService(llm_model_name)
-    handle = PromptHandle(service=service, prompt="what is love?", model_name=llm_model_name)
+    service = LLMService(llm_model_name, redis_connection)
+    handle = PromptHandle(service=service, prompt="what is love?", llm_model_name=llm_model_name)
     handle.save()
 
     worker, mock_generate_text = create_worker(service, mock_tokens, True)
@@ -160,6 +177,7 @@ async def test_worker_saves_number_of_tokens_generated_and_sets_state_when_finis
 
 @pytest.mark.asyncio
 async def test_model_parameters_from_the_handle_is_used_by_the_worker(
+    redis_connection,
     create_worker,
     create_websocket_mocks,
     llm_model_name
@@ -179,8 +197,13 @@ async def test_model_parameters_from_the_handle_is_used_by_the_worker(
         system_prompt="bar",
     )
 
-    service = LLMService(llm_model_name)
-    handle = PromptHandle(service=service, prompt="what is love?", model_name=llm_model_name, model_params=params)
+    service = LLMService(llm_model_name, redis_connection)
+    handle = PromptHandle(
+        service=service,
+        prompt="what is love?",
+        llm_model_name=llm_model_name,
+        llm_model_params=params
+    )
     handle.save()
 
     worker, mock_generate_text = create_worker(service, mock_tokens, True)
@@ -191,12 +214,17 @@ async def test_model_parameters_from_the_handle_is_used_by_the_worker(
 
 
 @pytest.mark.asyncio
-async def test_default_parameters_are_used_if_not_defined(create_worker, create_websocket_mocks, llm_model_name):
+async def test_default_parameters_are_used_if_not_defined(
+    redis_connection,
+    create_worker,
+    create_websocket_mocks,
+    llm_model_name
+):
     create_websocket_mocks()
     mock_tokens = ['baby', ' ', 'don', '\'', 't', ' ', 'hurt', ' ', 'me']
 
-    service = LLMService(llm_model_name)
-    handle = PromptHandle(service=service, prompt="what is love?", model_name=llm_model_name)
+    service = LLMService(llm_model_name, redis_connection)
+    handle = PromptHandle(service=service, prompt="what is love?", llm_model_name=llm_model_name)
     handle.save()
 
     worker, mock_generate_text = create_worker(service, mock_tokens, True)

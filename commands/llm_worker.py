@@ -4,6 +4,7 @@ import sys
 
 from services.llm.supported_models import get_enum_from_enum_name, LLMModel
 from llms.openai import load_openai_sdk, generate_text_streaming
+from cache.redis import get_redis_connection
 from services.llm.llm import LLMService
 from services.llm.worker import Worker
 from config.logger import log
@@ -27,7 +28,7 @@ Example:
     print(help_message)
 
 
-def main():
+async def main():
     if len(sys.argv) != 3 or sys.argv[1] in ['-h', '--help']:
         print_help()
         exit(1)
@@ -45,7 +46,7 @@ def main():
 
     log().info("Starting worker")
 
-    service = LLMService(model_enum)
+    service = LLMService(model_enum, await get_redis_connection())
 
     if model_enum is not LLMModel.OPENAI_GPT4:
         if not download_only:
@@ -67,8 +68,12 @@ def main():
         log().info("agent is running in 'download-only' mode, exiting.")
         return
 
-    asyncio.run(worker.run())
+    await worker.run()
+
+
+def sync_main():
+    asyncio.run(main())
 
 
 if __name__ == '__main__':
-    main()
+    sync_main()

@@ -4,7 +4,7 @@ import { HttpError, makeUrl } from "@/api/http";
 
 export interface Chat {
   public_id: string;
-  model_name: string;
+  llm_model_name: string;
   index_type: string;
 }
 

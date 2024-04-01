@@ -9,7 +9,7 @@ def find_most_recent_pending_handle_for_model(model_name):
     return PromptHandle.select().filter(
         PromptHandle.state == PromptHandle.States.PENDING
     ).filter(
-        PromptHandle.model_name == model_name
+        PromptHandle.llm_model_name == model_name
     ).order_by(
         PromptHandle.created_at.asc()
     ).first()
