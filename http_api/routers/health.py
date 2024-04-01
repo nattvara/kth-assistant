@@ -47,7 +47,7 @@ async def index(response: Response):
 
     try:
         test_opensearch()
-        opensearch_result = 'search index is working.'
+        opensearch_result = 'search index is working fine.'
     except:  # noqa
         opensearch_result = 'search index is NOT working.'
         response.status_code = 503
