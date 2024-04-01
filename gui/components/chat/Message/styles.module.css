@@ -7,6 +7,25 @@
   word-break: break-word;
 }
 
+.content > a {
+  text-decoration: none;
+  color: var(--mantine-color-blue-6);
+  transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+  background-color: var(--mantine-color-blue-light);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.content > a:hover {
+  background-color: var(--mantine-color-blue-light-hover);
+  color: var(--mantine-color-blue-7);
+}
+
+.content > a:focus {
+  background-color: var(--mantine-color-blue-light-hover);
+  color: var(--mantine-color-blue-7);
+}
+
 .loader {
   margin-left: 10px;
 }

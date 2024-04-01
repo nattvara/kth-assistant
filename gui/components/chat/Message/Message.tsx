@@ -25,7 +25,6 @@ export default function Message(props: MessageProps) {
     if (message.streaming && message.websocket && !wsInitialized.current) {
       wsInitialized.current = true;
       setShowLoading(true);
-
       const ws = new WebSocket(makeWebsocketUrl(message.websocket));
       ws.onmessage = (event) => {
         if (event.data === TERMINATION_STRING) {
@@ -34,7 +33,12 @@ export default function Message(props: MessageProps) {
           return;
         }
         setDisplayedContent((prevContent) => {
-          const newContent = prevContent + event.data;
+          let newContent = prevContent + event.data;
+          const docPattern = /\\document\{([^}]+)\}\{([^}]+)\}/g;
+          newContent = newContent.replace(docPattern, (match, p1, p2) => {
+            return `<a href="${p1}" target="_blank">${p2}</a>`;
+          });
+
           setNumberOfWords(newContent.split(" ").length);
           return newContent;
         });
@@ -56,7 +60,12 @@ export default function Message(props: MessageProps) {
         }
       };
     } else if (!message.streaming) {
-      setDisplayedContent(message.content || "");
+      let initialContent = message.content || "";
+      const docPattern = /\\document\{([^}]+)\}\{([^}]+)\}/g;
+      initialContent = initialContent.replace(docPattern, (match, p1, p2) => {
+        return ` <a href="${p1}" target="_blank">${p2}</a> `;
+      });
+      setDisplayedContent(initialContent);
       setNumberOfWords(0);
       wsInitialized.current = false;
     }
@@ -81,14 +90,12 @@ export default function Message(props: MessageProps) {
         </strong>
       </Grid>
       <Grid>
-        <span className={styles.content}>
-          {displayedContent}
-          {showLoading && (
-            <span>
-              <Loader className={styles.loader} ref={loadingRef} color="black" size={12} />
-            </span>
-          )}
-        </span>
+        <span className={styles.content} dangerouslySetInnerHTML={{ __html: displayedContent }}></span>
+        {showLoading && (
+          <span>
+            <Loader className={styles.loader} ref={loadingRef} color="black" size={12} />
+          </span>
+        )}
       </Grid>
     </SimpleGrid>
   );
