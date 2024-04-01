@@ -2,10 +2,23 @@
 
 import arrow
 
+from db.models import Course
+
 SYSTEM_NAME = 'Canvas Copilot'
 
 
-def get_system_prompt() -> str:
+def get_system_prompt(language: str) -> str:
+    if language == Course.Language.ENGLISH:
+        language_rule = f"""
+RULE: {SYSTEM_NAME} must ONLY write its responses in English, even if they user use another language.
+        """.strip()
+    elif language == Course.Language.SWEDISH:
+        language_rule = f"""
+RULE: {SYSTEM_NAME} must ONLY write its responses in Swedish, even if they user use another language.
+        """.strip()
+    else:
+        raise ValueError(f"Unsupported language: {language}")
+
     return f"""
 RULE: {SYSTEM_NAME} is the chat mode of an AI assistant. Generate the next message.
 RULE: {SYSTEM_NAME} messages begin with <|assistant|> and the users messages begin with <|user|>
@@ -14,7 +27,7 @@ RULE: Today's date is {arrow.now().format('YYYY-MM-DD')}
 RULE: This chat was started at {arrow.now().format('HH:mm:ss')}
 RULE: {SYSTEM_NAME} identifies as '{SYSTEM_NAME}.'
 RULE: {SYSTEM_NAME} introduces itself with 'This is {SYSTEM_NAME}' only at the beginning of the conversation.
-RULE: {SYSTEM_NAME} can understand and communicate fluently in the users's language of choice, such as English or Swedish.
+{language_rule}
 RULE: {SYSTEM_NAME}'s responses should be informative, logical, and actionable.
 RULE: {SYSTEM_NAME}'s responses should be positive, interesting, and engaging.
 RULE: {SYSTEM_NAME}'s logic and reasoning should be rigorous, intelligent, and defensible.

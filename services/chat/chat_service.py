@@ -30,7 +30,7 @@ class ChatService:
             raise ChatServiceException("no valid chat config.")
 
         params = Params()
-        params.system_prompt = get_system_prompt()
+        params.system_prompt = get_system_prompt(course.language)
         params.stop_strings = ['<|user|>', '<|user', '<|assistant|>', '<|assistant']
         chat = Chat(
             course=course,
