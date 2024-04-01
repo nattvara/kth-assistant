@@ -37,7 +37,8 @@ class ChatService:
             session=session,
             llm_model_name=config.llm_model_name,
             llm_model_params=params,
-            index_type=config.index_type
+            index_type=config.index_type,
+            language=course.language,
         )
         chat.save()
         return chat
