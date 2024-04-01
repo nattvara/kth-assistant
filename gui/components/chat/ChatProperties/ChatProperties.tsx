@@ -1,6 +1,7 @@
 import { Alert, LoadingOverlay, SimpleGrid } from "@mantine/core";
 import { IconBrain } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "next-i18next";
 
 import { fetchChat } from "@/api/chat";
 
@@ -13,6 +14,7 @@ interface ChatPropertiesProps {
 
 export default function ChatProperties(props: ChatPropertiesProps) {
   const { courseId, chatId } = props;
+  const { t } = useTranslation("chat");
 
   const { isFetching, isError, data, error } = useQuery({
     queryKey: ["chat", courseId, chatId],
@@ -27,12 +29,16 @@ export default function ChatProperties(props: ChatPropertiesProps) {
     return <></>;
   }
 
+  const modelAndIndexType = t("properties.model_and_index_type", {
+    modelName: data.llm_model_name,
+    indexType: data.index_type,
+  });
+
   return (
     <SimpleGrid cols={1}>
-      <Alert variant="light" color="gray" title="Chat Properties" icon={<IconBrain />} className={styles.alert}>
+      <Alert variant="light" color="gray" title={t("properties.title")} icon={<IconBrain />} className={styles.alert}>
         <LoadingOverlay visible={isFetching} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
-        This chat is using the model <strong>{data.llm_model_name}</strong> and <strong>{data.index_type}</strong> as
-        index.
+        <div dangerouslySetInnerHTML={{ __html: modelAndIndexType }} />
       </Alert>
     </SimpleGrid>
   );

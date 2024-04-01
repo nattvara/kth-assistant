@@ -2,5 +2,9 @@
   "message": {
     "student": "You",
     "assistant": "Copilot"
+  },
+  "properties": {
+    "title": "Chat Properties",
+    "model_and_index_type": "This chat is using the model <strong>{{modelName}}</strong> and <strong>{{indexType}}</strong> as index."
   }
 }
