@@ -6,6 +6,7 @@
   "properties": {
     "title": "Chat Properties",
     "model_and_index_type": "This chat is using the model <strong>{{modelName}}</strong> and <strong>{{indexType}}</strong> as index.",
-    "language": "The language of the chat with this course-room is English."
+    "language": "The language of the chat with this course-room is English.",
+    "course_room": "Courseroom"
   }
 }

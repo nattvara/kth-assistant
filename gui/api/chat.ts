@@ -7,6 +7,7 @@ export interface Chat {
   llm_model_name: string;
   index_type: string;
   language: string;
+  course_name: string;
 }
 
 export interface Message {

@@ -42,6 +42,10 @@ export default function ChatProperties(props: ChatPropertiesProps) {
 
         <Space h="md" />
 
+        <div>{t("properties.course_room")}: <strong>{data.course_name}</strong></div>
+
+        <Space h="sm" />
+
         <Group align="center">
           {i18n.language === "en" && (
             <Image src="/flag-en.svg" radius="sm" h={30} w="auto" fit="contain" alt="UK flag" />
