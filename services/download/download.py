@@ -1,10 +1,15 @@
 from playwright.async_api import Browser, BrowserContext, Page
+from pdfminer.pdfparser import PDFSyntaxError
 
-from services.download.text import extract_text_from_html, extract_text_from_pdf_file
 from db.actions.url import find_url_referencing_content_in_snapshot
 from services.crawler.url_filters import domain_is_canvas
 from db.actions.content import find_content_with_sha
 import services.download.canvas as canvas
+from services.download.text import (
+    extract_text_from_html,
+    extract_text_from_pdf_file,
+    extract_text_from_plaintext_file
+)
 import services.download.web as web
 import services.download.pdf as pdf
 from db.models import Url, Content
@@ -35,14 +40,20 @@ class DownloadService:
                                            f"downloaded, url was in {url.state}")
 
         if url.is_download:
-            content = await self._save_pdf_url_content(url)
+            try:
+                log().info("trying to save content from url as a pdf")
+                content = await self._save_pdf_url_content(url)
+            except PDFSyntaxError:
+                log().info("failed to interpret download as pdf, trying as plaintext file")
+                content = await self._download_plaintext_url_content(url)
+
         elif domain_is_canvas(url.href):
             content = await self._save_canvas_url_content(url)
         else:
             content = await self._save_web_url_content(url)
 
-        same_content = find_content_with_sha(content.make_sha())
-        if same_content is not None:
+        same_content_list = find_content_with_sha(content.make_sha())
+        for same_content in same_content_list:
             other_url = find_url_referencing_content_in_snapshot(url.snapshot, same_content)
             if other_url is not None:
                 url.content = other_url.content
@@ -59,6 +70,12 @@ class DownloadService:
     async def _save_pdf_url_content(self, url: Url):
         content_filepath, filename = pdf.download_content(url)
         text = extract_text_from_pdf_file(content_filepath)
+        content = Content(text=text, name=filename)
+        return content
+
+    async def _download_plaintext_url_content(self, url: Url):
+        content_filepath, filename = pdf.download_content(url)
+        text = extract_text_from_plaintext_file(content_filepath)
         content = Content(text=text, name=filename)
         return content
 

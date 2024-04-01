@@ -40,3 +40,11 @@ def extract_text_from_pdf_file(file_path: str) -> str:
     text = text.strip()
     text = replace_nonsafe_characters_with_spaces(text)
     return text
+
+
+def extract_text_from_plaintext_file(file_path: str) -> str:
+    with open(file_path, 'r') as f:
+        text = f.read()
+        text = text.strip()
+        text = replace_nonsafe_characters_with_spaces(text)
+        return text
