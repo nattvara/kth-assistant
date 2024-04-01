@@ -2,7 +2,6 @@ from typing import List
 
 from services.llm.formatters import format_messages, format_documents
 from services.chat.docs import PostProcessedDocument
-from services.chat.system import SYSTEM_NAME
 from db.models import Message
 
 

@@ -1,7 +1,6 @@
 from typing import List
 
 from services.chat.docs import PostProcessedDocument
-from services.chat.system import SYSTEM_NAME
 from db.models import Message
 
 
