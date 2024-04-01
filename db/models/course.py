@@ -18,6 +18,11 @@ class Course(BaseModel):
         db_table = 'courses'
         table_name = 'courses'
 
+    class Language:
+        ENGLISH = 'en'
+        SWEDISH = 'sv'
+
     canvas_id = peewee.CharField(null=False, index=True, unique=True)
     snapshot_lifetime_in_mins = peewee.IntegerField(null=False, default=180)
     max_allowed_crawl_distance = peewee.IntegerField(null=False, default=2)
+    language = peewee.CharField(null=False, max_length=4, default='en')

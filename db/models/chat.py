@@ -32,3 +32,4 @@ class Chat(BaseModel):
     llm_model_name = ModelNameField(null=False, index=True)
     llm_model_params = ModelParamsField(null=True)
     index_type = IndexTypeField(null=False, index=True)
+    language = peewee.CharField(null=False, max_length=4, default='en')
