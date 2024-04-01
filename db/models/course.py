@@ -26,3 +26,5 @@ class Course(BaseModel):
     snapshot_lifetime_in_mins = peewee.IntegerField(null=False, default=180)
     max_allowed_crawl_distance = peewee.IntegerField(null=False, default=2)
     language = peewee.CharField(null=False, max_length=4, default='en')
+    name = peewee.CharField(null=False, default='Untitled Course Room')
+    description = peewee.TextField(null=False, default='Course room has not got any description')
