@@ -1,13 +1,11 @@
 from peewee_migrate import Migrator
 import peewee as pw
 
-from db.connection import db
-from db.models import Url
-
 
 def migrate(migrator: Migrator, database: pw.Database, fake=False, **kwargs):
     # this migration is broken
     pass
+
 
 def rollback(migrator: Migrator, database: pw.Database, fake=False, **kwargs):
     # this migration is broken
