@@ -5,7 +5,6 @@ import arrow
 
 from services.crawler.crawler import CrawlerService, NoUnvisitedUrlException, NoValidSnapshotException
 from db.models import Snapshot, Url
-import config.settings as settings
 
 
 def test_crawler_can_create_snapshot_of_course(valid_course):
