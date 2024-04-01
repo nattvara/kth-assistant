@@ -38,30 +38,55 @@ Chat history:
 """.strip()
 
 
-def prompt_generate_question_from_chat_history(messages: List[Message]) -> str:
+def prompt_generate_question_from_chat_history(messages: List[Message], language: str) -> str:
+    if language == 'en':
+        language = 'English'
+    elif language == 'sv':
+        language = 'Swedish'
+    else:
+        raise ValueError(f"Unsupported language: {language}")
+
     if len(messages) == 1:
         return f"""
-You are a completion generator. You should produce queries used to search in a search engine.
-Produce a standalone question from the following message from a user. If the message isn't a question,
-respond with the exact string "NO_QUESTION".
+You are a completion generator. You should produce queries used to search in a search engine. Produce a standalone
+question in {language} from a message from a user. You should use the following format:
 
-<|user|> {messages[0].content}
-<|generator|>
+<question>
+standalone question here...
+</question>
+
+If the message isn't a question, respond with the string NO_QUESTION, like this:
+<question>
+NO_QUESTION
+</question>
+
+The users' question: {messages[0].content}
+
+<question>
 """.strip()
 
     history = messages[:-1]
     last = messages[-1]
     return f"""
 You are a completion generator. You should only produce queries used to search in a search engine.
-Combine the chat history and follow up question into a standalone question. If the follow up question isn't a question,
-respond with the exact string "NO_QUESTION".
+Combine the chat history and follow up question into a standalone question in {language}.
+
+<question>
+standalone question here...
+</question>
+
+If the message isn't a question, respond with the exact string "NO_QUESTION", like this:
+<question>
+NO_QUESTION
+</question>
 
 Chat History:
 {format_messages(history)}
 
-Follow up question:
-<|user|> {last.content}
-<|generator|>
+Follow up question from user:
+{last.content}
+
+<question>
 """.strip()
 
 

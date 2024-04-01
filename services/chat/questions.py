@@ -11,10 +11,15 @@ async def generate_question_from_messages(messages: List[Message], chat: Chat) -
     log().debug(f"generating questions for message in chat {chat.id}")
 
     params = Params()
-    params.stop_strings = ['<|user|>', '<|user', '<|assistant|>', '<|assistant', '<|generator|>', '<|generator']
+    params.stop_strings = ['</question>']
 
-    prompt = prompt_generate_question_from_chat_history(messages)
+    prompt = prompt_generate_question_from_chat_history(messages, chat.language)
     handle = LLMService.dispatch_prompt(prompt, chat.llm_model_name, params)
     await LLMService.wait_for_handle(handle)
 
-    return handle.response
+    response = handle.response
+    response = response.replace('</question>', '')
+    response = response.replace('</question', '')
+    response = response.strip()
+
+    return response
