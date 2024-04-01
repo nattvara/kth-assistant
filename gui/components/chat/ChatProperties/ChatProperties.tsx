@@ -31,7 +31,8 @@ export default function ChatProperties(props: ChatPropertiesProps) {
     <SimpleGrid cols={1}>
       <Alert variant="light" color="gray" title="Chat Properties" icon={<IconBrain />} className={styles.alert}>
         <LoadingOverlay visible={isFetching} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
-        This chat is using the model <strong>{data.llm_model_name}</strong> and <strong>{data.index_type}</strong> as index.
+        This chat is using the model <strong>{data.llm_model_name}</strong> and <strong>{data.index_type}</strong> as
+        index.
       </Alert>
     </SimpleGrid>
   );
