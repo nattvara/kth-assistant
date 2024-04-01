@@ -18,6 +18,7 @@ class ChatResponse(BaseModel):
     llm_model_name: str
     index_type: str
     language: str
+    course_name: str
 
 
 class MessageResponse(BaseModel):
@@ -53,7 +54,8 @@ async def start_new_chat(course_canvas_id: str, session: Session = Depends(get_c
         public_id=chat.public_id,
         llm_model_name=chat.llm_model_name,
         index_type=chat.index_type,
-        language=chat.language
+        language=chat.language,
+        course_name=chat.course.name,
     )
 
 
@@ -75,7 +77,8 @@ async def get_chat_details(course_canvas_id: str, chat_id: str,) -> ChatResponse
         public_id=chat.public_id,
         llm_model_name=chat.llm_model_name,
         index_type=chat.index_type,
-        language=chat.language
+        language=chat.language,
+        course_name=chat.course.name,
     )
 
 
