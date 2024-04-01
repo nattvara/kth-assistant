@@ -198,7 +198,12 @@ async def test_model_parameters_from_the_handle_is_used_by_the_worker(
     )
 
     service = LLMService(llm_model_name, redis_connection)
-    handle = PromptHandle(service=service, prompt="what is love?", llm_model_name=llm_model_name, llm_model_params=params)
+    handle = PromptHandle(
+        service=service,
+        prompt="what is love?",
+        llm_model_name=llm_model_name,
+        llm_model_params=params
+    )
     handle.save()
 
     worker, mock_generate_text = create_worker(service, mock_tokens, True)

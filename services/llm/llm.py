@@ -26,7 +26,11 @@ class LLMService:
         self.redis = redis
 
     @staticmethod
-    def dispatch_prompt(prompt: str, llm_model_name: LLMModel, llm_model_params: Optional[Params] = None) -> PromptHandle:
+    def dispatch_prompt(
+        prompt: str,
+        llm_model_name: LLMModel,
+        llm_model_params: Optional[Params] = None
+    ) -> PromptHandle:
         handle = PromptHandle(prompt=prompt, llm_model_name=llm_model_name, llm_model_params=llm_model_params)
         handle.save()
         return handle
