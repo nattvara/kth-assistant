@@ -92,6 +92,63 @@ Follow up question from user:
 """.strip()
 
 
+def prompt_generate_keyword_query_from_chat_history(
+    messages: List[Message],
+    language: str,
+    course_description: str
+) -> str:
+    if language == 'en':
+        language = 'English'
+        query_example = "search query for search engine with lots of keywords..."
+    elif language == 'sv':
+        language = 'Swedish'
+        query_example = "sök fråga för sökmotor med massor av nyckelord..."
+    else:
+        raise ValueError(f"Unsupported language: {language}")
+
+    if len(messages) == 1:
+        return f"""
+You are a query generator. You will produce queries used to search for documents in a search engine. Create a search
+query based on the following question from the user. Make sure to include many keywords in the query. The query should
+be on the following format
+
+<query lang="{language}">
+{query_example}
+</query>
+
+The documents belong to a course with the following description:
+{course_description}
+
+The users' question:
+{messages[0].content}
+
+<query lang="{language}">
+""".strip()
+
+    history = messages[:-1]
+    last = messages[-1]
+    return f"""
+You are a query generator. You will produce queries used to search for documents in a search engine. Create a search
+query based on the chat history and follow up question. Make sure to include many keywords in the query. The query
+should be on the following format
+
+<query lang="{language}">
+{query_example}
+</query>
+
+The documents belong to a course with the following description:
+{course_description}
+
+Chat History:
+{format_messages(history)}
+
+Follow up question from user:
+{last.content}
+
+<query lang="{language}">
+""".strip()
+
+
 def prompt_post_process_doc_for_question(doc_text: str, question: str) -> str:
     return f'''You are an information extractor. You will be provided with one TEXT delimited by triple quotes. If the
 text contains information related to a given QUESTION then extract at most 3 RELEVANT QUOTES that are strictly related
