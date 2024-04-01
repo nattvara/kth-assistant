@@ -38,6 +38,8 @@ def column_exists(model: Model, column_name: str) -> bool:
         return column_name in columns
     except TypeError:
         return False
+    except KeyError:
+        return False
 
 
 def is_sqlite(database: peewee.Database):
