@@ -8,6 +8,10 @@ CANVAS_PROFILE_PAGE = f"https://{CANVAS_DOMAIN}/profile"
 
 DOMAIN_DENY_LIST = {
     "app.kth.se": True,
+    "community.canvaslms.com": True,
+    "youtube.com": True,
+    "youtu.be": True,
+    "kth-se.zoom.us": True,
 }
 
 DENY_URLS_THAT_STARTS_WITH = {
@@ -43,6 +47,7 @@ DENY_URLS_THAT_STARTS_WITH = {
     "https://canvas.kth.se/conversations": True,
     "https://canvas.kth.se/accounts": True,
     "https://canvas.kth.se/calendar": True,
+    "https://www.kth.se/eecs": True,
 }
 
 DENY_URLS_THAT_CONTAINS = {
@@ -64,6 +69,8 @@ DENY_URLS_THAT_MATCHES_STRING_EXACTLY = {
     "https://canvas.kth.se/courses/": True,
     "https://canvas.kth.se": True,
     "https://canvas.kth.se/": True,
+    "http://kth.kattis.com": True,
+    "http://kth.kattis.com/": True,
 }
 
 
