@@ -41,8 +41,10 @@ Chat history:
 def prompt_generate_question_from_chat_history(messages: List[Message], language: str) -> str:
     if language == 'en':
         language = 'English'
+        standalone_question_example = "standalone question here..."
     elif language == 'sv':
         language = 'Swedish'
+        standalone_question_example = "självständig fråga här..."
     else:
         raise ValueError(f"Unsupported language: {language}")
 
@@ -51,8 +53,8 @@ def prompt_generate_question_from_chat_history(messages: List[Message], language
 You are a completion generator. You should produce queries used to search in a search engine. Produce a standalone
 question in {language} from a message from a user. You should use the following format:
 
-<question>
-standalone question here...
+<question lang="{language}">
+{standalone_question_example}
 </question>
 
 If the message isn't a question, respond with the string NO_QUESTION, like this:
@@ -62,7 +64,7 @@ NO_QUESTION
 
 The users' question: {messages[0].content}
 
-<question>
+<question lang="{language}">
 """.strip()
 
     history = messages[:-1]
@@ -71,8 +73,8 @@ The users' question: {messages[0].content}
 You are a completion generator. You should only produce queries used to search in a search engine.
 Combine the chat history and follow up question into a standalone question in {language}.
 
-<question>
-standalone question here...
+<question lang="{language}">
+{standalone_question_example}
 </question>
 
 If the message isn't a question, respond with the exact string "NO_QUESTION", like this:
@@ -86,23 +88,26 @@ Chat History:
 Follow up question from user:
 {last.content}
 
-<question>
+<question lang="{language}">
 """.strip()
 
 
 def prompt_post_process_doc_for_question(doc_text: str, question: str) -> str:
-    return f'''
-You will be provided with one TEXT delimited by triple quotes. If it the text contains information related to
-a given QUESTION, extract at most 3 RELEVANT QUOTES that are strictly related to answering the question into a bulleted
-list with the given FORMAT. If the text does not contain any related quotes, then
-simply write "No information in the document." Do not provide a direct answer to the question.
+    return f'''You are an information extractor. You will be provided with one TEXT delimited by triple quotes. If the
+text contains information related to a given QUESTION then extract at most 3 RELEVANT QUOTES that are strictly related
+to answering the question. Do not provide a direct answer to the question. The quotes should be extracted into the
+following format:
 
-FORMAT:
 <quotes>
 - "a quote from the file..."
 - "another quote from the file..."
-...
 - "the last quote from the file..."
+</quotes>
+
+If the text does not contain any quotes that are relevant for the question, reply with the following
+
+<quotes>
+"No information in the document."
 </quotes>
 
 QUESTION:
