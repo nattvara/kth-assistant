@@ -217,13 +217,13 @@ async def test_hrefs_on_urls_with_distance_equal_to_max_distance_are_ignored(
 ):
     mocker.patch("asyncio.sleep")
     mocker.patch("services.crawler.content_extraction.get_all_links_from_page", return_value=[
-        "https://example.com/1",
-        "https://example.com/2",
+        "https://example.com/foo",
+        "https://example.com/bar",
     ])
     crawler_service = await get_crawler_service
 
     url = new_snapshot.add_unvisited_url()
-    url.distance = settings.get_settings().MAX_CRAWL_DISTANCE_ALLOWED
+    url.distance = new_snapshot.snapshot.course.max_allowed_crawl_distance
     url.save()
 
     assert len(new_snapshot.snapshot.urls) == 1
@@ -232,6 +232,14 @@ async def test_hrefs_on_urls_with_distance_equal_to_max_distance_are_ignored(
 
     # should remain the same
     assert len(new_snapshot.snapshot.urls) == 1
+
+    url = new_snapshot.add_unvisited_url()
+    url.distance = new_snapshot.snapshot.course.max_allowed_crawl_distance - 1
+    url.save()
+
+    # should now have increased by 3 since it found two urls on that page
+    await crawler_service.service.crawl_url(url)
+    assert len(new_snapshot.snapshot.urls) == 4
 
 
 @pytest.mark.asyncio
