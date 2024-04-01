@@ -21,9 +21,9 @@ def test_llm_service_can_dispatch_a_prompt_and_return_handle(llm_model_name):
 def test_next_handle_from_service_is_the_most_recent_handle(redis_connection, llm_prompt, llm_model_name):
     service = LLMService(llm_model_name, redis_connection)
 
-    handle_1 = PromptHandle(prompt=llm_prompt, model_name=llm_model_name)
-    handle_2 = PromptHandle(prompt=llm_prompt, model_name=llm_model_name)
-    handle_3 = PromptHandle(prompt=llm_prompt, model_name=llm_model_name)
+    handle_1 = PromptHandle(prompt=llm_prompt, llm_model_name=llm_model_name)
+    handle_2 = PromptHandle(prompt=llm_prompt, llm_model_name=llm_model_name)
+    handle_3 = PromptHandle(prompt=llm_prompt, llm_model_name=llm_model_name)
     handle_1.save()
     handle_2.save()
     handle_3.save()
@@ -36,9 +36,9 @@ def test_next_handle_from_service_is_the_most_recent_handle(redis_connection, ll
 def test_next_handle_from_service_is_always_in_pending_state(redis_connection, llm_prompt, llm_model_name):
     service = LLMService(llm_model_name, redis_connection)
 
-    handle_1 = PromptHandle(prompt=llm_prompt, model_name=llm_model_name)
-    handle_2 = PromptHandle(prompt=llm_prompt, model_name=llm_model_name)
-    handle_3 = PromptHandle(prompt=llm_prompt, model_name=llm_model_name)
+    handle_1 = PromptHandle(prompt=llm_prompt, llm_model_name=llm_model_name)
+    handle_2 = PromptHandle(prompt=llm_prompt, llm_model_name=llm_model_name)
+    handle_3 = PromptHandle(prompt=llm_prompt, llm_model_name=llm_model_name)
     handle_1.save()
     handle_2.save()
     handle_3.save()
@@ -54,9 +54,9 @@ def test_next_handle_from_service_is_always_in_pending_state(redis_connection, l
 def test_has_next_returns_true_only_if_any_pending_handles_exist(redis_connection, llm_prompt, llm_model_name):
     service = LLMService(llm_model_name, redis_connection)
 
-    handle_1 = PromptHandle(prompt=llm_prompt, model_name=llm_model_name)
-    handle_2 = PromptHandle(prompt=llm_prompt, model_name=llm_model_name)
-    handle_3 = PromptHandle(prompt=llm_prompt, model_name=llm_model_name)
+    handle_1 = PromptHandle(prompt=llm_prompt, llm_model_name=llm_model_name)
+    handle_2 = PromptHandle(prompt=llm_prompt, llm_model_name=llm_model_name)
+    handle_3 = PromptHandle(prompt=llm_prompt, llm_model_name=llm_model_name)
     handle_1.save()
     handle_2.save()
     handle_3.save()
@@ -86,9 +86,9 @@ async def test_next_returns_handles_matching_model_name(llm_prompt, redis_connec
 
     service = LLMService(model_1, redis_connection)
 
-    handle_1 = PromptHandle(prompt=llm_prompt, model_name=model_1)
-    handle_2 = PromptHandle(prompt=llm_prompt, model_name=model_2)
-    handle_3 = PromptHandle(prompt=llm_prompt, model_name=model_1)
+    handle_1 = PromptHandle(prompt=llm_prompt, llm_model_name=model_1)
+    handle_2 = PromptHandle(prompt=llm_prompt, llm_model_name=model_2)
+    handle_3 = PromptHandle(prompt=llm_prompt, llm_model_name=model_1)
     handle_1.save()
     handle_2.save()
     handle_3.save()
@@ -111,7 +111,7 @@ def test_next_throws_exception_if_no_pending_handle_exists(llm_model_name, redis
 async def test_checkout_returns_a_handle_and_updates_its_state(redis_connection, llm_prompt, llm_model_name):
     service = LLMService(llm_model_name, redis_connection)
 
-    handle_1 = PromptHandle(prompt=llm_prompt, model_name=llm_model_name)
+    handle_1 = PromptHandle(prompt=llm_prompt, llm_model_name=llm_model_name)
     handle_1.save()
 
     handle = await service.checkout()
@@ -127,7 +127,7 @@ async def test_checkout_acquires_a_redis_lock_on_the_handle(mocker, redis_connec
 
     service = LLMService(llm_model_name, redis_connection)
 
-    handle_1 = PromptHandle(prompt=llm_prompt, model_name=llm_model_name)
+    handle_1 = PromptHandle(prompt=llm_prompt, llm_model_name=llm_model_name)
     handle_1.save()
 
     await service.checkout()
@@ -151,18 +151,18 @@ def test_model_params_can_be_specified(llm_model_name):
         system_prompt="bar",
     )
 
-    handle_id = LLMService.dispatch_prompt(prompt, llm_model_name, model_params=params).id
+    handle_id = LLMService.dispatch_prompt(prompt, llm_model_name, llm_model_params=params).id
     handle = PromptHandle.get(handle_id)
 
-    assert handle.model_params.temperature == 0.1
-    assert handle.model_params.max_new_tokens == 123
-    assert handle.model_params.context_length == 456
-    assert handle.model_params.enable_top_k_filter is False
-    assert handle.model_params.top_k_limit == 42
-    assert handle.model_params.enable_top_p_filter is False
-    assert handle.model_params.top_p_threshold == 0.42
-    assert handle.model_params.stop_strings == ["foo"]
-    assert handle.model_params.system_prompt == "bar"
+    assert handle.llm_model_params.temperature == 0.1
+    assert handle.llm_model_params.max_new_tokens == 123
+    assert handle.llm_model_params.context_length == 456
+    assert handle.llm_model_params.enable_top_k_filter is False
+    assert handle.llm_model_params.top_k_limit == 42
+    assert handle.llm_model_params.enable_top_p_filter is False
+    assert handle.llm_model_params.top_p_threshold == 0.42
+    assert handle.llm_model_params.stop_strings == ["foo"]
+    assert handle.llm_model_params.system_prompt == "bar"
 
 
 def test_model_to_use_for_prompt_can_be_specified():
@@ -172,4 +172,4 @@ def test_model_to_use_for_prompt_can_be_specified():
     handle_id = LLMService.dispatch_prompt(prompt, model_name).id
     handle = PromptHandle.get(handle_id)
 
-    assert handle.model_name == model_name
+    assert handle.llm_model_name == model_name

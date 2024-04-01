@@ -19,7 +19,7 @@ from db.models import PromptHandle
 
 async def main():
     try:
-        handle = PromptHandle(prompt="some prompt...", model_name=LLMModel.MISTRAL_7B_INSTRUCT)
+        handle = PromptHandle(prompt="some prompt...", llm_model_name=LLMModel.MISTRAL_7B_INSTRUCT)
         handle.save()
 
         worker_ws_uri = 'ws://localhost:8000' + handle.websocket_uri

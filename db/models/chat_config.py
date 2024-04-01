@@ -21,5 +21,5 @@ class ChatConfig(BaseModel):
 
     id = peewee.AutoField()
     is_active = peewee.BooleanField(null=False, default=True)
-    model_name = ModelNameField(null=False, index=True)
+    llm_model_name = ModelNameField(null=False, index=True)
     index_type = IndexTypeField(null=False, index=True)

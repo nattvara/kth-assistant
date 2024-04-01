@@ -11,7 +11,7 @@ async def generate_question_from_messages(messages: List[Message], chat: Chat) -
     log().debug(f"generating questions for message in chat {chat.id}")
 
     prompt = prompt_generate_question_from_chat_history(messages)
-    handle = LLMService.dispatch_prompt(prompt, chat.model_name, Params())
+    handle = LLMService.dispatch_prompt(prompt, chat.llm_model_name, Params())
     await LLMService.wait_for_handle(handle)
 
     return handle.response

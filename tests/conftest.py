@@ -157,13 +157,13 @@ def new_chat(authenticated_session, valid_course):
                 msg = Message(sender=sender, content=f'Hello from {sender}!', chat=self.chat)
                 msg.save()
 
-    config = ChatConfig(model_name=LLMModel.MISTRAL_7B_INSTRUCT, index_type=IndexType.NO_INDEX)
+    config = ChatConfig(llm_model_name=LLMModel.MISTRAL_7B_INSTRUCT, index_type=IndexType.NO_INDEX)
     config.save()
 
     c = Chat(
         course=valid_course,
         session=authenticated_session.session,
-        model_name=config.model_name,
+        llm_model_name=config.llm_model_name,
         index_type=config.index_type
     )
     c.save()

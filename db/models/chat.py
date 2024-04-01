@@ -29,6 +29,6 @@ class Chat(BaseModel):
     public_id = peewee.CharField(null=False, index=True, unique=True, default=generate_id)
     course = peewee.ForeignKeyField(Course, null=False, backref='chats', on_delete='CASCADE')
     session = peewee.ForeignKeyField(Session, null=False, backref='sessions', on_delete='CASCADE')
-    model_name = ModelNameField(null=False, index=True)
-    model_params = ModelParamsField(null=True)
+    llm_model_name = ModelNameField(null=False, index=True)
+    llm_model_params = ModelParamsField(null=True)
     index_type = IndexTypeField(null=False, index=True)

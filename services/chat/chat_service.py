@@ -35,8 +35,8 @@ class ChatService:
         chat = Chat(
             course=course,
             session=session,
-            model_name=config.model_name,
-            model_params=params,
+            llm_model_name=config.llm_model_name,
+            llm_model_params=params,
             index_type=config.index_type
         )
         chat.save()
@@ -62,7 +62,7 @@ class ChatService:
         messages = [message for message in chat.messages]
         prompt = prompts.prompt_make_next_ai_message(messages)
 
-        handle = LLMService.dispatch_prompt(prompt, chat.model_name, chat.model_params)
+        handle = LLMService.dispatch_prompt(prompt, chat.llm_model_name, chat.llm_model_params)
 
         next_message = Message(chat=chat, content=None, sender=Message.Sender.ASSISTANT, prompt_handle=handle)
         next_message.save()
@@ -87,7 +87,7 @@ class ChatService:
         ))
 
         prompt = prompts.prompt_make_next_ai_message_with_documents(messages, post_processed_docs)
-        handle = LLMService.dispatch_prompt(prompt, chat.model_name, chat.model_params)
+        handle = LLMService.dispatch_prompt(prompt, chat.llm_model_name, chat.llm_model_params)
 
         next_message = Message(chat=chat, content=None, sender=Message.Sender.ASSISTANT, prompt_handle=handle)
         next_message.save()

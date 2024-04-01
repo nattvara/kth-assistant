@@ -15,7 +15,7 @@ router = APIRouter()
 
 class ChatResponse(BaseModel):
     public_id: str
-    model_name: str
+    llm_model_name: str
     index_type: str
 
 
@@ -48,7 +48,7 @@ async def start_new_chat(course_canvas_id: str, session: Session = Depends(get_c
 
     chat = ChatService.start_new_chat_for_session_and_course(session, course)
 
-    return ChatResponse(public_id=chat.public_id, model_name=chat.model_name, index_type=chat.index_type)
+    return ChatResponse(public_id=chat.public_id, llm_model_name=chat.llm_model_name, index_type=chat.index_type)
 
 
 @router.get(
@@ -65,7 +65,7 @@ async def get_chat_details(course_canvas_id: str, chat_id: str,) -> ChatResponse
     if chat is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Chat not found")
 
-    return ChatResponse(public_id=chat.public_id, model_name=chat.model_name, index_type=chat.index_type)
+    return ChatResponse(public_id=chat.public_id, llm_model_name=chat.llm_model_name, index_type=chat.index_type)
 
 
 @router.post(

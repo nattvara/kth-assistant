@@ -24,7 +24,7 @@ def test_modified_at_changes_on_save(mocker, llm_model_name, llm_prompt):
 
     mock_utcnow = mocker.patch('db.models.base_model.arrow.utcnow', return_value=first_mock_time)
 
-    handle = PromptHandle(prompt=llm_prompt, model_name=llm_model_name)
+    handle = PromptHandle(prompt=llm_prompt, llm_model_name=llm_model_name)
 
     mock_utcnow.return_value = second_mock_time
 
@@ -42,7 +42,7 @@ def test_web_socket_uri_is_generated():
 
 
 def test_model_can_be_refreshed(llm_prompt, llm_model_name):
-    handle = PromptHandle(prompt=llm_prompt, model_name=llm_model_name)
+    handle = PromptHandle(prompt=llm_prompt, llm_model_name=llm_model_name)
     handle.save()
 
     same_handle = PromptHandle.get(handle.id)
