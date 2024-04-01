@@ -167,6 +167,11 @@ class CrawlerService:
             if 'net::ERR_ABORTED' in str(e):
                 log().info(f'Download triggered at {url.href}, continuing with next link.')
                 url.is_download = True
+            elif 'net::ERR_NAME_NOT_RESOLVED' in str(e):
+                log().error(f'failed to resolve domain for {url.href}')
+                url.state = Url.States.FAILED
+                url.save()
+                return
             else:
                 url.state = Url.States.FAILED
                 url.save()
