@@ -8,6 +8,7 @@ import { sendMessage } from "@/api/chat";
 import { HttpError } from "@/api/http";
 
 import styles from "./styles.module.css";
+import { useTranslation } from "next-i18next";
 
 interface PromptProps {
   courseId: string;
@@ -15,6 +16,7 @@ interface PromptProps {
 }
 
 export default function Prompt(props: PromptProps) {
+  const { t } = useTranslation("input");
   const { courseId, chatId } = props;
   const queryClient = useQueryClient();
   const [message, setMessage] = useState("");
@@ -54,7 +56,7 @@ export default function Prompt(props: PromptProps) {
   return (
     <Group grow wrap="nowrap" preventGrowOverflow={false} className={styles.group}>
       <Textarea
-        placeholder="Message KTH Assistant"
+        placeholder={t("prompt.placeholder")}
         withAsterisk
         autosize
         minRows={1}
@@ -71,7 +73,7 @@ export default function Prompt(props: PromptProps) {
         disabled={sendMutation.isPending}
         loading={sendMutation.isPending}
       >
-        Send
+        {t("prompt.button_text")}
       </Button>
     </Group>
   );

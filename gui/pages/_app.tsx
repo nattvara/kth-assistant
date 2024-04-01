@@ -6,6 +6,7 @@ import "@mantine/notifications/styles.css";
 import { IconMessageCircle, IconPlugConnectedX } from "@tabler/icons-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Cookies from "js-cookie";
+import { appWithTranslation } from 'next-i18next';
 import { AppProps } from "next/app";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -16,7 +17,7 @@ import { getSession, startSession } from "@/api/session";
 
 import { theme } from "../theme";
 
-export default function App({ Component, pageProps }: AppProps) {
+function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const { course_id } = router.query;
   const [opened, { toggle }] = useDisclosure();
@@ -116,3 +117,5 @@ export default function App({ Component, pageProps }: AppProps) {
     </MantineProvider>
   );
 }
+
+export default appWithTranslation(App);

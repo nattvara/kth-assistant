@@ -6,6 +6,7 @@ export interface Chat {
   public_id: string;
   llm_model_name: string;
   index_type: string;
+  language: string;
 }
 
 export interface Message {
