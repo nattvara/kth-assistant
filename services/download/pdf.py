@@ -3,6 +3,7 @@ import tempfile
 
 import requests
 
+from services.crawler.url_filters import domain_is_canvas
 from db.actions.cookie import find_cookie_by_identifier
 import config.settings as settings
 from config.logger import log
@@ -47,7 +48,7 @@ def download_content(url: Url) -> (str, str):
         for chunk in response.iter_content(chunk_size=8192):
             file.write(chunk)
 
-    if cookies:
+    if domain_is_canvas(url.href):
         log().info(f"File downloaded successfully (with cookie file): {unique_filename}")
     else:
         log().info(f"File downloaded successfully: {unique_filename}")
