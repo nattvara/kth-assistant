@@ -14,12 +14,12 @@ def format_messages(messages: List[Message]) -> str:
 
 def format_message(message: Message) -> str:
     if message.sender == Message.Sender.STUDENT:
-        sender = 'student'
+        sender = 'user'
         content = message.content
     else:
-        sender = SYSTEM_NAME
+        sender = 'assistant'
         content = message.prompt_handle.response
-    return f"<{sender}>: {content}"
+    return f"<|{sender}|> {content}"
 
 
 def format_documents(docs: List[PostProcessedDocument]) -> str:

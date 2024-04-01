@@ -14,7 +14,7 @@ Chat rules:
 {system_prompt}
 
 {prompt}
-"""
+""".strip()
 
 
 def prompt_make_next_ai_message(messages: List[Message]) -> str:
@@ -22,11 +22,8 @@ def prompt_make_next_ai_message(messages: List[Message]) -> str:
 Chat history:
 ===================================
 {format_messages(messages)}
-
-The next message in the conversion:
-===================================
-<{SYSTEM_NAME}>:
-"""
+<|assistant|>
+""".strip()
 
 
 def prompt_make_next_ai_message_with_documents(messages: List[Message], documents: List[PostProcessedDocument]) -> str:
@@ -38,11 +35,8 @@ Documents you may source information from if useful (use citations):
 Chat history:
 ===================================
 {format_messages(messages)}
-
-The next message in the conversion:
-===================================
-<{SYSTEM_NAME}>:
-"""
+<|assistant|>
+""".strip()
 
 
 def prompt_generate_question_from_chat_history(messages: List[Message]) -> str:
@@ -52,11 +46,9 @@ You are a completion generator. You should produce queries used to search in a s
 Produce a standalone question from the following message from a user. If the message isn't a question,
 respond with the exact string "NO_QUESTION".
 
-Message from user:
-{messages[0].content}
-
-Standalone question:
-"""
+<|user|> {messages[0].content}
+<|generator|>
+""".strip()
 
     history = messages[:-1]
     last = messages[-1]
@@ -69,10 +61,9 @@ Chat History:
 {format_messages(history)}
 
 Follow up question:
-{last.content}
-
-Standalone question:
-"""
+<|user|> {last.content}
+<|generator|>
+""".strip()
 
 
 def prompt_post_process_doc_for_question(doc_text: str, question: str) -> str:
@@ -83,10 +74,12 @@ list with the given FORMAT. If the text does not contain any related quotes, the
 simply write "No information in the document." Do not provide a direct answer to the question.
 
 FORMAT:
+<quotes>
 - "a quote from the file..."
 - "another quote from the file..."
 ...
 - "the last quote from the file..."
+</quotes>
 
 QUESTION:
 "{question}"
@@ -94,5 +87,5 @@ QUESTION:
 TEXT:
 """{doc_text}"""
 
-RELEVANT QUOTES:
+<quotes>
 '''
