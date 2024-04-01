@@ -42,6 +42,7 @@ DENY_URLS_THAT_STARTS_WITH = {
     "https://canvas.kth.se/groups": True,
     "https://canvas.kth.se/conversations": True,
     "https://canvas.kth.se/accounts": True,
+    "https://canvas.kth.se/calendar": True,
 }
 
 DENY_URLS_THAT_CONTAINS = {
