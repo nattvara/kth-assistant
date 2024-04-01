@@ -12,6 +12,9 @@ DOMAIN_DENY_LIST = {
     "youtube.com": True,
     "youtu.be": True,
     "kth-se.zoom.us": True,
+    "support.kattis.com": True,
+    "docs.oracle.com": True,
+    "oracle.com": True,
 }
 
 DENY_URLS_THAT_STARTS_WITH = {
@@ -48,6 +51,7 @@ DENY_URLS_THAT_STARTS_WITH = {
     "https://canvas.kth.se/accounts": True,
     "https://canvas.kth.se/calendar": True,
     "https://www.kth.se/eecs": True,
+    "http://www.kth.se/eecs": True,
 }
 
 DENY_URLS_THAT_CONTAINS = {
@@ -69,8 +73,12 @@ DENY_URLS_THAT_MATCHES_STRING_EXACTLY = {
     "https://canvas.kth.se/courses/": True,
     "https://canvas.kth.se": True,
     "https://canvas.kth.se/": True,
+    "https://kth.kattis.com": True,
+    "https://kth.kattis.com/": True,
     "http://kth.kattis.com": True,
     "http://kth.kattis.com/": True,
+    "https://kth.kattis.com/courses": True,
+    "https://kth.kattis.com/courses/": True,
 }
 
 
