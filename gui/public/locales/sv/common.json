@@ -1,1 +1,6 @@
-{}
+{
+  "header": {
+    "app_name": "Copilot",
+    "new_chat": "Ny Chatt"
+  }
+}

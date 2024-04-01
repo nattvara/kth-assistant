@@ -6,7 +6,7 @@ import "@mantine/notifications/styles.css";
 import { IconMessageCircle, IconPlugConnectedX } from "@tabler/icons-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Cookies from "js-cookie";
-import { appWithTranslation } from "next-i18next";
+import { appWithTranslation, useTranslation } from "next-i18next";
 import { AppProps } from "next/app";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -19,6 +19,7 @@ import { theme } from "../theme";
 
 function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
+  const { t } = useTranslation("common");
   const { course_id } = router.query;
   const [opened, { toggle }] = useDisclosure();
   const queryClient = new QueryClient();
@@ -71,7 +72,7 @@ function App({ Component, pageProps }: AppProps) {
       <Notifications />
       <QueryClientProvider client={queryClient}>
         <Head>
-          <title>KTH Assistant</title>
+          <title>{t("header.app_name")}</title>
           <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width, user-scalable=no" />
           <link rel="shortcut icon" href="/favicon.svg" />
         </Head>
@@ -88,11 +89,11 @@ function App({ Component, pageProps }: AppProps) {
             <SimpleGrid cols={2} h="100%" w="100%" px="md">
               <Group>
                 <Burger opened={opened} onClick={toggle} size="sm" />
-                KTH Assistant
+                {t("header.app_name")}
               </Group>
               <Group justify="flex-end">
                 <Button variant="light" rightSection={<IconMessageCircle />} onClick={() => startNewChat()}>
-                  New Chat
+                  {t("header.new_chat")}
                 </Button>
               </Group>
             </SimpleGrid>
