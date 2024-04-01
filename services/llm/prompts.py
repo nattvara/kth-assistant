@@ -79,8 +79,8 @@ def prompt_post_process_doc_for_question(doc_text: str, question: str) -> str:
     return f'''
 You will be provided with one TEXT delimited by triple quotes. If it the text contains information related to
 a given QUESTION, extract at most 3 RELEVANT QUOTES that are strictly related to answering the question into a bulleted
-list with the given FORMAT. If the text does not contain any related quotes, then simply write "No information in the document."
-Do not provide a direct answer to the question.
+list with the given FORMAT. If the text does not contain any related quotes, then
+simply write "No information in the document." Do not provide a direct answer to the question.
 
 FORMAT:
 - "a quote from the file..."
