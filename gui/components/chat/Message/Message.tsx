@@ -1,4 +1,5 @@
 import { Grid, Loader, SimpleGrid } from "@mantine/core";
+import { useTranslation } from "next-i18next";
 import React, { useEffect, useRef, useState } from "react";
 
 import { Message as MessageType } from "@/api/chat";
@@ -13,6 +14,7 @@ interface MessageProps {
 
 export default function Message(props: MessageProps) {
   const { message } = props;
+  const { t } = useTranslation("chat");
   const [displayedContent, setDisplayedContent] = useState("");
   const [showLoading, setShowLoading] = useState(false);
   const [numberOfWords, setNumberOfWords] = useState(0);
@@ -74,8 +76,8 @@ export default function Message(props: MessageProps) {
     <SimpleGrid cols={1} className={styles.root}>
       <Grid>
         <strong>
-          {message.sender === "student" && <>You</>}
-          {message.sender === "assistant" && <>Copilot</>}
+          {message.sender === "student" && <>{t("message.student")}</>}
+          {message.sender === "assistant" && <>{t("message.assistant")}</>}
         </strong>
       </Grid>
       <Grid>

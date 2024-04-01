@@ -36,7 +36,7 @@ const ChatPage = () => {
 
 export async function getServerSideProps(context) {
   const { locale } = context;
-  const translations = await serverSideTranslations(locale, ["common", "input"]);
+  const translations = await serverSideTranslations(locale, ["common", "input", "chat"]);
 
   return {
     props: {
