@@ -20,3 +20,4 @@ class Course(BaseModel):
 
     canvas_id = peewee.CharField(null=False, index=True, unique=True)
     snapshot_lifetime_in_mins = peewee.IntegerField(null=False, default=180)
+    max_allowed_crawl_distance = peewee.IntegerField(null=False, default=2)
