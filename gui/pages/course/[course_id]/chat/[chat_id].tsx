@@ -1,9 +1,10 @@
+import { useQuery } from "@tanstack/react-query";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useRouter } from "next/router";
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 import { ChatWindow } from "@/components/chat";
+
 import { fetchChat } from "@/api/chat";
-import { useQuery } from "@tanstack/react-query";
 
 const ChatPage = () => {
   const router = useRouter();
@@ -34,8 +35,8 @@ const ChatPage = () => {
 };
 
 export async function getServerSideProps(context) {
-  const { locale, params } = context;
-  const translations = await serverSideTranslations(locale, ['input']);
+  const { locale } = context;
+  const translations = await serverSideTranslations(locale, ["input"]);
 
   return {
     props: {

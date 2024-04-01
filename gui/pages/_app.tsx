@@ -6,7 +6,7 @@ import "@mantine/notifications/styles.css";
 import { IconMessageCircle, IconPlugConnectedX } from "@tabler/icons-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Cookies from "js-cookie";
-import { appWithTranslation } from 'next-i18next';
+import { appWithTranslation } from "next-i18next";
 import { AppProps } from "next/app";
 import Head from "next/head";
 import { useRouter } from "next/router";

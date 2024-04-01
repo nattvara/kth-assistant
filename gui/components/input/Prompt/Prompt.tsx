@@ -2,13 +2,13 @@ import { Button, Group, Textarea } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconExclamationCircle, IconSend } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "next-i18next";
 import { useState } from "react";
 
 import { sendMessage } from "@/api/chat";
 import { HttpError } from "@/api/http";
 
 import styles from "./styles.module.css";
-import { useTranslation } from "next-i18next";
 
 interface PromptProps {
   courseId: string;
