@@ -40,6 +40,8 @@ DENY_URLS_THAT_STARTS_WITH = {
     "https://canvas.kth.se/boaz_pronounce.m4a": True,
     "https://canvas.kth.se/courses/#content": True,
     "https://canvas.kth.se/groups": True,
+    "https://canvas.kth.se/conversations": True,
+    "https://canvas.kth.se/accounts": True,
 }
 
 DENY_URLS_THAT_CONTAINS = {
