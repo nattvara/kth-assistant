@@ -61,4 +61,4 @@ async def _ensure_profile_page_can_be_loaded(context: BrowserContext) -> Page:
         return page
     except Exception:
         raise PlaywrightCookieValidationException("failed to find string on profile page. cookie is most"
-                                                  "likely expired.")
+                                                  " likely expired.")
