@@ -92,9 +92,11 @@ function App({ Component, pageProps }: AppProps) {
                 {t("header.app_name")}
               </Group>
               <Group justify="flex-end">
-                <Button variant="light" rightSection={<IconMessageCircle />} onClick={() => startNewChat()}>
-                  {t("header.new_chat")}
-                </Button>
+                {course_id !== undefined && (
+                  <Button variant="light" rightSection={<IconMessageCircle />} onClick={() => startNewChat()}>
+                    {t("header.new_chat")}
+                  </Button>
+                )}
               </Group>
             </SimpleGrid>
           </AppShell.Header>
