@@ -5,12 +5,7 @@ export class HttpError extends Error {
   public headers: Headers;
   public code: number;
 
-  constructor(
-    response: Response,
-    errorBody: { detail: string | { msg: string }[] },
-    code: number,
-    message?: string,
-  ) {
+  constructor(response: Response, errorBody: { detail: string | { msg: string }[] }, code: number, message?: string) {
     super(message || "An error occurred");
 
     this.name = "HttpError";

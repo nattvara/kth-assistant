@@ -1,5 +1,7 @@
 import { Flex } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
+import { GetServerSidePropsContext } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 
@@ -40,5 +42,16 @@ const CoursePage = () => {
 
   return <span></span>;
 };
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const { locale } = context;
+  const translations = await serverSideTranslations(locale as string, ["common"]);
+
+  return {
+    props: {
+      ...translations,
+    },
+  };
+}
 
 export default CoursePage;
