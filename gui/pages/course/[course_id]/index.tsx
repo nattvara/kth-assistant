@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 
 import { startChat } from "@/api/chat";
+import { HttpError } from "@/api/http";
 
 const CoursePage = () => {
   const router = useRouter();
@@ -30,6 +31,10 @@ const CoursePage = () => {
   }
 
   if (isError) {
+    if ((error as HttpError).code === 404) {
+      return <span>Error: Course not found</span>;
+    }
+
     return <span>Error: {error.message}</span>;
   }
 
