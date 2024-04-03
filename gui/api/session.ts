@@ -17,7 +17,7 @@ export async function startSession(): Promise<Session> {
 
   if (!response.ok) {
     const errorBody = await response.json();
-    throw new HttpError(response, errorBody);
+    throw new HttpError(response, errorBody, response.status);
   }
 
   const data = (await response.json()) as Session;
@@ -37,7 +37,7 @@ export async function getSession(): Promise<Session> {
 
   if (!response.ok) {
     const errorBody = await response.json();
-    throw new HttpError(response, errorBody);
+    throw new HttpError(response, errorBody, response.status);
   }
 
   const data = (await response.json()) as Session;

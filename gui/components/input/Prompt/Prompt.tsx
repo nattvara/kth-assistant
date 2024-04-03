@@ -2,6 +2,7 @@ import { Button, Group, Textarea } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconExclamationCircle, IconSend } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "next-i18next";
 import { useState } from "react";
 
 import { sendMessage } from "@/api/chat";
@@ -15,6 +16,7 @@ interface PromptProps {
 }
 
 export default function Prompt(props: PromptProps) {
+  const { t } = useTranslation("input");
   const { courseId, chatId } = props;
   const queryClient = useQueryClient();
   const [message, setMessage] = useState("");
@@ -54,7 +56,7 @@ export default function Prompt(props: PromptProps) {
   return (
     <Group grow wrap="nowrap" preventGrowOverflow={false} className={styles.group}>
       <Textarea
-        placeholder="Message KTH Assistant"
+        placeholder={t("prompt.placeholder")}
         withAsterisk
         autosize
         minRows={1}
@@ -71,7 +73,7 @@ export default function Prompt(props: PromptProps) {
         disabled={sendMutation.isPending}
         loading={sendMutation.isPending}
       >
-        Send
+        {t("prompt.button_text")}
       </Button>
     </Group>
   );

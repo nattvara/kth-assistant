@@ -1,9 +1,12 @@
 import { Flex } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
+import { GetServerSidePropsContext } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 
 import { startChat } from "@/api/chat";
+import { HttpError } from "@/api/http";
 
 const CoursePage = () => {
   const router = useRouter();
@@ -30,10 +33,25 @@ const CoursePage = () => {
   }
 
   if (isError) {
+    if ((error as HttpError).code === 404) {
+      return <span>Error: Course not found</span>;
+    }
+
     return <span>Error: {error.message}</span>;
   }
 
   return <span></span>;
 };
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const { locale } = context;
+  const translations = await serverSideTranslations(locale as string, ["common"]);
+
+  return {
+    props: {
+      ...translations,
+    },
+  };
+}
 
 export default CoursePage;

@@ -1,6 +1,6 @@
 import asyncio
 
-from services.chat.questions import generate_question_from_messages
+from services.chat.questions import generate_question_from_messages, generate_keyword_query_from_messages
 from db.models import Chat, Message, Session, Course, Snapshot
 from services.index.supported_indices import IndexType
 from services.chat.docs import post_process_document
@@ -30,14 +30,15 @@ class ChatService:
             raise ChatServiceException("no valid chat config.")
 
         params = Params()
-        params.system_prompt = get_system_prompt()
+        params.system_prompt = get_system_prompt(course.language, course.name, course.description)
         params.stop_strings = ['<|user|>', '<|user', '<|assistant|>', '<|assistant']
         chat = Chat(
             course=course,
             session=session,
             llm_model_name=config.llm_model_name,
             llm_model_params=params,
-            index_type=config.index_type
+            index_type=config.index_type,
+            language=course.language,
         )
         chat.save()
         return chat
@@ -77,10 +78,12 @@ class ChatService:
         if 'NO_QUESTION' in question.strip().upper():
             return ChatService.request_next_message_without_index(chat)
 
+        keyword_query = await generate_keyword_query_from_messages(messages, chat)
+
         snapshot = ChatService.find_most_recent_snapshot_for_chat(chat)
 
         index = IndexService()
-        docs = index.query_index(snapshot, query=question)
+        docs = index.query_index(snapshot, query=keyword_query)
 
         post_processed_docs = list(await asyncio.gather(
             *[post_process_document(chat, doc, question) for doc in docs]

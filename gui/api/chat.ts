@@ -6,6 +6,8 @@ export interface Chat {
   public_id: string;
   llm_model_name: string;
   index_type: string;
+  language: string;
+  course_name: string;
 }
 
 export interface Message {
@@ -34,7 +36,7 @@ export async function startChat(canvasId: string): Promise<Chat> {
 
   if (!response.ok) {
     const errorBody = await response.json();
-    throw new HttpError(response, errorBody);
+    throw new HttpError(response, errorBody, response.status);
   }
 
   const data = (await response.json()) as Chat;
@@ -54,7 +56,7 @@ export async function fetchChat(canvasId: string, chatId: string): Promise<Chat>
 
   if (!response.ok) {
     const errorBody = await response.json();
-    throw new HttpError(response, errorBody);
+    throw new HttpError(response, errorBody, response.status);
   }
 
   const data = (await response.json()) as Chat;
@@ -74,7 +76,7 @@ export async function fetchMessages(canvasId: string, chatId: string): Promise<M
 
   if (!response.ok) {
     const errorBody = await response.json();
-    throw new HttpError(response, errorBody);
+    throw new HttpError(response, errorBody, response.status);
   }
 
   const data = (await response.json()) as Messages;
@@ -97,7 +99,7 @@ export async function sendMessage(canvasId: string, chatId: string, content: str
 
   if (!response.ok) {
     const errorBody = await response.json();
-    throw new HttpError(response, errorBody);
+    throw new HttpError(response, errorBody, response.status);
   }
 
   const data = (await response.json()) as Message;

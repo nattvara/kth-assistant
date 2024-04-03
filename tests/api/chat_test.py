@@ -4,9 +4,6 @@ from services.llm.supported_models import LLMModel
 
 
 def test_chats_are_tied_to_course_room(api_client, authenticated_session, valid_course):
-    config = ChatConfig(llm_model_name=LLMModel.MISTRAL_7B_INSTRUCT, index_type=IndexType.NO_INDEX)
-    config.save()
-
     response = api_client.post(f'/course/{valid_course.canvas_id}/chat', headers=authenticated_session.headers)
     chat = Chat.filter(Chat.public_id == response.json()['public_id']).first()
 
@@ -15,9 +12,6 @@ def test_chats_are_tied_to_course_room(api_client, authenticated_session, valid_
 
 
 def test_chats_are_tied_to_session(api_client, authenticated_session, valid_course):
-    config = ChatConfig(llm_model_name=LLMModel.MISTRAL_7B_INSTRUCT, index_type=IndexType.NO_INDEX)
-    config.save()
-
     response = api_client.post(f'/course/{valid_course.canvas_id}/chat', headers=authenticated_session.headers)
     chat = Chat.filter(Chat.public_id == response.json()['public_id']).first()
 
@@ -141,3 +135,14 @@ def test_chat_config_is_selected_randomly_from_chat_configs(
     response = api_client.post(url, headers=authenticated_session.headers)
     chat = Chat.filter(Chat.public_id == response.json()['public_id']).first()
     assert chat.llm_model_name == config_2.llm_model_name
+
+
+def test_chats_inherit_the_language_of_the_course_they_belong_to(api_client, authenticated_session, valid_course):
+    valid_course.language = valid_course.Language.SWEDISH
+    valid_course.save()
+
+    response = api_client.post(f'/course/{valid_course.canvas_id}/chat', headers=authenticated_session.headers)
+    chat = Chat.filter(Chat.public_id == response.json()['public_id']).first()
+
+    assert response.status_code == 200
+    assert chat.language == valid_course.Language.SWEDISH

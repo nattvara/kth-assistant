@@ -3,14 +3,9 @@ export class HttpError extends Error {
   public statusText: string;
   public errorDetail: string;
   public headers: Headers;
-  public code: string;
+  public code: number;
 
-  constructor(
-    response: Response,
-    errorBody: { detail: string | { msg: string }[] },
-    code: string = "UnknownCode",
-    message?: string,
-  ) {
+  constructor(response: Response, errorBody: { detail: string | { msg: string }[] }, code: number, message?: string) {
     super(message || "An error occurred");
 
     this.name = "HttpError";
