@@ -5,6 +5,7 @@ from db.models import Chat, Message, Session, Course, Snapshot
 from services.index.supported_indices import IndexType
 from services.chat.docs import post_process_document
 from services.crawler.crawler import CrawlerService
+from services.llm.supported_models import LLMModel
 from services.chat.system import get_system_prompt
 from services.index.index import IndexService
 from services.llm.llm import LLMService
@@ -55,8 +56,20 @@ class ChatService:
         if chat.index_type == IndexType.FULL_TEXT_SEARCH:
             return await ChatService.request_next_message_with_full_text_search_index(chat)
 
+        if chat.index_type == IndexType.VECTOR_SEARCH_SALESFORCE_SFR_EMBEDDING_MISTRAL:
+            return await ChatService.request_next_message_with_vector_search(
+                chat,
+                LLMModel.SALESFORCE_SFR_EMBEDDING_MISTRAL
+            )
+
+        if chat.index_type == IndexType.VECTOR_SEARCH_OPENAI_TEXT_EMBEDDING_3_LARGE:
+            return await ChatService.request_next_message_with_vector_search(
+                chat,
+                LLMModel.OPENAI_TEXT_EMBEDDING_3_LARGE
+            )
+
         raise UnsupportedIndexTypeException(f"cannot request new message for index type {chat.index_type} as"
-                                            f"it is not supported")
+                                            f" it is not supported")
 
     @staticmethod
     def request_next_message_without_index(chat: Chat) -> Message:
@@ -89,7 +102,32 @@ class ChatService:
             *[post_process_document(chat, doc, question) for doc in docs]
         ))
 
-        prompt = prompts.prompt_make_next_ai_message_with_documents(messages, post_processed_docs)
+        prompt = prompts.prompt_make_next_ai_message_with_post_processed_documents(messages, post_processed_docs)
+        handle = LLMService.dispatch_prompt(prompt, chat.llm_model_name, chat.llm_model_params)
+
+        next_message = Message(chat=chat, content=None, sender=Message.Sender.ASSISTANT, prompt_handle=handle)
+        next_message.save()
+
+        return next_message
+
+    @staticmethod
+    async def request_next_message_with_vector_search(chat: Chat, embedding_model: LLMModel) -> Message:
+        messages = [message for message in chat.messages]
+
+        question = await generate_question_from_messages(messages, chat)
+        if 'NO_QUESTION' in question.strip().upper():
+            return ChatService.request_next_message_without_index(chat)
+
+        snapshot = ChatService.find_most_recent_snapshot_for_chat(chat)
+
+        index = IndexService()
+        docs = await index.query_index_with_vector(
+            snapshot,
+            question=question,
+            embedding_model=embedding_model
+        )
+
+        prompt = prompts.prompt_make_next_ai_message_with_documents(messages, docs)
         handle = LLMService.dispatch_prompt(prompt, chat.llm_model_name, chat.llm_model_params)
 
         next_message = Message(chat=chat, content=None, sender=Message.Sender.ASSISTANT, prompt_handle=handle)
