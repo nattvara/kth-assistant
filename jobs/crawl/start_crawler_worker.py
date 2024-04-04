@@ -52,9 +52,9 @@ async def run_worker():
                     url.refresh()
                     if not url.content_is_duplicate:
                         if url.response_was_ok:
-                            index_service.index_url(url)
+                            await index_service.index_url(url)
                         elif url.is_download:
-                            index_service.index_url(url)
+                            await index_service.index_url(url)
 
             except LockAlreadyAcquiredException:
                 log().debug("Found a lock on the url. Skipping.")
