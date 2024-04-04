@@ -2,8 +2,9 @@ from os.path import basename
 import asyncio
 import sys
 
-from services.llm.supported_models import get_enum_from_enum_name, LLMModel
-from llms.openai import load_openai_sdk, generate_text_streaming
+from services.llm.supported_models import get_enum_from_enum_name, LLMModel, EMBEDDING_MODELS
+from llms.openai import load_openai_sdk, generate_text_streaming, compute_embedding
+from llms.embeddings import load_hf_embedding_model
 from cache.redis import get_redis_connection
 from services.llm.llm import LLMService
 from services.llm.worker import Worker
@@ -48,7 +49,22 @@ async def main():
 
     service = LLMService(model_enum, await get_redis_connection())
 
-    if model_enum is not LLMModel.OPENAI_GPT4:
+    if model_enum in EMBEDDING_MODELS and model_enum is not LLMModel.OPENAI_TEXT_EMBEDDING_3_LARGE:
+        worker = Worker(
+            service,
+            model_enum,
+            device='cpu',
+            model_loader_func=load_hf_embedding_model,
+        )
+    elif model_enum is LLMModel.OPENAI_TEXT_EMBEDDING_3_LARGE:
+        worker = Worker(
+            service,
+            model_enum,
+            device='python-api',
+            model_loader_func=load_openai_sdk,
+            embedding_function=compute_embedding
+        )
+    elif model_enum is not LLMModel.OPENAI_GPT4:
         if not download_only:
             device_name = sys.argv[2]
         else:
