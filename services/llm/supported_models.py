@@ -35,6 +35,13 @@ EMBEDDING_MODELS = {
     LLMModel.OPENAI_TEXT_EMBEDDING_3_LARGE: 'text_embedding_3_large',
 }
 
+# https://huggingface.co/spaces/mteb/leaderboard
+EMBEDDING_MODELS_DIMENSIONS = {
+    LLMModel.SALESFORCE_SFR_EMBEDDING_MISTRAL: 4096,
+    LLMModel.INTFLOAT_MULTILINGUAL_E5_LARGE_INSTRUCT: 1024,
+    LLMModel.OPENAI_TEXT_EMBEDDING_3_LARGE: 3072,
+}
+
 
 def get_enum_from_enum_name(enum_name: str):
     # Returns the enum from a name, e.g. MISTRAL_7B_INSTRUCT

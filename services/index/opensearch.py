@@ -1,6 +1,8 @@
 from typing import List
 
 from opensearchpy import OpenSearch
+
+from services.llm.supported_models import EMBEDDING_MODELS, EMBEDDING_MODELS_DIMENSIONS
 import config.settings as settings
 from config.logger import log
 
@@ -43,6 +45,7 @@ def create_index(client: OpenSearch, index_name: str):
             'index': {
                 'number_of_shards': 1,
                 'number_of_replicas': 0,
+                'knn': True,
             },
         },
         'mappings': {
@@ -50,10 +53,22 @@ def create_index(client: OpenSearch, index_name: str):
             }
         }
     }
+
+    for model in EMBEDDING_MODELS:
+        index_body['mappings']['properties'][EMBEDDING_MODELS[model]] = {
+            'type': 'knn_vector',
+            'dimension': EMBEDDING_MODELS_DIMENSIONS[model],
+            'method': {
+                'name': 'hnsw',
+                'space_type': 'l2',
+                'engine': 'faiss'
+            }
+        }
+
     client.indices.create(
         index=index_name,
         body=index_body,
-        ignore=[400, 404],
+        ignore=[404],
     )
 
 
