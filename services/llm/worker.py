@@ -82,7 +82,7 @@ class Worker:
         end_time = time.time()
         time_taken = end_time - start_time
 
-        log().debug(f"finished computing embedding.")
+        log().debug("finished computing embedding.")
 
         handle.refresh()
         handle.embedding = embedding
