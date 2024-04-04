@@ -2,9 +2,10 @@ from unittest.mock import call
 
 import pytest
 
-from services.llm.prompts import prepend_system_prompt
 from services.llm.worker import Worker, TERMINATION_STRING
+from services.llm.prompts import prepend_system_prompt
 from tests.assertions import assert_model_params_equal
+from services.llm.supported_models import LLMModel
 from services.llm.llm import LLMService
 import config.settings as settings
 from db.models import PromptHandle
@@ -12,15 +13,22 @@ from llms.config import Params
 
 
 @pytest.fixture
-def create_worker(mock_load_hf_model, create_mock_generate_text_streaming, llm_model_name):
-    def create_worker_func(service, mock_tokens, return_mock_generate_text=False):
+def create_worker(
+    mock_load_hf_model,
+    create_mock_generate_text_streaming,
+    create_mock_compute_embedding,
+    llm_model_name
+):
+    def create_worker_func(service, mock_tokens, return_mock_generate_text=False, model_is_embedding_model=False):
         mock_generate_text = create_mock_generate_text_streaming(mock_tokens)
+        mock_compute_embedding = create_mock_compute_embedding(mock_tokens)
         worker = Worker(
             llm_service=service,
             llm_model_name=llm_model_name,
             device='cuda',
             model_loader_func=mock_load_hf_model,
-            text_generator=mock_generate_text
+            text_generator=mock_generate_text,
+            embedding_function=mock_compute_embedding,
         )
         if return_mock_generate_text:
             return worker, mock_generate_text
@@ -232,3 +240,29 @@ async def test_default_parameters_are_used_if_not_defined(
 
     called_args, _ = mock_generate_text.call_args
     assert_model_params_equal(Params(), called_args[3])
+
+
+@pytest.mark.asyncio
+async def test_embedding_models_save_the_vector_embedding_instead_of_text_response(
+    redis_connection,
+    create_worker,
+    create_websocket_mocks,
+):
+    create_websocket_mocks()
+    vector = [0.01, 0.02, 0.03, 0.04, -0.01]
+    embedding_model = LLMModel.OPENAI_TEXT_EMBEDDING_3_LARGE
+
+    service = LLMService(embedding_model, redis_connection)
+    handle = PromptHandle(
+        service=service,
+        prompt="We hold these Truths to be self-evident, that all Men are created equal, ...",
+        llm_model_name=embedding_model
+    )
+    handle.save()
+
+    worker = create_worker(service, vector, False, True)
+    await worker.process_prompt_handle(handle)
+
+    handle.refresh()
+    assert handle.response is None
+    assert handle.embedding == vector

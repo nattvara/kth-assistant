@@ -6,10 +6,11 @@ import time
 
 import arrow
 
+from services.llm.supported_models import LLMModel, EMBEDDING_MODELS
 from llms.generate import generate_text_streaming, load_hf_model
 from services.llm.prompts import prepend_system_prompt
 from cache.mutex import LockAlreadyAcquiredException
-from services.llm.supported_models import LLMModel
+from llms.embeddings import compute_embedding
 from services.llm.llm import LLMService
 from db.models import PromptHandle
 import config.settings as settings
@@ -42,18 +43,20 @@ class Worker:
             device: str,
             model_loader_func: Callable = load_hf_model,
             text_generator: Callable = generate_text_streaming,
+            embedding_function: Callable = compute_embedding,
     ):
         self.service = llm_service
         self.running = False
         self.llm_model_name = llm_model_name.value
         self.device = device
         self.text_generator = text_generator
+        self.embedding_function = embedding_function
 
         log().info(f"Loading model \"{self.llm_model_name}\" onto device \"{self.device}\"")
         self.model, self.tokenizer = model_loader_func(self.llm_model_name, self.device)
         log().info("model loaded, worker is ready")
 
-    async def process_prompt_handle(self, handle):
+    async def process_prompt_handle(self, handle: PromptHandle):
         log().info(f"Processing handle with id {handle.id} created at {handle.created_at}")
         log().debug(f"The prompt of the handle is: \"{handle.prompt}\"")
 
@@ -62,6 +65,33 @@ class Worker:
         handle.time_spent_pending_ms = wait_time.total_seconds() * 1000
         handle.save()
 
+        if handle.llm_model_name in EMBEDDING_MODELS:
+            return await self._process_embedding_prompt_handle(handle)
+        else:
+            return await self._process_standard_prompt_handle(handle)
+
+    async def _process_embedding_prompt_handle(self, handle: PromptHandle):
+        number_of_tokens = 0
+
+        log().debug("compute embedding...")
+        start_time = time.time()
+
+        prompt = handle.prompt
+        embedding = await self.embedding_function(self.model, self.tokenizer, prompt)
+
+        end_time = time.time()
+        time_taken = end_time - start_time
+
+        log().debug(f"finished computing embedding.")
+
+        handle.refresh()
+        handle.embedding = embedding
+        handle.state = PromptHandle.States.FINISHED
+        handle.response_length = number_of_tokens
+        handle.response_time_taken_s = int(time_taken)
+        handle.save()
+
+    async def _process_standard_prompt_handle(self, handle: PromptHandle):
         websocket_url = _get_websocket_url(handle)
 
         response = ""
