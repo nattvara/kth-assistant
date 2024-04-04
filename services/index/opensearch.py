@@ -111,3 +111,39 @@ def search_index(client: OpenSearch, index_name: str, query_string: str, max_doc
         ))
 
     return out
+
+
+def search_index_with_vector(
+    client: OpenSearch,
+    index_name: str,
+    vector: List[float],
+    field_name: str,
+    max_docs: int = 3
+) -> List[Document]:
+    log().info(f"searching index '{index_name}'")
+
+    query = {
+        'query': {
+            'knn': {
+                field_name: {
+                    'vector': vector,
+                    'k': max_docs
+                }
+            }
+        },
+        'size': max_docs,
+        '_source': False,
+        'fields': ['text', 'name', 'url']
+    }
+
+    res = client.search(index=index_name, body=query)
+
+    out = []
+    for doc in res['hits']['hits']:
+        out.append(Document(
+            doc['fields']['name'][0],
+            doc['fields']['url'][0],
+            doc['fields']['text'][0],
+        ))
+
+    return out

@@ -1,7 +1,7 @@
 from typing import List
 
+from services.llm.supported_models import LLMModel, EMBEDDING_MODELS
 from services.index.chunks import split_text_with_overlap
-from services.llm.supported_models import LLMModel
 import services.index.opensearch as search
 from db.models import Url, Snapshot
 import services.llm.llm as llm
@@ -45,3 +45,19 @@ class IndexService:
 
     def query_index(self, snapshot: Snapshot, query: str) -> List[search.Document]:
         return search.search_index(self.client, snapshot.id, query)
+
+    async def query_index_with_vector(
+        self,
+        snapshot: Snapshot,
+        question: str,
+        embedding_model: LLMModel
+    ) -> List[search.Document]:
+        handle = llm.LLMService.dispatch_prompt(question, embedding_model)
+        handle = await llm.LLMService.wait_for_handle(handle)
+
+        return search.search_index_with_vector(
+            self.client,
+            snapshot.id,
+            vector=handle.embedding,
+            field_name=EMBEDDING_MODELS[embedding_model]
+        )
