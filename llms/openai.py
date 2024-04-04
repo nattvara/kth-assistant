@@ -1,11 +1,13 @@
-from typing import Tuple, AsyncGenerator
+from typing import Tuple, AsyncGenerator, List
 
 from openai import AsyncOpenAI
 
 from config.settings import get_settings
 from llms.config import Params
+from config.logger import log
 
 MODEL = 'gpt-4'
+EMBEDDING_MODEL = 'text-embedding-3-large'
 
 
 class OpenAiError(Exception):
@@ -54,3 +56,10 @@ async def stream_tokens_async(
     async for chunk in stream:
         token = chunk.choices[0].delta.content or ''
         yield token
+
+
+async def compute_embedding(model: AsyncOpenAI, tokeniser, text: str) -> List[float]:
+    log().info(f"Computing embedding using openai embedding model: {EMBEDDING_MODEL}")
+    response = await model.embeddings.create(input=text, model=EMBEDDING_MODEL)
+    log().info(f"Usage was {response.usage}")
+    return response.data[0].embedding
