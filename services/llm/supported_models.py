@@ -18,9 +18,6 @@ class LLMModel(Enum):
     # https://huggingface.co/Salesforce/SFR-Embedding-Mistral
     SALESFORCE_SFR_EMBEDDING_MISTRAL = 'Salesforce/SFR-Embedding-Mistral'
 
-    # https://huggingface.co/Salesforce/SFR-Embedding-Mistral
-    INTFLOAT_MULTILINGUAL_E5_LARGE_INSTRUCT = 'intfloat/multilingual-e5-large-instruct'
-
     # https://platform.openai.com/docs/guides/embeddings/
     OPENAI_TEXT_EMBEDDING_3_LARGE = 'openai/text-embedding-3-large'
 
@@ -31,14 +28,12 @@ enum_dict = {enum.value: enum for enum in LLMModel}
 # the opensearch index
 EMBEDDING_MODELS = {
     LLMModel.SALESFORCE_SFR_EMBEDDING_MISTRAL: 'sfr_embedding_mistral',
-    LLMModel.INTFLOAT_MULTILINGUAL_E5_LARGE_INSTRUCT: 'intfloat_me5li',
     LLMModel.OPENAI_TEXT_EMBEDDING_3_LARGE: 'text_embedding_3_large',
 }
 
 # https://huggingface.co/spaces/mteb/leaderboard
 EMBEDDING_MODELS_DIMENSIONS = {
     LLMModel.SALESFORCE_SFR_EMBEDDING_MISTRAL: 4096,
-    LLMModel.INTFLOAT_MULTILINGUAL_E5_LARGE_INSTRUCT: 1024,
     LLMModel.OPENAI_TEXT_EMBEDDING_3_LARGE: 3072,
 }
 

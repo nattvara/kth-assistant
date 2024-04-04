@@ -18,7 +18,6 @@ class IndexService:
 
         chunks = split_text_with_overlap(url.content.text)
         for idx, chunk in enumerate(chunks):
-            intfloat_me5li = await self._get_intfloat_me5li_embeddings(chunk)
             sfr_embedding_mistral = await self._get_sfr_embedding_mistral_embeddings(chunk)
             text_embedding_3_large = await self._get_text_embedding_3_large_embeddings(chunk)
 
@@ -27,7 +26,6 @@ class IndexService:
                 'text': chunk,
                 'url': url.href,
                 'sfr_embedding_mistral': sfr_embedding_mistral,
-                'intfloat_me5li': intfloat_me5li,
                 'text_embedding_3_large': text_embedding_3_large,
             })
 
@@ -37,11 +35,6 @@ class IndexService:
 
     async def _get_sfr_embedding_mistral_embeddings(self, text: str) -> List[float]:
         handle = llm.LLMService.dispatch_prompt(text, LLMModel.SALESFORCE_SFR_EMBEDDING_MISTRAL)
-        handle = await llm.LLMService.wait_for_handle(handle)
-        return handle.embedding
-
-    async def _get_intfloat_me5li_embeddings(self, text: str) -> List[float]:
-        handle = llm.LLMService.dispatch_prompt(text, LLMModel.INTFLOAT_MULTILINGUAL_E5_LARGE_INSTRUCT)
         handle = await llm.LLMService.wait_for_handle(handle)
         return handle.embedding
 

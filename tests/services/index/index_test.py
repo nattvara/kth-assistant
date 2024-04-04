@@ -67,7 +67,6 @@ async def test_service_can_index_url(new_snapshot, mocker):
         'url': url.href,
         EMBEDDING_MODELS[LLMModel.OPENAI_TEXT_EMBEDDING_3_LARGE]: [0.1, 0.2, 0.3],
         EMBEDDING_MODELS[LLMModel.SALESFORCE_SFR_EMBEDDING_MISTRAL]: [0.1, 0.2, 0.3],
-        EMBEDDING_MODELS[LLMModel.INTFLOAT_MULTILINGUAL_E5_LARGE_INSTRUCT]: [0.1, 0.2, 0.3],
     })
 
     url.refresh()
