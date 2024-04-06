@@ -28,3 +28,10 @@ class Faq(BaseModel):
     faq_id = peewee.CharField(null=False, index=True, unique=True, default=generate_public_id)
     snapshot = peewee.ForeignKeyField(FaqSnapshot, null=False, backref='faqs', on_delete='CASCADE')
     question = peewee.TextField(null=True)
+
+    def to_dict(self) -> dict:
+        return {
+            'id': self.id,
+            'faq_id': self.faq_id,
+            'question': self.question,
+        }

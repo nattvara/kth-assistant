@@ -13,12 +13,18 @@ from db.actions.chat import find_chat_by_id
 router = APIRouter()
 
 
+class Faq(BaseModel):
+    faq_id: str
+    question: str
+
+
 class ChatResponse(BaseModel):
     public_id: str
     llm_model_name: str
     index_type: str
     language: str
     course_name: str
+    faqs: List[Faq]
 
 
 class MessageResponse(BaseModel):
@@ -50,12 +56,15 @@ async def start_new_chat(course_canvas_id: str, session: Session = Depends(get_c
 
     chat = ChatService.start_new_chat_for_session_and_course(session, course)
 
+    snapshot = ChatService.get_most_recent_faq_snapshot(course)
+
     return ChatResponse(
         public_id=chat.public_id,
         llm_model_name=chat.llm_model_name,
         index_type=chat.index_type,
         language=chat.language,
         course_name=chat.course.name,
+        faqs=[faq.to_dict() for faq in snapshot.faqs],
     )
 
 
@@ -73,12 +82,15 @@ async def get_chat_details(course_canvas_id: str, chat_id: str,) -> ChatResponse
     if chat is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Chat not found")
 
+    snapshot = ChatService.get_most_recent_faq_snapshot(course)
+
     return ChatResponse(
         public_id=chat.public_id,
         llm_model_name=chat.llm_model_name,
         index_type=chat.index_type,
         language=chat.language,
         course_name=chat.course.name,
+        faqs=[faq.to_dict() for faq in snapshot.faqs],
     )
 
 

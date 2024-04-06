@@ -1,6 +1,7 @@
-from db.models import Chat, Message, PromptHandle, ChatConfig
+from db.models import Chat, Message, PromptHandle, ChatConfig, Faq
 from services.index.supported_indices import IndexType
 from services.llm.supported_models import LLMModel
+from services.chat.chat_service import ChatService
 
 
 def test_chats_are_tied_to_course_room(api_client, authenticated_session, valid_course):
@@ -146,3 +147,19 @@ def test_chats_inherit_the_language_of_the_course_they_belong_to(api_client, aut
 
     assert response.status_code == 200
     assert chat.language == valid_course.Language.SWEDISH
+
+
+def test_most_recent_faqs_can_be_retrieved(api_client, authenticated_session, valid_course):
+    snapshot = ChatService.create_faq_snapshot(valid_course)
+    faq_1 = Faq(question="And Why Do We Fall, Bruce?", snapshot=snapshot)
+    faq_1.save()
+    faq_2 = Faq(question="Why So Serious?", snapshot=snapshot)
+    faq_2.save()
+
+    response = api_client.post(f'/course/{valid_course.canvas_id}/chat', headers=authenticated_session.headers)
+
+    assert response.status_code == 200
+    assert response.json()['faqs'][0]['faq_id'] == faq_1.faq_id
+    assert response.json()['faqs'][0]['question'] == faq_1.question
+    assert response.json()['faqs'][1]['faq_id'] == faq_2.faq_id
+    assert response.json()['faqs'][1]['question'] == faq_2.question
