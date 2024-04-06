@@ -34,8 +34,8 @@ async def test_chat_service_retrieve_list_of_chats_with_more_than_one_message(au
     c2 = ChatService.start_new_chat_for_session_and_course(authenticated_session.session, course1)  # noqa
     c3 = ChatService.start_new_chat_for_session_and_course(authenticated_session.session, course2)
 
-    Message(sender=Message.Sender.STUDENT, content=f'Hello!', chat=c1).save()
-    Message(sender=Message.Sender.STUDENT, content=f'Hello!', chat=c3).save()
+    Message(sender=Message.Sender.STUDENT, content="Hello!", chat=c1).save()
+    Message(sender=Message.Sender.STUDENT, content="Hello!", chat=c3).save()
 
     chats = ChatService.find_chats_with_messages_in_course(course1)
 
