@@ -7,11 +7,11 @@ import time
 import arrow
 
 from services.llm.supported_models import LLMModel, EMBEDDING_MODELS
+from services.llm.llm import LLMService, NoPendingPromptHandleError
 from llms.generate import generate_text_streaming, load_hf_model
 from services.llm.prompts import prepend_system_prompt
 from cache.mutex import LockAlreadyAcquiredException
 from llms.embeddings import compute_embedding
-from services.llm.llm import LLMService
 from db.models import PromptHandle
 import config.settings as settings
 from llms.config import Params
@@ -170,6 +170,8 @@ class Worker:
                         await self.process_prompt_handle(handle)
                     except LockAlreadyAcquiredException:
                         log().debug("Found a lock the handle. Skipping for now.")
+                    except NoPendingPromptHandleError:
+                        log().error("NoPendingPromptHandleError was thrown. is probably caused by a race condition.")
                 await asyncio.sleep(0.05)
             except KeyboardInterrupt:
                 log().info("Stopping worker...")
