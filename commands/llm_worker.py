@@ -13,7 +13,7 @@ from config.logger import log
 
 def print_help():
     help_message = f"""
-Usage: {basename(sys.argv[0])} MISTRAL_7B_INSTRUCT DEVICE
+Usage: {basename(sys.argv[0])} MODEL_NAME DEVICE
 
 This program starts a worker for a given model.
 
