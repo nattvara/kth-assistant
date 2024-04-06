@@ -195,3 +195,51 @@ TEXT:
 
 <quotes>
 '''
+
+
+def prompt_common_questions(aggregated_chats: str, language: str, course_title: str) -> str:
+    if language == 'en':
+        language = 'English'
+    elif language == 'sv':
+        language = 'Swedish'
+    else:
+        raise ValueError(f"Unsupported language: {language}")
+
+    return f"""
+Consider these chat logs between an assistant and a set of users. Extract the most common questions the user asks the
+assistant into a list of questions that start with <question> and end with </question> like this. Make sure the
+questions are in the language: {language}. Make sure the questions are standalone, so if the question is a
+followup question, make sure to include enough context so that question could be standalone, however, don't mention
+{course_title} inside <question>.
+
+<question>
+user question here...
+</question>
+<question>
+another question here
+</question>
+
+here are all the chat logs:
+{aggregated_chats}
+"""
+
+
+def prompt_deduplicate_questions(questions: List[str]) -> str:
+    questions_wrapped_in_tags = ''
+    for question in questions:
+        questions_wrapped_in_tags += f"<question>{question}</question>\n"
+
+    return f"""
+Consider this list of questions. De-duplicate the list and extract a list of unique questions. Make sure that you wrap
+the questions in <question> tags like the following.
+
+<question>
+user question here...
+</question>
+<question>
+another question here
+</question>
+
+Now, Here are all the questions
+{questions_wrapped_in_tags}
+"""
