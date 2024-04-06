@@ -11,8 +11,8 @@ from config.logger import log
 from db.models import Url
 import cache.redis
 
-# 60 minute timeout
-TIMEOUT = 60 * 60
+# 3 hour timeout
+TIMEOUT = 3 * 60 * 60
 
 
 def get_crawler_service(redis: Redis, browser: Browser, context: BrowserContext, page: Page) -> CrawlerService:
@@ -52,9 +52,9 @@ async def run_worker():
                     url.refresh()
                     if not url.content_is_duplicate:
                         if url.response_was_ok:
-                            index_service.index_url(url)
+                            await index_service.index_url(url)
                         elif url.is_download:
-                            index_service.index_url(url)
+                            await index_service.index_url(url)
 
             except LockAlreadyAcquiredException:
                 log().debug("Found a lock on the url. Skipping.")

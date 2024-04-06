@@ -1,5 +1,6 @@
 from typing import List
 
+from services.index.opensearch import Document
 from services.llm.formatters import format_messages, format_documents
 from services.chat.docs import PostProcessedDocument
 from db.models import Message
@@ -25,7 +26,26 @@ Chat history:
 """.strip()
 
 
-def prompt_make_next_ai_message_with_documents(messages: List[Message], documents: List[PostProcessedDocument]) -> str:
+def prompt_make_next_ai_message_with_documents(
+    messages: List[Message],
+    documents: List[Document]
+) -> str:
+    return f"""
+Documents you may source information from if useful (use citations):
+===================================
+{format_documents(documents)}
+
+Chat history:
+===================================
+{format_messages(messages)}
+<|assistant|>
+""".strip()
+
+
+def prompt_make_next_ai_message_with_post_processed_documents(
+    messages: List[Message],
+    documents: List[PostProcessedDocument]
+) -> str:
     return f"""
 Documents you may source information from if useful (use citations):
 ===================================

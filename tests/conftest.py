@@ -98,6 +98,18 @@ def create_mock_generate_text_streaming(mocker):
 
 
 @pytest.fixture
+def create_mock_compute_embedding(mocker):
+    def create_mock(vector):
+        mock_compute_embeddings = mocker.patch(
+            'llms.embeddings.compute_embedding',
+            return_value=vector
+        )
+        return mock_compute_embeddings
+
+    return create_mock
+
+
+@pytest.fixture
 def create_websocket_mocks(mocker):
     def create_mocks():
         mock_ws = AsyncMock(spec=WebSocketClientProtocol)

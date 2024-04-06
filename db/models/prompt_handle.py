@@ -4,7 +4,7 @@ import string
 
 import peewee
 
-from db.custom_fields import ModelParamsField, ModelNameField
+from db.custom_fields import ModelParamsField, ModelNameField, EmbeddingField
 from . import BaseModel
 
 # Suppress specific DeprecationWarning about db_table, this is needed for migrations to work
@@ -42,3 +42,4 @@ class PromptHandle(BaseModel):
     response = peewee.TextField(null=True)
     response_length = peewee.IntegerField(null=True, default=None)
     response_time_taken_s = peewee.IntegerField(null=True, default=None)
+    embedding = EmbeddingField(null=True)
