@@ -51,6 +51,15 @@ class ChatService:
         return CrawlerService.current_snapshot(chat.course)
 
     @staticmethod
+    def find_chats_with_messages_in_course(course: Course) -> List[Chat]:
+        chats = course.chats
+        out = []
+        for chat in chats:
+            if len(chat.messages) > 0:
+                out.append(chat)
+        return out
+
+    @staticmethod
     async def request_next_message(chat: Chat) -> Message:
         if chat.index_type == IndexType.NO_INDEX:
             return ChatService.request_next_message_without_index(chat)
