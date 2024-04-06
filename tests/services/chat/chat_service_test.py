@@ -41,3 +41,14 @@ async def test_chat_service_retrieve_list_of_chats_with_more_than_one_message(au
 
     assert len(chats) == 1
     assert chats[0].id == c1.id
+
+
+@pytest.mark.asyncio
+async def test_chat_service_can_retrieve_the_most_recent_faq_snapshot(valid_course):
+    snapshot1 = ChatService.create_faq_snapshot(valid_course)  # noqa
+    snapshot2 = ChatService.create_faq_snapshot(valid_course)  # noqa
+    snapshot3 = ChatService.create_faq_snapshot(valid_course)  # noqa
+
+    snapshot = ChatService.get_most_recent_faq_snapshot(valid_course)
+
+    assert snapshot.id == snapshot3.id

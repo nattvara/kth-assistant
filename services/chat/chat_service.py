@@ -1,9 +1,10 @@
 from typing import List
 import asyncio
 
+from db.actions.faq_snapshot import find_latest_faq_snapshot_for_course
 from services.chat.questions import generate_question_from_messages, generate_keyword_query_from_messages
 from services.index.supported_indices import IndexType, is_post_processing_index
-from db.models import Chat, Message, Session, Course, Snapshot
+from db.models import Chat, Message, Session, Course, Snapshot, FaqSnapshot
 from services.chat.docs import post_process_document
 from services.crawler.crawler import CrawlerService
 from services.llm.supported_models import LLMModel
@@ -58,6 +59,19 @@ class ChatService:
             if len(chat.messages) > 0:
                 out.append(chat)
         return out
+
+    @staticmethod
+    def create_faq_snapshot(course: Course) -> FaqSnapshot:
+        snapshot = FaqSnapshot(course=course)
+        snapshot.save()
+        return snapshot
+
+    @staticmethod
+    def get_most_recent_faq_snapshot(course: Course) -> FaqSnapshot:
+        snapshot = find_latest_faq_snapshot_for_course(course)
+        if snapshot is None:
+            raise ChatServiceException(f"no faq snapshot found for course, {course.canvas_id}: {course.name}")
+        return snapshot
 
     @staticmethod
     async def request_next_message(chat: Chat) -> Message:
