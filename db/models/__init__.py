@@ -11,6 +11,8 @@ from .snapshot import Snapshot
 from .content import Content
 from .url import Url
 from .cookie import Cookie
+from .faq_snapshot import FaqSnapshot
+from .faq import Faq
 
 all_models = [
     PromptHandle,
@@ -23,4 +25,6 @@ all_models = [
     Url,
     Cookie,
     Content,
+    FaqSnapshot,
+    Faq,
 ]
