@@ -52,6 +52,7 @@ async def get_feedback_questions(language: str) -> FeedbackQuestionsResponse:
         questions=out
     )
 
+
 @router.post(
     '/feedback/{language}/questions/{feedback_question_id}/messages/{message_id}',
     dependencies=[Depends(get_current_session)],
