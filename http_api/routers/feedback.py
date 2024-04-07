@@ -5,9 +5,10 @@ from pydantic import BaseModel
 from starlette import status
 
 from db.actions.feedback_question import get_all_active_feedback_questions, find_feedback_question_by_public_id
+from db.actions.feedback import find_feedback_by_private_feedback_question_id_and_message_id
 from db.actions.message import find_message_by_public_id
-from db.models import Feedback
 from http_api.auth import get_current_session
+from db.models import Feedback
 
 router = APIRouter()
 
@@ -52,7 +53,7 @@ async def get_feedback_questions(language: str) -> FeedbackQuestionsResponse:
     )
 
 @router.post(
-    '/feedback/{language}/question/{feedback_question_id}/messages/{message_id}',
+    '/feedback/{language}/questions/{feedback_question_id}/messages/{message_id}',
     dependencies=[Depends(get_current_session)],
     status_code=status.HTTP_201_CREATED,
     response_model=FeedbackResponse
@@ -80,6 +81,36 @@ async def save_feedback(
         language=language
     )
     feedback.save()
+
+    return FeedbackResponse(
+        language=feedback.language,
+        feedback_question_id=feedback.feedback_question.feedback_question_id,
+        message_id=feedback.message.message_id,
+        answer=feedback.answer,
+    )
+
+
+@router.get(
+    '/feedback/{language}/questions/{feedback_question_id}/messages/{message_id}',
+    dependencies=[Depends(get_current_session)],
+    status_code=status.HTTP_200_OK,
+    response_model=FeedbackResponse
+)
+async def get_feedback(
+    feedback_question_id: str,
+    message_id: str,
+) -> FeedbackResponse:
+    feedback_question = find_feedback_question_by_public_id(feedback_question_id)
+    if feedback_question is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Feedback question not found")
+
+    message = find_message_by_public_id(message_id)
+    if message is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Message was not found")
+
+    feedback = find_feedback_by_private_feedback_question_id_and_message_id(feedback_question.id, message.id)
+    if feedback is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Feedback was not found")
 
     return FeedbackResponse(
         language=feedback.language,
