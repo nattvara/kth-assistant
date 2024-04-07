@@ -30,6 +30,7 @@ export interface Message {
   created_at: string;
   streaming: boolean;
   websocket: string | null;
+  from_faq: boolean;
 }
 
 export interface Messages {
