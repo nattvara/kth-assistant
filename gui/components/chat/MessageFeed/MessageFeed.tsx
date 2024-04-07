@@ -2,7 +2,7 @@ import { Box } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import React, { useEffect, useRef } from "react";
 
-import { ChatProperties, Message } from "@/components/chat";
+import { ChatProperties, Faqs, Message } from "@/components/chat";
 
 import { fetchMessages } from "@/api/chat";
 
@@ -46,6 +46,8 @@ export default function MessageFeed(props: MessageFeedProps) {
     <Box className={styles.message_feed_container}>
       <div className={styles.message_feed}>
         <ChatProperties courseId={courseId} chatId={chatId} />
+
+        <Faqs courseId={courseId} chatId={chatId} />
 
         {data.messages.map((message, index) => (
           <div key={message.message_id} ref={index === data.messages.length - 1 ? lastMessageRef : null}>

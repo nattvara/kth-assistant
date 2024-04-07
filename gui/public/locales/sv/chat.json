@@ -8,5 +8,8 @@
     "model_and_index_type": "Denna chatt använder modellen <strong>{{modelName}}</strong> och <strong>{{indexType}}</strong> som index.",
     "language": "Språket för chatten med det här kursrummet är svenska.",
     "course_room": "Kursrum"
+  },
+  "faqs": {
+    "title": "Frågor andra studenter har ställt"
   }
 }
