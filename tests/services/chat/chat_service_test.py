@@ -12,7 +12,10 @@ async def test_chat_service_can_produce_message_for_chat_without_any_index(mocke
     new_chat.add_some_messages()
     messages = [message for message in new_chat.chat.messages]
 
-    message = await ChatService.request_next_message(new_chat.chat)
+    next_message = Message(chat=new_chat.chat, content=None, sender=Message.Sender.ASSISTANT)
+    next_message.save()
+
+    message = await ChatService.start_next_message(new_chat.chat, next_message)
 
     mock_prompt.assert_called_once()
     mock_prompt.assert_called_with(messages)

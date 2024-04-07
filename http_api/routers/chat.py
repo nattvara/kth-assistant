@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from pydantic import BaseModel, constr
 
 from db.actions.course import find_course_by_canvas_id
@@ -103,9 +103,10 @@ async def get_chat_details(course_canvas_id: str, chat_id: str,) -> ChatResponse
     response_model=MessageResponse
 )
 async def send_message(
-        course_canvas_id: str,
-        chat_id: str,
-        body: MessageRequestBody,
+    course_canvas_id: str,
+    chat_id: str,
+    body: MessageRequestBody,
+    background_tasks: BackgroundTasks
 ) -> MessageResponse:
     course = find_course_by_canvas_id(course_canvas_id)
     if course is None:
@@ -135,7 +136,10 @@ async def send_message(
 
     msg.save()
 
-    await ChatService.request_next_message(chat)
+    next_message = Message(chat=chat, content=None, sender=Message.Sender.ASSISTANT)
+    next_message.save()
+
+    background_tasks.add_task(ChatService.start_next_message, chat, next_message)
 
     return MessageResponse(
         message_id=msg.message_id,

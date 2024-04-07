@@ -74,21 +74,22 @@ class ChatService:
         return snapshot
 
     @staticmethod
-    async def request_next_message(chat: Chat) -> Message:
+    async def start_next_message(chat: Chat, next_message: Message) -> Message:
         if chat.index_type == IndexType.NO_INDEX:
-            return ChatService.request_next_message_without_index(chat)
+            return ChatService._generate_next_message_without_index(chat, next_message)
 
         should_post_process = is_post_processing_index(chat.index_type)
 
         if chat.index_type in [IndexType.FULL_TEXT_SEARCH, IndexType.FULL_TEXT_SEARCH_WITH_POST_PROCESSING]:
-            return await ChatService.request_next_message_with_full_text_search_index(chat, should_post_process)
+            return await ChatService._generate_next_message_with_full_text_search_index(chat, next_message, should_post_process)
 
         if chat.index_type in [
             IndexType.VECTOR_SEARCH_SALESFORCE_SFR_EMBEDDING_MISTRAL,
             IndexType.VECTOR_SEARCH_SALESFORCE_SFR_EMBEDDING_MISTRAL_WITH_POST_PROCESSING,
         ]:
-            return await ChatService.request_next_message_with_vector_search(
+            return await ChatService._generate_next_message_with_vector_search(
                 chat,
+                next_message,
                 LLMModel.SALESFORCE_SFR_EMBEDDING_MISTRAL,
                 should_post_process
             )
@@ -97,8 +98,9 @@ class ChatService:
             IndexType.VECTOR_SEARCH_OPENAI_TEXT_EMBEDDING_3_LARGE,
             IndexType.VECTOR_SEARCH_OPENAI_TEXT_EMBEDDING_3_LARGE_WITH_POST_PROCESSING,
         ]:
-            return await ChatService.request_next_message_with_vector_search(
+            return await ChatService._generate_next_message_with_vector_search(
                 chat,
+                next_message,
                 LLMModel.OPENAI_TEXT_EMBEDDING_3_LARGE,
                 should_post_process
             )
@@ -107,24 +109,25 @@ class ChatService:
                                             f" it is not supported")
 
     @staticmethod
-    def request_next_message_without_index(chat: Chat) -> Message:
-        messages = [message for message in chat.messages]
+    def _generate_next_message_without_index(chat: Chat, next_message: Message) -> Message:
+        messages = [message for message in chat.messages[:-1]]
         prompt = prompts.prompt_make_next_ai_message(messages)
 
         handle = LLMService.dispatch_prompt(prompt, chat.llm_model_name, chat.llm_model_params)
 
-        next_message = Message(chat=chat, content=None, sender=Message.Sender.ASSISTANT, prompt_handle=handle)
+        next_message.refresh()
+        next_message.prompt_handle = handle
         next_message.save()
 
         return next_message
 
     @staticmethod
-    async def request_next_message_with_full_text_search_index(chat: Chat, should_post_process_docs: bool) -> Message:
-        messages = [message for message in chat.messages]
+    async def _generate_next_message_with_full_text_search_index(chat: Chat, next_message: Message, should_post_process_docs: bool) -> Message:
+        messages = [message for message in chat.messages[:-1]]
 
         question = await generate_question_from_messages(messages, chat)
         if 'NO_QUESTION' in question.strip().upper():
-            return ChatService.request_next_message_without_index(chat)
+            return ChatService._generate_next_message_without_index(chat, next_message)
 
         keyword_query = await generate_keyword_query_from_messages(messages, chat)
 
@@ -134,21 +137,22 @@ class ChatService:
         docs = index.query_index(snapshot, query=keyword_query)
 
         if should_post_process_docs:
-            return await ChatService.request_next_message_with_post_processed_docs(messages, chat, docs, question)
+            return await ChatService._generate_next_message_with_post_processed_docs(messages, chat, next_message, docs, question)
 
-        return await ChatService.request_next_message_with_docs(messages, chat, docs)
+        return await ChatService._generate_next_message_with_docs(messages, chat, next_message, docs)
 
     @staticmethod
-    async def request_next_message_with_vector_search(
+    async def _generate_next_message_with_vector_search(
         chat: Chat,
+        next_message: Message,
         embedding_model: LLMModel,
         should_post_process_docs: bool
     ) -> Message:
-        messages = [message for message in chat.messages]
+        messages = [message for message in chat.messages[:-1]]
 
         question = await generate_question_from_messages(messages, chat)
         if 'NO_QUESTION' in question.strip().upper():
-            return ChatService.request_next_message_without_index(chat)
+            return ChatService._generate_next_message_without_index(chat, next_message)
 
         snapshot = ChatService.find_most_recent_snapshot_for_chat(chat)
 
@@ -160,28 +164,31 @@ class ChatService:
         )
 
         if should_post_process_docs:
-            return await ChatService.request_next_message_with_post_processed_docs(messages, chat, docs, question)
+            return await ChatService._generate_next_message_with_post_processed_docs(messages, chat, next_message, docs, question)
 
-        return await ChatService.request_next_message_with_docs(messages, chat, docs)
+        return await ChatService._generate_next_message_with_docs(messages, chat, next_message, docs)
 
     @staticmethod
-    async def request_next_message_with_docs(
+    async def _generate_next_message_with_docs(
         messages: List[Message],
         chat: Chat,
+        next_message: Message,
         docs: List[Document],
     ) -> Message:
         prompt = prompts.prompt_make_next_ai_message_with_documents(messages, docs)
         handle = LLMService.dispatch_prompt(prompt, chat.llm_model_name, chat.llm_model_params)
 
-        next_message = Message(chat=chat, content=None, sender=Message.Sender.ASSISTANT, prompt_handle=handle)
+        next_message.refresh()
+        next_message.prompt_handle = handle
         next_message.save()
 
         return next_message
 
     @staticmethod
-    async def request_next_message_with_post_processed_docs(
+    async def _generate_next_message_with_post_processed_docs(
         messages: List[Message],
         chat: Chat,
+        next_message: Message,
         docs: List[Document],
         question: str
     ) -> Message:
@@ -192,7 +199,8 @@ class ChatService:
         prompt = prompts.prompt_make_next_ai_message_with_post_processed_documents(messages, post_processed_docs)
         handle = LLMService.dispatch_prompt(prompt, chat.llm_model_name, chat.llm_model_params)
 
-        next_message = Message(chat=chat, content=None, sender=Message.Sender.ASSISTANT, prompt_handle=handle)
+        next_message.refresh()
+        next_message.prompt_handle = handle
         next_message.save()
 
         return next_message
