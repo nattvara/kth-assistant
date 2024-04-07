@@ -68,7 +68,10 @@ def message_to_string(message: Message) -> str:
         content = message.content
     else:
         sender = 'assistant'
-        content = message.prompt_handle.response
+        if message.prompt_handle is None:
+            content = ''
+        else:
+            content = message.prompt_handle.response
     return f"<|{sender}|> {content}"
 
 
