@@ -47,7 +47,7 @@ def test_user_can_send_message_to_chat(api_client, authenticated_session, new_ch
     assert new_chat.chat.messages[0].sender == Message.Sender.STUDENT
 
 
-def test_user_get_messages_in_chat(api_client, authenticated_session, new_chat):
+def test_user_can_get_messages_in_chat(api_client, authenticated_session, new_chat):
     new_chat.add_some_messages()
 
     url = f'/course/{new_chat.course.canvas_id}/chat/{new_chat.chat.public_id}/messages'
@@ -60,6 +60,18 @@ def test_user_get_messages_in_chat(api_client, authenticated_session, new_chat):
     for idx, message in enumerate(messages):
         assert new_chat.chat.messages[idx].content == message['content']
         assert new_chat.chat.messages[idx].sender == message['sender']
+
+
+def test_user_get_single_message_in_chat(api_client, authenticated_session, new_chat):
+    new_chat.add_some_messages()
+    message = new_chat.chat.messages[0]
+
+    url = f'/course/{new_chat.course.canvas_id}/chat/{new_chat.chat.public_id}/messages/{message.message_id}'
+    response = api_client.get(url, headers=authenticated_session.headers)
+
+    assert response.status_code == 200
+    assert response.json()['message_id'] == message.message_id
+    assert response.json()['content'] == message.content
 
 
 def test_new_student_message_creates_streaming_assistant_message(

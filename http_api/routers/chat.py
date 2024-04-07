@@ -3,9 +3,9 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from pydantic import BaseModel, constr
 
+from db.actions.message import all_messages_in_chat, find_message_by_chat_private_id_and_message_public_id
 from db.actions.course import find_course_by_canvas_id
 from db.models import Session, Message, PromptHandle
-from db.actions.message import all_messages_in_chat
 from services.chat.chat_service import ChatService
 from db.actions.faq import find_faq_by_public_id
 from http_api.auth import get_current_session
@@ -160,8 +160,8 @@ async def send_message(
     response_model=MessagesResponse
 )
 async def get_messages(
-        course_canvas_id: str,
-        chat_id: str,
+    course_canvas_id: str,
+    chat_id: str,
 ) -> MessagesResponse:
     course = find_course_by_canvas_id(course_canvas_id)
     if course is None:
@@ -202,3 +202,51 @@ async def get_messages(
         ))
 
     return MessagesResponse(messages=out)
+
+
+@router.get(
+    '/course/{course_canvas_id}/chat/{chat_id}/messages/{message_id}',
+    dependencies=[Depends(get_current_session)],
+    status_code=status.HTTP_200_OK,
+    response_model=MessageResponse
+)
+async def get_message(
+    course_canvas_id: str,
+    chat_id: str,
+    message_id: str,
+) -> MessageResponse:
+    course = find_course_by_canvas_id(course_canvas_id)
+    if course is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found")
+
+    chat = find_chat_by_id(chat_id)
+    if chat is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Chat not found")
+
+    msg = find_message_by_chat_private_id_and_message_public_id(chat.id, message_id)
+    streaming = False
+    websocket = None
+    content = msg.content
+    if msg.prompt_handle:
+        if msg.prompt_handle.state == PromptHandle.States.PENDING:
+            streaming = True
+            websocket = msg.prompt_handle.websocket_uri
+            content = None
+        elif msg.prompt_handle.state == PromptHandle.States.IN_PROGRESS:
+            streaming = True
+            websocket = msg.prompt_handle.websocket_uri
+            content = None
+        elif msg.prompt_handle.state == PromptHandle.States.FINISHED:
+            streaming = False
+            websocket = None
+            content = msg.prompt_handle.response
+
+    return MessageResponse(
+        message_id=msg.message_id,
+        content=content,
+        sender=msg.sender,
+        state=msg.state,
+        created_at=str(msg.created_at),
+        streaming=streaming,
+        websocket=websocket,
+    )
