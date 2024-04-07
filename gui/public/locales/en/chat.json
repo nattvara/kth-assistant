@@ -1,7 +1,8 @@
 {
   "message": {
     "student": "You",
-    "assistant": "Copilot"
+    "assistant": "Copilot",
+    "pending": "Searching the canvas course-room for data..."
   },
   "properties": {
     "title": "Chat Properties",

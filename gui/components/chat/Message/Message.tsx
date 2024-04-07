@@ -1,25 +1,42 @@
 import { Grid, Loader, SimpleGrid } from "@mantine/core";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "next-i18next";
 import React, { useEffect, useRef, useState } from "react";
 
-import { Message as MessageType } from "@/api/chat";
+import { MESSAGE_PENDING, MESSAGE_READY, Message as MessageType, fetchMessage } from "@/api/chat";
 import { makeWebsocketUrl } from "@/api/http";
 import { TERMINATION_STRING } from "@/api/websocket";
 
 import styles from "./styles.module.css";
 
 interface MessageProps {
-  message: MessageType;
+  initialMessage: MessageType;
+  courseId: string;
+  chatId: string;
 }
 
 export default function Message(props: MessageProps) {
-  const { message } = props;
+  const { initialMessage, courseId, chatId } = props;
   const { t } = useTranslation("chat");
+  const [message, setMessage] = useState<MessageType>(initialMessage);
   const [displayedContent, setDisplayedContent] = useState("");
   const [showLoading, setShowLoading] = useState(false);
   const [numberOfWords, setNumberOfWords] = useState(0);
   const wsInitialized = useRef(false);
   const loadingRef = useRef<HTMLDivElement>(null);
+
+  const { data } = useQuery({
+    queryKey: ["message", courseId, chatId, message.message_id],
+    queryFn: () => fetchMessage(courseId, chatId, message.message_id),
+    enabled: message.state === MESSAGE_PENDING,
+    refetchInterval: 100,
+  });
+
+  useEffect(() => {
+    if (data) {
+      setMessage(data);
+    }
+  }, [data]);
 
   useEffect(() => {
     if (message.streaming && message.websocket && !wsInitialized.current) {
@@ -90,11 +107,23 @@ export default function Message(props: MessageProps) {
         </strong>
       </Grid>
       <Grid>
-        <span className={styles.content} dangerouslySetInnerHTML={{ __html: displayedContent }}></span>
-        {showLoading && (
-          <span>
-            <Loader className={styles.loader} ref={loadingRef} color="black" size={12} />
-          </span>
+        {message.state === MESSAGE_PENDING && (
+          <SimpleGrid cols={1} className={styles.pending}>
+            <span>
+              <Loader className={styles.loader} color="black" type="dots" />
+              <span className={styles.pending_text}>{t("message.pending")}</span>
+            </span>
+          </SimpleGrid>
+        )}
+        {message.state === MESSAGE_READY && (
+          <>
+            <span className={styles.content} dangerouslySetInnerHTML={{ __html: displayedContent }}></span>
+            {showLoading && (
+              <span>
+                <Loader className={styles.loader} ref={loadingRef} color="black" size={12} />
+              </span>
+            )}
+          </>
         )}
       </Grid>
     </SimpleGrid>

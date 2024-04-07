@@ -1,7 +1,8 @@
 {
   "message": {
     "student": "Du",
-    "assistant": "Copilot"
+    "assistant": "Copilot",
+    "pending": "Söker i canvas för information..."
   },
   "properties": {
     "title": "Information om denna chatt",

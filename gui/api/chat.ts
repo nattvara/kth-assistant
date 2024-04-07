@@ -16,10 +16,17 @@ export interface Chat {
   faqs: Faq[];
 }
 
+export const MESSAGE_PENDING = "pending";
+
+export const MESSAGE_READY = "ready";
+
+export type MessageState = typeof MESSAGE_READY | typeof MESSAGE_PENDING;
+
 export interface Message {
   message_id: string;
   content: string | null;
   sender: string;
+  state: MessageState;
   created_at: string;
   streaming: boolean;
   websocket: string | null;
@@ -86,6 +93,26 @@ export async function fetchMessages(canvasId: string, chatId: string): Promise<M
   }
 
   const data = (await response.json()) as Messages;
+  return data;
+}
+
+export async function fetchMessage(canvasId: string, chatId: string, messageId: string): Promise<Message> {
+  const sessionCookie = Cookies.get("session_id") as string;
+
+  const response = await fetch(makeUrl(`/course/${canvasId}/chat/${chatId}/messages/${messageId}`), {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Session-ID": sessionCookie,
+    },
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.json();
+    throw new HttpError(response, errorBody, response.status);
+  }
+
+  const data = (await response.json()) as Message;
   return data;
 }
 

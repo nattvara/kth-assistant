@@ -51,7 +51,7 @@ export default function MessageFeed(props: MessageFeedProps) {
 
         {data.messages.map((message, index) => (
           <div key={message.message_id} ref={index === data.messages.length - 1 ? lastMessageRef : null}>
-            <Message message={message} />
+            <Message initialMessage={message} courseId={courseId} chatId={chatId} />
           </div>
         ))}
       </div>
