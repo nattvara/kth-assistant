@@ -81,7 +81,11 @@ class ChatService:
         should_post_process = is_post_processing_index(chat.index_type)
 
         if chat.index_type in [IndexType.FULL_TEXT_SEARCH, IndexType.FULL_TEXT_SEARCH_WITH_POST_PROCESSING]:
-            return await ChatService._generate_next_message_with_full_text_search_index(chat, next_message, should_post_process)
+            return await ChatService._generate_next_message_with_full_text_search_index(
+                chat,
+                next_message,
+                should_post_process
+            )
 
         if chat.index_type in [
             IndexType.VECTOR_SEARCH_SALESFORCE_SFR_EMBEDDING_MISTRAL,
@@ -123,7 +127,11 @@ class ChatService:
         return next_message
 
     @staticmethod
-    async def _generate_next_message_with_full_text_search_index(chat: Chat, next_message: Message, should_post_process_docs: bool) -> Message:
+    async def _generate_next_message_with_full_text_search_index(
+        chat: Chat,
+        next_message: Message,
+        should_post_process_docs: bool
+    ) -> Message:
         messages = [message for message in chat.messages[:-1]]
 
         question = await generate_question_from_messages(messages, chat)
@@ -138,7 +146,13 @@ class ChatService:
         docs = index.query_index(snapshot, query=keyword_query)
 
         if should_post_process_docs:
-            return await ChatService._generate_next_message_with_post_processed_docs(messages, chat, next_message, docs, question)
+            return await ChatService._generate_next_message_with_post_processed_docs(
+                messages,
+                chat,
+                next_message,
+                docs,
+                question
+            )
 
         return await ChatService._generate_next_message_with_docs(messages, chat, next_message, docs)
 
@@ -165,7 +179,13 @@ class ChatService:
         )
 
         if should_post_process_docs:
-            return await ChatService._generate_next_message_with_post_processed_docs(messages, chat, next_message, docs, question)
+            return await ChatService._generate_next_message_with_post_processed_docs(
+                messages,
+                chat,
+                next_message,
+                docs,
+                question
+            )
 
         return await ChatService._generate_next_message_with_docs(messages, chat, next_message, docs)
 
