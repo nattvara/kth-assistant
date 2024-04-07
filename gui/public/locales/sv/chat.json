@@ -2,7 +2,11 @@
   "message": {
     "student": "Du",
     "assistant": "Copilot",
-    "pending": "Söker i canvas för information..."
+    "pending": "Söker i canvas för information...",
+    "failed": {
+      "title": "Meddelandet misslyckades.",
+      "text": "Copilot kunde inte svara på din fråga. Försök igen genom att starta en ny chatt."
+    }
   },
   "properties": {
     "title": "Information om denna chatt",

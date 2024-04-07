@@ -1,4 +1,5 @@
-import { Grid, Loader, SimpleGrid } from "@mantine/core";
+import { Alert, Grid, Loader, SimpleGrid } from "@mantine/core";
+import { IconExclamationCircle } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "next-i18next";
 import React, { useEffect, useRef, useState } from "react";
@@ -8,6 +9,9 @@ import { makeWebsocketUrl } from "@/api/http";
 import { TERMINATION_STRING } from "@/api/websocket";
 
 import styles from "./styles.module.css";
+
+// 10 minutes
+const REFETCH_TIMEOUT = 1000 * 60 * 10;
 
 interface MessageProps {
   initialMessage: MessageType;
@@ -19,6 +23,7 @@ export default function Message(props: MessageProps) {
   const { initialMessage, courseId, chatId } = props;
   const { t } = useTranslation("chat");
   const [message, setMessage] = useState<MessageType>(initialMessage);
+  const [shouldRefetch, setShouldRefetch] = useState(true);
   const [displayedContent, setDisplayedContent] = useState("");
   const [showLoading, setShowLoading] = useState(false);
   const [numberOfWords, setNumberOfWords] = useState(0);
@@ -28,7 +33,7 @@ export default function Message(props: MessageProps) {
   const { data } = useQuery({
     queryKey: ["message", courseId, chatId, message.message_id],
     queryFn: () => fetchMessage(courseId, chatId, message.message_id),
-    enabled: message.state === MESSAGE_PENDING,
+    enabled: message.state === MESSAGE_PENDING && shouldRefetch,
     refetchInterval: 100,
   });
 
@@ -37,6 +42,26 @@ export default function Message(props: MessageProps) {
       setMessage(data);
     }
   }, [data]);
+
+  useEffect(() => {
+    if (message.state !== MESSAGE_PENDING) return;
+
+    const createdAtDate = new Date(initialMessage.created_at);
+    const timeSinceCreated = new Date().getTime() - createdAtDate.getTime();
+
+    if (timeSinceCreated >= REFETCH_TIMEOUT) {
+      console.error("message was in pending state but timeout was reached, no longer re-fetching.");
+      setShouldRefetch(false);
+    } else {
+      const timeoutDuration = REFETCH_TIMEOUT - timeSinceCreated;
+      const timer = setTimeout(() => {
+        console.error("message was in pending state but timeout was reached, no longer re-fetching.");
+        setShouldRefetch(false);
+      }, timeoutDuration);
+
+      return () => clearTimeout(timer);
+    }
+  }, [initialMessage.created_at, message.state]);
 
   useEffect(() => {
     if (message.streaming && message.websocket && !wsInitialized.current) {
@@ -107,13 +132,24 @@ export default function Message(props: MessageProps) {
         </strong>
       </Grid>
       <Grid>
-        {message.state === MESSAGE_PENDING && (
+        {message.state === MESSAGE_PENDING && shouldRefetch && (
           <SimpleGrid cols={1} className={styles.pending}>
             <span>
               <Loader className={styles.loader} color="black" type="dots" />
               <span className={styles.pending_text}>{t("message.pending")}</span>
             </span>
           </SimpleGrid>
+        )}
+        {message.state === MESSAGE_PENDING && !shouldRefetch && (
+          <Alert
+            className={styles.error}
+            variant="light"
+            color="red"
+            title={t("message.failed.title")}
+            icon={<IconExclamationCircle />}
+          >
+            {t("message.failed.text")}
+          </Alert>
         )}
         {message.state === MESSAGE_READY && (
           <>

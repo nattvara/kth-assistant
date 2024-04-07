@@ -40,3 +40,8 @@
   font-style: italic;
   font-size: smaller;
 }
+
+.error {
+  width: 80%;
+  margin: 20px auto;
+}
