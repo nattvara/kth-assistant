@@ -2,12 +2,18 @@ import Cookies from "js-cookie";
 
 import { HttpError, makeUrl } from "@/api/http";
 
+export interface Faq {
+  faq_id: string;
+  question: string;
+}
+
 export interface Chat {
   public_id: string;
   llm_model_name: string;
   index_type: string;
   language: string;
   course_name: string;
+  faqs: Faq[];
 }
 
 export interface Message {
