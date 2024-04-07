@@ -7,6 +7,7 @@ from db.actions.course import find_course_by_canvas_id
 from db.models import Session, Message, PromptHandle
 from db.actions.message import all_messages_in_chat
 from services.chat.chat_service import ChatService
+from db.actions.faq import find_faq_by_public_id
 from http_api.auth import get_current_session
 from db.actions.chat import find_chat_by_id
 
@@ -41,7 +42,8 @@ class MessagesResponse(BaseModel):
 
 
 class MessageRequestBody(BaseModel):
-    content: constr(min_length=1, max_length=2048)
+    content: Optional[constr(min_length=1, max_length=2048)] = None
+    faq_id: Optional[str] = None
 
 
 @router.post(
@@ -113,7 +115,24 @@ async def send_message(
     if chat is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Chat not found")
 
-    msg = Message(chat=chat, content=body.content, sender=Message.Sender.STUDENT)
+    if body.faq_id is None and body.content is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="message must contain faq_id or content")
+
+    if body.content is not None:
+        content = body.content
+
+    faq = None
+    if body.faq_id is not None:
+        faq = find_faq_by_public_id(body.faq_id)
+        if faq is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="FAQ not found")
+        content = faq.question
+
+    msg = Message(chat=chat, content=content, sender=Message.Sender.STUDENT)
+
+    if faq is not None:
+        msg.faq = faq
+
     msg.save()
 
     await ChatService.request_next_message(chat)

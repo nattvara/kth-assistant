@@ -163,3 +163,18 @@ def test_most_recent_faqs_can_be_retrieved(api_client, authenticated_session, va
     assert response.json()['faqs'][0]['question'] == faq_1.question
     assert response.json()['faqs'][1]['faq_id'] == faq_2.faq_id
     assert response.json()['faqs'][1]['question'] == faq_2.question
+
+
+def test_first_message_in_chat_can_be_created_from_faq(api_client, authenticated_session, new_chat):
+    snapshot = ChatService.create_faq_snapshot(new_chat.course)
+    faq_1 = Faq(question="And Why Do We Fall, Bruce?", snapshot=snapshot)
+    faq_1.save()
+
+    url = f'/course/{new_chat.course.canvas_id}/chat/{new_chat.chat.public_id}/messages'
+    response = api_client.post(url, json={'faq_id': faq_1.faq_id}, headers=authenticated_session.headers)
+
+    new_chat.chat.refresh()
+    assert response.status_code == 201
+    assert new_chat.chat.messages[0].content == "And Why Do We Fall, Bruce?"
+    assert new_chat.chat.messages[0].sender == Message.Sender.STUDENT
+    assert new_chat.chat.messages[0].faq.id == faq_1.id
