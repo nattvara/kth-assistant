@@ -13,6 +13,7 @@ from .cookie import Cookie
 from .faq_snapshot import FaqSnapshot
 from .faq import Faq
 from .message import Message
+from .feedback_question import FeedbackQuestion
 
 all_models = [
     PromptHandle,
@@ -27,4 +28,5 @@ all_models = [
     Content,
     FaqSnapshot,
     Faq,
+    FeedbackQuestion,
 ]
