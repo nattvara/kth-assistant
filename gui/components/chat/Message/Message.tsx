@@ -79,6 +79,7 @@ export default function Message(props: MessageProps) {
         }
         setDisplayedContent((prevContent) => {
           let newContent = prevContent + event.data;
+          newContent = newContent.replace(/\n/g, "<br>");
           const docPattern = /\\document\{([^}]+)\}\{([^}]+)\}/g;
           newContent = newContent.replace(docPattern, (match, p1, p2) => {
             return `<a href="${p1}" target="_blank">${p2}</a>`;
@@ -114,6 +115,7 @@ export default function Message(props: MessageProps) {
       };
     } else if (!message.streaming) {
       let initialContent = message.content || "";
+      initialContent = initialContent.replace(/\n/g, "<br>");
       const docPattern = /\\document\{([^}]+)\}\{([^}]+)\}/g;
       initialContent = initialContent.replace(docPattern, (match, p1, p2) => {
         return ` <a href="${p1}" target="_blank">${p2}</a> `;
