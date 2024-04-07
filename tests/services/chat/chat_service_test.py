@@ -24,6 +24,21 @@ async def test_chat_service_can_produce_message_for_chat_without_any_index(mocke
 
 
 @pytest.mark.asyncio
+async def test_message_state_is_set_to_ready_after_message_has_been_started(new_chat):
+    next_message = Message(
+        chat=new_chat.chat,
+        content=None,
+        sender=Message.Sender.ASSISTANT,
+        state=Message.States.PENDING
+    )
+    next_message.save()
+
+    assert next_message.state == Message.States.PENDING
+    await ChatService.start_next_message(new_chat.chat, next_message)
+    assert next_message.state == Message.States.READY
+
+
+@pytest.mark.asyncio
 async def test_chat_service_retrieve_list_of_chats_with_more_than_one_message(authenticated_session):
     config = ChatConfig(llm_model_name=LLMModel.MISTRAL_7B_INSTRUCT, index_type=IndexType.NO_INDEX)
     config.save()

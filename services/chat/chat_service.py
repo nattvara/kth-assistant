@@ -116,6 +116,7 @@ class ChatService:
         handle = LLMService.dispatch_prompt(prompt, chat.llm_model_name, chat.llm_model_params)
 
         next_message.refresh()
+        next_message.state = Message.States.READY
         next_message.prompt_handle = handle
         next_message.save()
 
@@ -180,6 +181,7 @@ class ChatService:
 
         next_message.refresh()
         next_message.prompt_handle = handle
+        next_message.state = Message.States.READY
         next_message.save()
 
         return next_message
@@ -201,6 +203,7 @@ class ChatService:
 
         next_message.refresh()
         next_message.prompt_handle = handle
+        next_message.state = Message.States.READY
         next_message.save()
 
         return next_message
