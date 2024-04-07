@@ -14,6 +14,7 @@ from .faq_snapshot import FaqSnapshot
 from .faq import Faq
 from .message import Message
 from .feedback_question import FeedbackQuestion
+from .feedback import Feedback
 
 all_models = [
     PromptHandle,
@@ -29,4 +30,5 @@ all_models = [
     FaqSnapshot,
     Faq,
     FeedbackQuestion,
+    Feedback,
 ]
