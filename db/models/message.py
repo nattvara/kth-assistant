@@ -3,7 +3,7 @@ import uuid
 
 import peewee
 
-from . import BaseModel, Chat, PromptHandle
+from . import BaseModel, Chat, PromptHandle, Faq
 
 # Suppress specific DeprecationWarning about db_table, this is needed for migrations to work
 warnings.filterwarnings(
@@ -34,3 +34,4 @@ class Message(BaseModel):
     sender = peewee.CharField(null=False)
     content = peewee.TextField(null=True)
     prompt_handle = peewee.ForeignKeyField(PromptHandle, null=True, backref='messages', on_delete='CASCADE')
+    faq = peewee.ForeignKeyField(Faq, null=True, backref='messages', on_delete='CASCADE')

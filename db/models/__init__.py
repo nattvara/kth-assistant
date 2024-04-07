@@ -6,13 +6,13 @@ from .session import Session
 from .course import Course
 from .chat import Chat
 from .chat_config import ChatConfig
-from .message import Message
 from .snapshot import Snapshot
 from .content import Content
 from .url import Url
 from .cookie import Cookie
 from .faq_snapshot import FaqSnapshot
 from .faq import Faq
+from .message import Message
 
 all_models = [
     PromptHandle,
