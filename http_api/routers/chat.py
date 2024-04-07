@@ -139,6 +139,8 @@ async def send_message(
     msg.save()
 
     next_message = Message(chat=chat, content=None, sender=Message.Sender.ASSISTANT, state=Message.States.PENDING)
+    if faq is not None:
+        next_message.faq = faq
     next_message.save()
 
     background_tasks.add_task(ChatService.start_next_message, chat, next_message)
