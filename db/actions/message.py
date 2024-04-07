@@ -11,3 +11,10 @@ def find_message_by_chat_private_id_and_message_public_id(chat_id: int, message_
     ).filter(
         Message.message_id == message_id
     ).first()
+
+
+def find_message_by_public_id(message_id: str):
+    from db.models.message import Message
+    return Message.select().filter(
+        Message.message_id == message_id
+    ).first()
