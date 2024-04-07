@@ -72,6 +72,7 @@ export default function Prompt(props: PromptProps) {
         onClick={handleSendMessage}
         disabled={sendMutation.isPending}
         loading={sendMutation.isPending}
+        loaderProps={{ type: "dots" }}
       >
         {t("prompt.button_text")}
       </Button>

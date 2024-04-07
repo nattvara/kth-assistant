@@ -1,12 +1,20 @@
 {
   "message": {
     "student": "Du",
-    "assistant": "Copilot"
+    "assistant": "Copilot",
+    "pending": "Söker i canvas för information...",
+    "failed": {
+      "title": "Meddelandet misslyckades.",
+      "text": "Copilot kunde inte svara på din fråga. Försök igen genom att starta en ny chatt."
+    }
   },
   "properties": {
     "title": "Information om denna chatt",
     "model_and_index_type": "Denna chatt använder modellen <strong>{{modelName}}</strong> och <strong>{{indexType}}</strong> som index.",
     "language": "Språket för chatten med det här kursrummet är svenska.",
     "course_room": "Kursrum"
+  },
+  "faqs": {
+    "title": "Frågor andra studenter har ställt"
   }
 }

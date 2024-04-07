@@ -1,0 +1,39 @@
+
+.root {
+  padding: 20px;
+  width: 100%;
+}
+
+.grid {
+  width: 100%;
+}
+
+.quote {
+  padding: 20px;
+  width: 100%;
+  font-style: italic;
+  font-weight: 600;
+  color: var(--mantine-color-gray-7);
+  height: 100%;
+}
+
+.quote:hover {
+  cursor: pointer;
+  color: var(--mantine-color-blue-5);
+}
+
+.paper {
+  padding: 0;
+  margin-bottom: 10px;
+}
+
+.paper:hover {
+  cursor: pointer;
+  z-index: 100;
+  transition: all 0.05s linear;
+}
+
+.title {
+  color: var(--mantine-color-gray-7);
+  margin-bottom: 10px;
+}

@@ -2,18 +2,31 @@ import Cookies from "js-cookie";
 
 import { HttpError, makeUrl } from "@/api/http";
 
+export interface Faq {
+  faq_id: string;
+  question: string;
+}
+
 export interface Chat {
   public_id: string;
   llm_model_name: string;
   index_type: string;
   language: string;
   course_name: string;
+  faqs: Faq[];
 }
+
+export const MESSAGE_PENDING = "pending";
+
+export const MESSAGE_READY = "ready";
+
+export type MessageState = typeof MESSAGE_READY | typeof MESSAGE_PENDING;
 
 export interface Message {
   message_id: string;
   content: string | null;
   sender: string;
+  state: MessageState;
   created_at: string;
   streaming: boolean;
   websocket: string | null;
@@ -83,6 +96,26 @@ export async function fetchMessages(canvasId: string, chatId: string): Promise<M
   return data;
 }
 
+export async function fetchMessage(canvasId: string, chatId: string, messageId: string): Promise<Message> {
+  const sessionCookie = Cookies.get("session_id") as string;
+
+  const response = await fetch(makeUrl(`/course/${canvasId}/chat/${chatId}/messages/${messageId}`), {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Session-ID": sessionCookie,
+    },
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.json();
+    throw new HttpError(response, errorBody, response.status);
+  }
+
+  const data = (await response.json()) as Message;
+  return data;
+}
+
 export async function sendMessage(canvasId: string, chatId: string, content: string): Promise<Message> {
   const sessionCookie = Cookies.get("session_id") as string;
 
@@ -94,6 +127,29 @@ export async function sendMessage(canvasId: string, chatId: string, content: str
     },
     body: JSON.stringify({
       content,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.json();
+    throw new HttpError(response, errorBody, response.status);
+  }
+
+  const data = (await response.json()) as Message;
+  return data;
+}
+
+export async function sendMessageUsingFaq(canvasId: string, chatId: string, faqId: string): Promise<Message> {
+  const sessionCookie = Cookies.get("session_id") as string;
+
+  const response = await fetch(makeUrl(`/course/${canvasId}/chat/${chatId}/messages`), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Session-ID": sessionCookie,
+    },
+    body: JSON.stringify({
+      faq_id: faqId,
     }),
   });
 

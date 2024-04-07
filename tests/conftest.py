@@ -14,7 +14,7 @@ import pytest
 # in the main project when running inside pytest
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from db.models import all_models, Session, Course, Chat, Message, ChatConfig, Snapshot, Url, Content  # noqa
+from db.models import all_models, Session, Course, Chat, Message, ChatConfig, Snapshot, Url, Content, FaqSnapshot  # noqa
 from services.download.download import DownloadService  # noqa
 from services.index.supported_indices import IndexType  # noqa
 from services.llm.supported_models import LLMModel  # noqa
@@ -152,6 +152,10 @@ def valid_course():
 
     course = Course(canvas_id="41428", snapshot_lifetime_in_mins=60)
     course.save()
+
+    snapshot = FaqSnapshot(course=course)
+    snapshot.save()
+
     return course
 
 

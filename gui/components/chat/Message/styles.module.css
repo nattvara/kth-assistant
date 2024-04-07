@@ -29,3 +29,19 @@
 .loader {
   margin-left: 10px;
 }
+
+.pending {
+  width: 100%;
+  word-break: break-word;
+}
+
+.pending_text {
+  color: var(--mantine-color-gray-7);
+  font-style: italic;
+  font-size: smaller;
+}
+
+.error {
+  width: 80%;
+  margin: 20px auto;
+}

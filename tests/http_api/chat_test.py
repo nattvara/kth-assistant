@@ -1,6 +1,7 @@
-from db.models import Chat, Message, PromptHandle, ChatConfig
+from db.models import Chat, Message, PromptHandle, ChatConfig, Faq
 from services.index.supported_indices import IndexType
 from services.llm.supported_models import LLMModel
+from services.chat.chat_service import ChatService
 
 
 def test_chats_are_tied_to_course_room(api_client, authenticated_session, valid_course):
@@ -46,7 +47,7 @@ def test_user_can_send_message_to_chat(api_client, authenticated_session, new_ch
     assert new_chat.chat.messages[0].sender == Message.Sender.STUDENT
 
 
-def test_user_get_messages_in_chat(api_client, authenticated_session, new_chat):
+def test_user_can_get_messages_in_chat(api_client, authenticated_session, new_chat):
     new_chat.add_some_messages()
 
     url = f'/course/{new_chat.course.canvas_id}/chat/{new_chat.chat.public_id}/messages'
@@ -59,6 +60,18 @@ def test_user_get_messages_in_chat(api_client, authenticated_session, new_chat):
     for idx, message in enumerate(messages):
         assert new_chat.chat.messages[idx].content == message['content']
         assert new_chat.chat.messages[idx].sender == message['sender']
+
+
+def test_user_get_single_message_in_chat(api_client, authenticated_session, new_chat):
+    new_chat.add_some_messages()
+    message = new_chat.chat.messages[0]
+
+    url = f'/course/{new_chat.course.canvas_id}/chat/{new_chat.chat.public_id}/messages/{message.message_id}'
+    response = api_client.get(url, headers=authenticated_session.headers)
+
+    assert response.status_code == 200
+    assert response.json()['message_id'] == message.message_id
+    assert response.json()['content'] == message.content
 
 
 def test_new_student_message_creates_streaming_assistant_message(
@@ -146,3 +159,34 @@ def test_chats_inherit_the_language_of_the_course_they_belong_to(api_client, aut
 
     assert response.status_code == 200
     assert chat.language == valid_course.Language.SWEDISH
+
+
+def test_most_recent_faqs_can_be_retrieved(api_client, authenticated_session, valid_course):
+    snapshot = ChatService.create_faq_snapshot(valid_course)
+    faq_1 = Faq(question="And Why Do We Fall, Bruce?", snapshot=snapshot)
+    faq_1.save()
+    faq_2 = Faq(question="Why So Serious?", snapshot=snapshot)
+    faq_2.save()
+
+    response = api_client.post(f'/course/{valid_course.canvas_id}/chat', headers=authenticated_session.headers)
+
+    assert response.status_code == 200
+    assert response.json()['faqs'][0]['faq_id'] == faq_1.faq_id
+    assert response.json()['faqs'][0]['question'] == faq_1.question
+    assert response.json()['faqs'][1]['faq_id'] == faq_2.faq_id
+    assert response.json()['faqs'][1]['question'] == faq_2.question
+
+
+def test_first_message_in_chat_can_be_created_from_faq(api_client, authenticated_session, new_chat):
+    snapshot = ChatService.create_faq_snapshot(new_chat.course)
+    faq_1 = Faq(question="And Why Do We Fall, Bruce?", snapshot=snapshot)
+    faq_1.save()
+
+    url = f'/course/{new_chat.course.canvas_id}/chat/{new_chat.chat.public_id}/messages'
+    response = api_client.post(url, json={'faq_id': faq_1.faq_id}, headers=authenticated_session.headers)
+
+    new_chat.chat.refresh()
+    assert response.status_code == 201
+    assert new_chat.chat.messages[0].content == "And Why Do We Fall, Bruce?"
+    assert new_chat.chat.messages[0].sender == Message.Sender.STUDENT
+    assert new_chat.chat.messages[0].faq.id == faq_1.id
