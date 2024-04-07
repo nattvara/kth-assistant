@@ -1,4 +1,4 @@
-import { Blockquote, Paper } from "@mantine/core";
+import { Blockquote, LoadingOverlay, Paper } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconExclamationCircle, IconQuote } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -39,6 +39,7 @@ export default function Faq(props: FaqProps) {
   });
 
   const handleClick = () => {
+    if (sendMutation.isPending) return;
     sendMutation.mutate(faq.faq_id);
   };
 
@@ -52,6 +53,7 @@ export default function Faq(props: FaqProps) {
         onClick={handleClick}
         color="blue"
       >
+        <LoadingOverlay visible={sendMutation.isPending} zIndex={1000} loaderProps={{ type: "dots" }} />
         {faq.question}
       </Blockquote>
     </Paper>
