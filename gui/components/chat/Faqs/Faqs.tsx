@@ -38,7 +38,7 @@ export default function Faqs(props: FaqsProps) {
       </Title>
       <SimpleGrid cols={2} className={styles.grid}>
         {randomFaqs.map((faq) => (
-          <Faq faq={faq} key={faq.faq_id} />
+          <Faq key={faq.faq_id} faq={faq} courseId={courseId} chatId={chatId} />
         ))}
       </SimpleGrid>
     </Group>

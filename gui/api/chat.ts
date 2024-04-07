@@ -111,3 +111,26 @@ export async function sendMessage(canvasId: string, chatId: string, content: str
   const data = (await response.json()) as Message;
   return data;
 }
+
+export async function sendMessageUsingFaq(canvasId: string, chatId: string, faqId: string): Promise<Message> {
+  const sessionCookie = Cookies.get("session_id") as string;
+
+  const response = await fetch(makeUrl(`/course/${canvasId}/chat/${chatId}/messages`), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Session-ID": sessionCookie,
+    },
+    body: JSON.stringify({
+      faq_id: faqId,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.json();
+    throw new HttpError(response, errorBody, response.status);
+  }
+
+  const data = (await response.json()) as Message;
+  return data;
+}
