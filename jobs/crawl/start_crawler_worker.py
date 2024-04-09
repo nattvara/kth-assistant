@@ -34,7 +34,11 @@ def start_job_again_in(seconds: int):
 
 async def run_worker():
     async with playwright.async_api.async_playwright() as pl:
-        browser, context, page = await playwright_helper.get_logged_in_browser_context_and_page(pl)
+        try:
+            browser, context, page = await playwright_helper.get_logged_in_browser_context_and_page(pl)
+        except playwright_helper.PlaywrightCookieValidationException:
+            log().error("Couldn't verify the browser was logged in, ensure the cookie is valid. Exiting job for now")
+            return
 
         redis = await cache.redis.get_redis_connection()
         crawler_service = get_crawler_service(redis, browser, context, page)
