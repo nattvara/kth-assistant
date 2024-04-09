@@ -32,7 +32,7 @@ Example:
 async def extract_questions(chats: List[Chat], course: Course) -> List[str]:
     questions = []
     aggregated_chats = ""
-    aggregated_chats_limit = 7500
+    aggregated_chats_limit = 6500
     questions_limit = 50
     counter = 1
     for chat in chats:
