@@ -189,4 +189,7 @@ def test_first_message_in_chat_can_be_created_from_faq(api_client, authenticated
     assert response.status_code == 201
     assert new_chat.chat.messages[0].content == "And Why Do We Fall, Bruce?"
     assert new_chat.chat.messages[0].sender == Message.Sender.STUDENT
+
+    # both messages should reference the faq
     assert new_chat.chat.messages[0].faq.id == faq_1.id
+    assert new_chat.chat.messages[1].faq.id == faq_1.id

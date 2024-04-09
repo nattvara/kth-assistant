@@ -36,6 +36,7 @@ class MessageResponse(BaseModel):
     streaming: bool
     websocket: Optional[str]
     created_at: str
+    from_faq: bool
 
 
 class MessagesResponse(BaseModel):
@@ -138,6 +139,8 @@ async def send_message(
     msg.save()
 
     next_message = Message(chat=chat, content=None, sender=Message.Sender.ASSISTANT, state=Message.States.PENDING)
+    if faq is not None:
+        next_message.faq = faq
     next_message.save()
 
     background_tasks.add_task(ChatService.start_next_message, chat, next_message)
@@ -150,6 +153,7 @@ async def send_message(
         created_at=str(msg.created_at),
         streaming=False,
         websocket=None,
+        from_faq=msg.faq is not None,
     )
 
 
@@ -199,6 +203,7 @@ async def get_messages(
             created_at=str(msg.created_at),
             streaming=streaming,
             websocket=websocket,
+            from_faq=msg.faq is not None,
         ))
 
     return MessagesResponse(messages=out)
@@ -249,4 +254,5 @@ async def get_message(
         created_at=str(msg.created_at),
         streaming=streaming,
         websocket=websocket,
+        from_faq=msg.faq is not None,
     )

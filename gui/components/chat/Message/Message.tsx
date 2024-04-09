@@ -1,8 +1,10 @@
 import { Alert, Grid, Loader, SimpleGrid } from "@mantine/core";
 import { IconExclamationCircle } from "@tabler/icons-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "next-i18next";
 import React, { useEffect, useRef, useState } from "react";
+
+import { FeedbackQuestions } from "@/components/chat";
 
 import { MESSAGE_PENDING, MESSAGE_READY, Message as MessageType, fetchMessage } from "@/api/chat";
 import { makeWebsocketUrl } from "@/api/http";
@@ -22,6 +24,7 @@ interface MessageProps {
 export default function Message(props: MessageProps) {
   const { initialMessage, courseId, chatId } = props;
   const { t } = useTranslation("chat");
+  const queryClient = useQueryClient();
   const [message, setMessage] = useState<MessageType>(initialMessage);
   const [shouldRefetch, setShouldRefetch] = useState(true);
   const [displayedContent, setDisplayedContent] = useState("");
@@ -76,6 +79,7 @@ export default function Message(props: MessageProps) {
         }
         setDisplayedContent((prevContent) => {
           let newContent = prevContent + event.data;
+          newContent = newContent.replace(/\n/g, "<br>");
           const docPattern = /\\document\{([^}]+)\}\{([^}]+)\}/g;
           newContent = newContent.replace(docPattern, (match, p1, p2) => {
             return `<a href="${p1}" target="_blank">${p2}</a>`;
@@ -89,11 +93,19 @@ export default function Message(props: MessageProps) {
         console.log("WebSocket closed");
         setShowLoading(false);
         wsInitialized.current = false;
+
+        queryClient.invalidateQueries({
+          queryKey: ["messages", courseId, chatId],
+        });
       };
       ws.onerror = (error) => {
         console.log("WebSocket error:", error);
         setShowLoading(false);
         wsInitialized.current = false;
+
+        queryClient.invalidateQueries({
+          queryKey: ["messages", courseId, chatId],
+        });
       };
 
       return () => {
@@ -103,19 +115,25 @@ export default function Message(props: MessageProps) {
       };
     } else if (!message.streaming) {
       let initialContent = message.content || "";
+      initialContent = initialContent.replace(/\n/g, "<br>");
       const docPattern = /\\document\{([^}]+)\}\{([^}]+)\}/g;
       initialContent = initialContent.replace(docPattern, (match, p1, p2) => {
         return ` <a href="${p1}" target="_blank">${p2}</a> `;
       });
       setDisplayedContent(initialContent);
       setNumberOfWords(0);
+      setShowLoading(false);
       wsInitialized.current = false;
     }
 
     return () => {
       wsInitialized.current = false;
     };
-  }, [message.message_id, message.streaming, message.websocket, message.content]);
+  }, [message.message_id, message.streaming, message.websocket, message.content, chatId, courseId, queryClient]);
+
+  useEffect(() => {
+    setMessage(initialMessage);
+  }, [initialMessage]);
 
   useEffect(() => {
     if (numberOfWords % 5 === 0 && numberOfWords > 0) {
@@ -162,6 +180,9 @@ export default function Message(props: MessageProps) {
           </>
         )}
       </Grid>
+      {message.from_faq && message.sender === "assistant" && message.state === MESSAGE_READY && !message.streaming && (
+        <FeedbackQuestions message={message} />
+      )}
     </SimpleGrid>
   );
 }

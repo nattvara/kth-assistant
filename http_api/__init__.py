@@ -5,6 +5,7 @@ from jobs.schedule import schedule_job_start_crawler_worker, schedule_job_captur
 import config.settings as settings
 from http_api.routers import (
     websocket,
+    feedback,
     sessions,
     health,
     index,
@@ -27,6 +28,7 @@ def get_app():
     app.include_router(sessions.router)
     app.include_router(chat.router)
     app.include_router(health.router)
+    app.include_router(feedback.router)
 
     return app
 
