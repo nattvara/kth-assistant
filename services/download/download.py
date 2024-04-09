@@ -1,10 +1,11 @@
 from playwright.async_api import Browser, BrowserContext, Page
 from pdfminer.pdfparser import PDFSyntaxError
 
+from services.crawler.url_filters import domain_is_canvas, domain_is_kattis
 from db.actions.url import find_url_referencing_content_in_snapshot
-from services.crawler.url_filters import domain_is_canvas
 from db.actions.content import find_content_with_sha
 import services.download.canvas as canvas
+from services.download import kattis
 from services.download.text import (
     extract_text_from_html,
     extract_text_from_pdf_file,
@@ -49,6 +50,8 @@ class DownloadService:
 
         elif domain_is_canvas(url.href):
             content = await self._save_canvas_url_content(url)
+        elif domain_is_kattis(url.href):
+            content = await self._save_kattis_url_content(url)
         else:
             content = await self._save_web_url_content(url)
 
@@ -84,6 +87,18 @@ class DownloadService:
         text = extract_text_from_html(html)
         content = Content(text=text, name=title)
         return content
+
+    async def _save_kattis_url_content(self, url: Url):
+        if await kattis.is_instructions(url, self.page):
+            log().info("Found a kattis problem with instructions, using special extraction method")
+            try:
+                text, title = await kattis.get_instruction_text(url, self.page)
+                content = Content(text=text, name=title)
+                log().debug(f"Extracted instruction from kattis ({len(text)} chars long)")
+                return content
+            except Exception as e:  # noqa
+                log().error("Failed to parse kattis page custom instructions parser, using fallback", e)
+        return await self._save_web_url_content(url)
 
     async def _save_web_url_content(self, url: Url):
         html, title = await web.download_content(url, self.page)

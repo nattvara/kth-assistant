@@ -243,3 +243,19 @@ another question here
 Now, Here are all the questions
 {questions_wrapped_in_tags}
 """
+
+
+def prompt_extract_kattis_instruction_from_html(kattis_html: str) -> str:
+    return f"""
+You are a content extractor. Consider this html content that describes a kattis assignment (a code platform),
+extract the assignment title, description, in and out data, and any other information into a structured text format
+
+Ensure to extract all info. The input data is data that will be sent to the stdin of the program and the output data is
+data that should be printed to stdout.
+
+Make sure to extract the exact text and example as it is written. Recite it as it is. Do not translate it if it is
+written in a language other than english. You should just reformat it so that it's easier to read.
+
+Here is the HTML, extract the content in the same language as it is written:
+{kattis_html}
+"""

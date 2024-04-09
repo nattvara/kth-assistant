@@ -4,6 +4,10 @@ import re
 
 CANVAS_DOMAIN = "canvas.kth.se"
 
+KATTIS_KTH_DOMAIN = "kth.kattis.com"
+
+KATTIS_OPEN_DOMAIN = "open.kattis.com"
+
 CANVAS_PROFILE_PAGE = f"https://{CANVAS_DOMAIN}/profile"
 
 DOMAIN_DENY_LIST = {
@@ -89,6 +93,10 @@ def get_domain(url: str) -> str:
 
 def domain_is_canvas(url: str) -> bool:
     return get_domain(url) == CANVAS_DOMAIN
+
+
+def domain_is_kattis(url: str) -> bool:
+    return get_domain(url) == KATTIS_KTH_DOMAIN or get_domain(url) == KATTIS_OPEN_DOMAIN
 
 
 def link_begins_with_deny_listed_string(url: str) -> bool:
