@@ -31,7 +31,7 @@ def extract_text_from_html(html: str) -> str:
     for a_tag in soup.find_all('a'):
         href = a_tag.get('href', '')
         text = a_tag.text
-        formatted_link = f"\document{{{href}}}{{{text}}}"
+        formatted_link = f"\\document{{{href}}}{{{text}}}"
         a_tag.replace_with(formatted_link)
 
     text = soup.get_text()
