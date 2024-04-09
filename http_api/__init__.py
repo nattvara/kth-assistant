@@ -40,7 +40,7 @@ def main():
 
     num_crawler_workers = settings.get_settings().NUMBER_OF_CRAWLER_WORKERS
 
-    log().info(f"starting 1 snapshot worker")
+    log().info("starting 1 snapshot worker")
     schedule_job_capture_snapshots(1, True)
 
     log().info(f"starting {num_crawler_workers} crawler workers")
