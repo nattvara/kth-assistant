@@ -4,6 +4,7 @@ from playwright.async_api import Page
 
 from services.llm.prompts import prompt_extract_kattis_instruction_from_html
 from services.llm.supported_models import LLMModel
+from llms.config import Params
 from services.llm import llm
 from db.models import Url
 
@@ -29,7 +30,8 @@ async def get_instruction_text(url: Url, page: Page):
     content_html = await container.inner_html()
 
     prompt = prompt_extract_kattis_instruction_from_html(content_html)
-    handle = llm.LLMService.dispatch_prompt(prompt, LLMModel.OPENAI_GPT4)
+    params = Params(max_new_tokens=8192)
+    handle = llm.LLMService.dispatch_prompt(prompt, LLMModel.OPENAI_GPT4, llm_model_params=params)
     handle = await llm.LLMService.wait_for_handle(handle)
 
     return handle.response, title
