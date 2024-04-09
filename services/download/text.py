@@ -27,6 +27,13 @@ def replace_nonsafe_characters_with_spaces(input_str):
 
 def extract_text_from_html(html: str) -> str:
     soup = BeautifulSoup(html, 'html.parser')
+
+    for a_tag in soup.find_all('a'):
+        href = a_tag.get('href', '')
+        text = a_tag.text
+        formatted_link = f"\document{{{href}}}{{{text}}}"
+        a_tag.replace_with(formatted_link)
+
     text = soup.get_text()
     text = text.strip()
     text = remove_triple_newlines(text)
