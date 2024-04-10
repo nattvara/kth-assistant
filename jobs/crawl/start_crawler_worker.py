@@ -59,12 +59,13 @@ async def run_worker():
                     if url.content_is_duplicate:
                         url.state = Url.States.NOT_ADDED_TO_INDEX
                         url.save()
-                        continue
-
-                    if url.response_was_ok or url.is_download:
+                    elif url.response_was_ok or url.is_download:
                         url.state = Url.States.WAITING_TO_INDEX
                         url.save()
                         dispatch_index_url(url)
+                    else:
+                        url.state = Url.States.NOT_ADDED_TO_INDEX
+                        url.save()
 
             except LockAlreadyAcquiredException:
                 log().debug("Found a lock on the url. Skipping.")
