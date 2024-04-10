@@ -7,6 +7,7 @@ from services.download.download import DownloadService
 from cache.mutex import LockAlreadyAcquiredException
 from services.crawler.crawler import CrawlerService
 from services.index.index import IndexService
+from jobs.dispatch import dispatch_index_url
 from config.logger import log
 from db.models import Url
 import cache.redis
@@ -43,7 +44,6 @@ async def run_worker():
         redis = await cache.redis.get_redis_connection()
         crawler_service = get_crawler_service(redis, browser, context, page)
         download_service = get_download_service(browser, context, page)
-        index_service = get_index_service()
 
         while crawler_service.has_next():
             try:
@@ -53,12 +53,18 @@ async def run_worker():
                 url.refresh()
                 if url.state == Url.States.VISITED:
                     await download_service.save_url_content(url)
+
                     url.refresh()
-                    if not url.content_is_duplicate:
-                        if url.response_was_ok:
-                            await index_service.index_url(url)
-                        elif url.is_download:
-                            await index_service.index_url(url)
+
+                    if url.content_is_duplicate:
+                        url.state = Url.States.NOT_ADDED_TO_INDEX
+                        url.save()
+                        continue
+
+                    if url.response_was_ok or url.is_download:
+                        url.state = Url.States.WAITING_TO_INDEX
+                        url.save()
+                        dispatch_index_url(url)
 
             except LockAlreadyAcquiredException:
                 log().debug("Found a lock on the url. Skipping.")
