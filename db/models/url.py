@@ -24,6 +24,9 @@ class Url(BaseModel):
         CRAWLING = 'crawling'
         VISITED = 'visited'
         DOWNLOADED = 'downloaded'
+        WAITING_TO_INDEX = 'waiting_to_index'
+        NOT_ADDED_TO_INDEX = 'not_added_to_index'
+        INDEXING = 'indexing'
         INDEXED = 'indexed'
         FAILED = 'failed'
 
