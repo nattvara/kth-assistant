@@ -1,6 +1,11 @@
 from os.path import basename
 import asyncio
+import signal
+import socket
 import sys
+
+from uvicorn import Config, Server
+from fastapi import FastAPI
 
 from services.llm.supported_models import get_enum_from_enum_name, LLMModel, EMBEDDING_MODELS
 from llms.openai import load_openai_sdk, generate_text_streaming, compute_embedding
@@ -29,7 +34,45 @@ Example:
     print(help_message)
 
 
-async def main():
+healthcheck = FastAPI()
+
+
+@healthcheck.get("/")
+def read_root():
+    return {"message": "I'm still alive"}
+
+
+@healthcheck.on_event("shutdown")
+async def shutdown_event():
+    healthcheck._worker.stop()  # noqa
+
+
+async def _start_health_check_endpoint():
+    try:
+        port = await _find_available_port()
+    except OSError as e:
+        log().error(f"Error finding available port: {e}")
+        exit(1)
+
+    log().info(f"Using port {port} for health check endpoint")
+
+    config = Config(app=healthcheck, host="0.0.0.0", port=port, loop="asyncio")
+    server = Server(config)
+    await server.serve()
+
+
+async def _find_available_port(start_port: int = 1337):
+    for port in range(start_port, 65535):
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind(('', port))
+                return port
+        except OSError:
+            pass
+    raise OSError("No available port found")
+
+
+async def worker_main():
     if len(sys.argv) != 3 or sys.argv[1] in ['-h', '--help']:
         print_help()
         exit(1)
@@ -84,12 +127,37 @@ async def main():
         log().info("agent is running in 'download-only' mode, exiting.")
         return
 
+    healthcheck._worker = worker
     await worker.run()
+
+
+async def _graceful_shutdown(signal, tasks):
+    log().info(f"Received exit signal {signal.name}...")
+    for task in tasks:
+        task.cancel()
+    await asyncio.gather(*tasks, return_exceptions=True)
+    asyncio.get_event_loop().stop()
+
+
+async def _run_worker_main_with_healthcheck():
+    task1 = asyncio.create_task(_start_health_check_endpoint())
+    task2 = asyncio.create_task(worker_main())
+    await asyncio.gather(task1, task2)
+
+
+async def main():
+    tasks = [asyncio.create_task(_start_health_check_endpoint()), asyncio.create_task(worker_main())]
+    loop = asyncio.get_running_loop()
+
+    for sig in [signal.SIGINT, signal.SIGTERM]:
+        loop.add_signal_handler(sig, lambda s=sig: asyncio.create_task(_graceful_shutdown(s, tasks)))
+
+    await asyncio.gather(*tasks)
 
 
 def sync_main():
     asyncio.run(main())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sync_main()
