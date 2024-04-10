@@ -5,6 +5,7 @@ from services.index.chunks import split_text_with_overlap
 import services.index.opensearch as search
 from db.models import Url, Snapshot
 import services.llm.llm as llm
+from config.logger import log
 
 
 class IndexService:
@@ -34,11 +35,13 @@ class IndexService:
         url.save()
 
     async def _get_sfr_embedding_mistral_embeddings(self, text: str) -> List[float]:
+        log().debug("requesting SALESFORCE_SFR_EMBEDDING_MISTRAL embedding...")
         handle = llm.LLMService.dispatch_prompt(text, LLMModel.SALESFORCE_SFR_EMBEDDING_MISTRAL)
         handle = await llm.LLMService.wait_for_handle(handle, timeout_seconds=20 * 60)
         return handle.embedding
 
     async def _get_text_embedding_3_large_embeddings(self, text: str) -> List[float]:
+        log().debug("requesting OPENAI_TEXT_EMBEDDING_3_LARGE embedding...")
         handle = llm.LLMService.dispatch_prompt(text, LLMModel.OPENAI_TEXT_EMBEDDING_3_LARGE)
         handle = await llm.LLMService.wait_for_handle(handle)
         return handle.embedding
