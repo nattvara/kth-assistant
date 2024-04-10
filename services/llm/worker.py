@@ -174,8 +174,8 @@ class Worker:
                         log().error("NoPendingPromptHandleError was thrown. is probably caused by a race condition.")
                 await asyncio.sleep(0.05)
             except KeyboardInterrupt:
-                log().info("Stopping worker...")
                 self.stop()
 
     def stop(self):
+        log().info("Stopping worker...")
         self.running = False
