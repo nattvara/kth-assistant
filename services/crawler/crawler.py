@@ -109,6 +109,7 @@ class CrawlerService:
     async def crawl_url(self, url: Url):
         try:
             log().info(f"crawling url {url.href}")
+            urls_registered = 0
 
             response = await self.page.goto(url.href, wait_until='load')
             await self.page.wait_for_load_state('load')
@@ -161,6 +162,9 @@ class CrawlerService:
 
                 # if we've gotten this far we have no reason not to register the domain
                 self.register_url(href=link, found_on=url)
+                urls_registered += 1
+
+            log().info(f"Registered {urls_registered} out of {len(links)} links found on the page {url.href}")
 
         except PlaywrightError as e:
             if 'net::ERR_ABORTED' in str(e):

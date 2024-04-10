@@ -1,6 +1,7 @@
 from typing import Tuple, AsyncGenerator, List
 
 from openai import AsyncOpenAI
+import tiktoken
 
 from config.settings import get_settings
 from llms.config import Params
@@ -8,6 +9,7 @@ from config.logger import log
 
 MODEL = 'gpt-4'
 EMBEDDING_MODEL = 'text-embedding-3-large'
+MAX_TOKENS = 8000  # model should support 8192, for some reason that doesn't work, using a slightly smaller value
 
 
 class OpenAiError(Exception):
@@ -43,10 +45,28 @@ async def stream_tokens_async(
     params: Params,
     prompt: str,
 ) -> AsyncGenerator[str, None]:
+    encoding = tiktoken.encoding_for_model(MODEL)
+    num_tokens = len(encoding.encode(prompt))
+    num_tokens -= len(encoding.encode(params.system_prompt))
+
+    remaining_tokens = MAX_TOKENS - num_tokens
+
+    if remaining_tokens <= 0:
+        raise OpenAiError(f"Not enough tokens left to produce a response, got a prompt with size {num_tokens}")
+
+    if remaining_tokens < params.max_new_tokens:
+        max_tokens = remaining_tokens
+    else:
+        max_tokens = params.max_new_tokens
+
+    log().debug(f"init openai stream. MAX_TOKENS: {MAX_TOKENS}, prompt_tokens: {num_tokens}, remaining "
+                f"tokens: {remaining_tokens}, params.max_new_tokens: {params.max_new_tokens}, "
+                f"max_tokens used: {max_tokens}")
+
     stream = await client.chat.completions.create(
         model=MODEL,
         temperature=params.temperature,
-        max_tokens=params.max_new_tokens,
+        max_tokens=max_tokens,
         messages=[
             {'role': 'system', 'content': params.system_prompt},
             {'role': 'user', 'content': prompt},

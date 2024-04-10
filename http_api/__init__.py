@@ -39,11 +39,13 @@ def main():
     app = get_app()
 
     num_crawler_workers = settings.get_settings().NUMBER_OF_CRAWLER_WORKERS
-    log().info(f"starting {num_crawler_workers} crawler workers")
-    for i in range(num_crawler_workers):
-        should_empty = True if i == 0 else False
-        schedule_job_start_crawler_worker(2, should_empty)
 
+    log().info("starting 1 snapshot worker")
     schedule_job_capture_snapshots(1, True)
+
+    log().info(f"starting {num_crawler_workers} crawler workers")
+    schedule_job_start_crawler_worker(1, True)
+    for i in range(num_crawler_workers - 1):
+        schedule_job_start_crawler_worker(1, False)
 
     return app
