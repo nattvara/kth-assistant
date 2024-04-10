@@ -231,7 +231,8 @@ def prompt_deduplicate_questions(questions: List[str]) -> str:
 
     return f"""
 Consider this list of questions. De-duplicate the list and extract a list of unique questions. Make sure that you wrap
-the questions in <question> tags like the following.
+the questions in <question> tags like the following. Also reduce the number of questions by half, merge common
+questions.
 
 <question>
 user question here...
