@@ -38,7 +38,8 @@ healthcheck = FastAPI()
 
 
 @healthcheck.get("/")
-def read_root():
+def index():
+    log().debug("healthcheck ok.")
     return {"message": "I'm still alive"}
 
 
