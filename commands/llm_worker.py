@@ -131,6 +131,10 @@ async def worker_main():
     healthcheck._worker = worker
     await worker.run()
 
+    log().info("waiting 60 seconds before terminating worker")
+    await asyncio.sleep(60)
+    log().info("worker terminated.")
+
 
 async def _graceful_shutdown(signal, tasks):
     log().info(f"Received exit signal {signal.name}...")
