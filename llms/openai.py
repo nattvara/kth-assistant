@@ -83,3 +83,14 @@ async def compute_embedding(model: AsyncOpenAI, tokeniser, text: str) -> List[fl
     response = await model.embeddings.create(input=text, model=EMBEDDING_MODEL)
     log().info(f"Usage was {response.usage}")
     return response.data[0].embedding
+
+
+def truncate_text_to_token_limit(input_string: str, token_limit: int) -> str:
+    encoding = tiktoken.encoding_for_model(MODEL)
+    tokens = encoding.encode(input_string)
+
+    if len(tokens) > token_limit:
+        truncated_tokens = tokens[:token_limit]
+        return encoding.decode(truncated_tokens)
+    else:
+        return input_string
