@@ -1,22 +1,26 @@
 from typing import List
 
+from llms.openai import get_tokeniser
 
-def split_text_with_overlap(text, chunk_size=7500, overlap=100) -> List[str]:
-    if overlap >= chunk_size:
-        raise ValueError('Overlap must be less than the chunk size.')
 
+def split_text_with_overlap(text: str, chunk_size: int = 1200, overlap: int = 100) -> List[str]:
+    # using the openai tokeniser which won't be the same for all models, but for this case
+    # the particular tokeniser doesn't matter. And it's the easiest and fastest to load
+    tokeniser = get_tokeniser()
+
+    tokens = tokeniser.encode(text)
     chunks = []
-    start = 0
-    text_length = len(text)
+    start_index = 0
+    tokens_length = len(tokens)
 
-    while start < text_length:
-        if start > 0:
-            start -= overlap
+    while start_index < tokens_length:
+        if start_index > 0:
+            start_index -= overlap
 
-        end = min(start + chunk_size, text_length)
+        end_index = min(start_index + chunk_size, tokens_length)
+        chunk_tokens = tokens[start_index:end_index]
+        chunks.append(tokeniser.decode(chunk_tokens))
 
-        chunks.append(text[start:end])
-
-        start = end
+        start_index = end_index
 
     return chunks
