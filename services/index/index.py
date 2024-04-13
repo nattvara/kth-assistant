@@ -1,16 +1,15 @@
 from typing import List
 
-from services.llm.supported_models import LLMModel, EMBEDDING_MODELS
+from services.llm.supported_models import LLMModel, EMBEDDING_MODELS, get_enum_from_enum_value
 from services.llm.prompts import prompt_create_document_summary
 from services.index.chunks import split_text_with_overlap
 from llms.openai import truncate_text_to_token_limit
 import services.index.opensearch as search
 from db.models import Url, Snapshot
+import config.settings as settings
 from llms.config import Params
 import services.llm.llm as llm
 from config.logger import log
-
-MODEL_USED_FOR_SUMMARIES = LLMModel.MISTRAL_7B_INSTRUCT
 
 
 class IndexService:
@@ -55,8 +54,10 @@ class IndexService:
         params = Params(max_new_tokens=100)
         params.stop_strings = ['</s>']
 
+        model = get_enum_from_enum_value(settings.get_settings().MODEL_USED_FOR_SUMMARIES)
+
         prompt = prompt_create_document_summary(truncated_text)
-        handle = llm.LLMService.dispatch_prompt(prompt, MODEL_USED_FOR_SUMMARIES, params)
+        handle = llm.LLMService.dispatch_prompt(prompt, model, params)
         handle = await llm.LLMService.wait_for_handle(handle)
 
         summary = handle.response

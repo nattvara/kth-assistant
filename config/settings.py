@@ -16,6 +16,7 @@ class Settings(BaseSettings):
 
     QUEUE_WORKER_QUEUE_NAME: Optional[str] = None
 
+    MODEL_USED_FOR_SUMMARIES: str
     NUMBER_OF_CRAWLER_WORKERS: int = 3
     CRAWLER_MODE_IS_HEADLESS: bool = True
     CANVAS_PROFILE_PAGE_VALIDATION_SEARCH_STRING: str

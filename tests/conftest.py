@@ -51,6 +51,7 @@ def mock_settings(mocker):
         OPENSEARCH_PORT=9200,
         OPENSEARCH_USERNAME="admin",
         OPENSEARCH_PASSWORD="admin",
+        MODEL_USED_FOR_SUMMARIES="mistralai/Mistral-7B-Instruct-v0.2"
     )
     mocker.patch('config.settings.get_settings', return_value=mock_settings)
 
