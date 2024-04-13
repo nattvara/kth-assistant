@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     PORT: int
     BACKEND_CORS_ORIGINS: List[HttpUrl] = []
     WEBSOCKET_TIMEOUT_DURATION: int = 30
+    LLM_WORKER_SHUTDOWN_DELAY_SECONDS: int = 420
     COOKIE_IDENTIFIER: str
 
     QUEUE_WORKER_QUEUE_NAME: Optional[str] = None
