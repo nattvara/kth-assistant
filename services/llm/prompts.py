@@ -260,3 +260,17 @@ written in a language other than english. You should just reformat it so that it
 Here is the HTML, extract the content in the same language as it is written:
 {kattis_html}
 """
+
+
+def prompt_create_document_summary(document: str) -> str:
+    return f'''
+<s>
+You are a commentator. Your task is to explain a document.
+
+# Document:
+"""{document}"""
+[INST]
+The document has been presented triple quotes. In clear and concise language, explain what can be found in the
+document, in once sentence.
+[/INST]
+'''.strip()

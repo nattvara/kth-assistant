@@ -41,17 +41,30 @@ async def test_service_creates_index_if_not_exists(new_snapshot, mocker):
 
 @pytest.mark.asyncio
 async def test_service_can_index_url(new_snapshot, mocker):
-    handle = PromptHandle(
+    handle_1 = PromptHandle(
+        prompt="create summary....",
+        llm_model_name=LLMModel.SALESFORCE_SFR_EMBEDDING_MISTRAL,
+        response="document summary..."
+    )
+    handle_1.save()
+    handle_2 = PromptHandle(
         prompt="a very long doc",
         llm_model_name=LLMModel.SALESFORCE_SFR_EMBEDDING_MISTRAL,
         embedding=[0.1, 0.2, 0.3]
     )
-    handle.save()
+    handle_2.save()
+
+    chunk = """
+Chunk: 1/1
+Document summary: document summary...
+Chunk: some content
+""".strip()
 
     mocker.patch('services.index.opensearch.get_client', return_value=None)
     mocker.patch('services.index.opensearch.index_exists', return_value=False)
     mocker.patch('services.index.opensearch.create_index')
-    mocker.patch('services.llm.llm.LLMService.wait_for_handle', AsyncMock(return_value=handle))
+    wait_for_handle_mock = mocker.patch('services.llm.llm.LLMService.wait_for_handle', new_callable=AsyncMock)
+    wait_for_handle_mock.side_effect = [handle_1, handle_2, handle_2]
 
     mock_index_document = mocker.patch('services.index.opensearch.index_document')
 
@@ -63,7 +76,8 @@ async def test_service_can_index_url(new_snapshot, mocker):
 
     mock_index_document.assert_called_once_with(index_service.client, url.snapshot, f"{url.id}-0", {
         'name': url.content.name,
-        'text': url.content.text,
+        'text': chunk,
+        'text_raw': url.content.text,
         'url': url.href,
         EMBEDDING_MODELS[LLMModel.OPENAI_TEXT_EMBEDDING_3_LARGE]: [0.1, 0.2, 0.3],
         EMBEDDING_MODELS[LLMModel.SALESFORCE_SFR_EMBEDDING_MISTRAL]: [0.1, 0.2, 0.3],
