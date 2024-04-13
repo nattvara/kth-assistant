@@ -7,9 +7,9 @@ from config.settings import get_settings
 from llms.config import Params
 from config.logger import log
 
-MODEL = 'gpt-4'
+MODEL = 'gpt-4-turbo'
 EMBEDDING_MODEL = 'text-embedding-3-large'
-MAX_TOKENS = 8000  # model should support 8192, for some reason that doesn't work, using a slightly smaller value
+MAX_TOKENS = 120000
 
 
 class OpenAiError(Exception):
