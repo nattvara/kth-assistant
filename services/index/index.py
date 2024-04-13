@@ -26,8 +26,8 @@ class IndexService:
         chunks = split_text_with_overlap(url.content.text)
         for idx, chunk in enumerate(chunks):
             document_text = self._create_document_text(idx, len(chunks), chunk, summary)
-            sfr_embedding_mistral = await self._get_sfr_embedding_mistral_embeddings(chunk)
-            text_embedding_3_large = await self._get_text_embedding_3_large_embeddings(chunk)
+            sfr_embedding_mistral = await self._get_sfr_embedding_mistral_embeddings(document_text)
+            text_embedding_3_large = await self._get_text_embedding_3_large_embeddings(document_text)
 
             search.index_document(self.client, url.snapshot, f"{url.id}-{idx}", {
                 'name': url.content.name,
