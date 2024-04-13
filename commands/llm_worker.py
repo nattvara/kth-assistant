@@ -4,6 +4,7 @@ import signal
 import socket
 import sys
 
+from starlette.responses import Response
 from uvicorn import Config, Server
 from fastapi import FastAPI
 
@@ -13,6 +14,7 @@ from llms.embeddings import load_hf_embedding_model
 from cache.redis import get_redis_connection
 from services.llm.llm import LLMService
 from services.llm.worker import Worker
+import config.settings as settings
 from config.logger import log
 
 
@@ -34,13 +36,33 @@ Example:
     print(help_message)
 
 
+class ServerWithCustomShutdown(Server):
+
+    async def shutdown(self, sockets: list[socket.socket] | None = None) -> None:
+        log().info("Server shutdown started.")
+        healthcheck._is_shutting_down = True
+        healthcheck._worker.stop()
+
+        wait_time = settings.get_settings().LLM_WORKER_SHUTDOWN_DELAY_SECONDS
+        log().info(f"Waiting {wait_time} seconds before terminating the healthcheck.")
+        await asyncio.sleep(wait_time)
+
+        log().info("Proceeding with actual server shutdown.")
+        await super().shutdown(sockets)
+
+
 healthcheck = FastAPI()
+healthcheck._is_shutting_down = False
 
 
-@healthcheck.get("/")
+@healthcheck.get("/", response_class=Response)
 def index():
-    log().debug("healthcheck ok.")
-    return {"message": "I'm still alive"}
+    if not healthcheck._is_shutting_down:
+        log().debug("healthcheck ok.")
+        return Response(content="I'm alive.", status_code=200, media_type="text/plain")
+    else:
+        log().debug("healthcheck not ok, is in shutdown mode.")
+        return Response(content="Server is shutting down.", status_code=503, media_type="text/plain")
 
 
 @healthcheck.on_event("shutdown")
@@ -58,7 +80,7 @@ async def _start_health_check_endpoint():
     log().info(f"Using port {port} for health check endpoint")
 
     config = Config(app=healthcheck, host="0.0.0.0", port=port, loop="asyncio")
-    server = Server(config)
+    server = ServerWithCustomShutdown(config)
     await server.serve()
 
 
@@ -131,17 +153,7 @@ async def worker_main():
     healthcheck._worker = worker
     await worker.run()
 
-    log().info("waiting 300 seconds before terminating worker")
-    await asyncio.sleep(300)
     log().info("worker terminated.")
-
-
-async def _graceful_shutdown(signal, tasks):
-    log().info(f"Received exit signal {signal.name}...")
-    for task in tasks:
-        task.cancel()
-    await asyncio.gather(*tasks, return_exceptions=True)
-    asyncio.get_event_loop().stop()
 
 
 async def _run_worker_main_with_healthcheck():
@@ -152,11 +164,6 @@ async def _run_worker_main_with_healthcheck():
 
 async def main():
     tasks = [asyncio.create_task(_start_health_check_endpoint()), asyncio.create_task(worker_main())]
-    loop = asyncio.get_running_loop()
-
-    for sig in [signal.SIGINT, signal.SIGTERM]:
-        loop.add_signal_handler(sig, lambda s=sig: asyncio.create_task(_graceful_shutdown(s, tasks)))
-
     await asyncio.gather(*tasks)
 
 
