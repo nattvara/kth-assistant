@@ -1,12 +1,12 @@
 from os.path import basename
 import asyncio
-import signal
 import socket
 import sys
 
 from starlette.responses import Response
 from uvicorn import Config, Server
 from fastapi import FastAPI
+import arrow
 
 from services.llm.supported_models import get_enum_from_enum_name, LLMModel, EMBEDDING_MODELS
 from llms.openai import load_openai_sdk, generate_text_streaming, compute_embedding
@@ -42,6 +42,7 @@ class ServerWithCustomShutdown(Server):
         log().info("Server shutdown started.")
         healthcheck._is_shutting_down = True
         healthcheck._worker.stop()
+        healthcheck._shutdown_started_at = arrow.now()
 
         wait_time = settings.get_settings().LLM_WORKER_SHUTDOWN_DELAY_SECONDS
         log().info(f"Waiting {wait_time} seconds before terminating the healthcheck.")
@@ -53,6 +54,7 @@ class ServerWithCustomShutdown(Server):
 
 healthcheck = FastAPI()
 healthcheck._is_shutting_down = False
+healthcheck._shutdown_started_at = None
 
 
 @healthcheck.get("/", response_class=Response)
@@ -61,7 +63,10 @@ def index():
         log().debug("healthcheck ok.")
         return Response(content="I'm alive.", status_code=200, media_type="text/plain")
     else:
-        log().debug("healthcheck not ok, is in shutdown mode.")
+        wait_time = settings.get_settings().LLM_WORKER_SHUTDOWN_DELAY_SECONDS
+        time_spent = (arrow.now() - healthcheck._shutdown_started_at).seconds
+        log().debug(f"Healthcheck not ok, is in shutdown mode, {wait_time - time_spent} seconds left"
+                    f" before terminating the healthcheck.")
         return Response(content="Server is shutting down.", status_code=503, media_type="text/plain")
 
 
