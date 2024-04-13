@@ -66,9 +66,9 @@ class IndexService:
 
     def _create_document_text(self, chunk_idx: int, chunk_count: int, text: str, summary: str) -> str:
         return f"""
-Chunk: {chunk_idx + 1}/{chunk_count}
+Document chunk: {chunk_idx + 1}/{chunk_count}
 Document summary: {summary}
-Chunk: {text}
+Chunk content: {text}
         """.strip()
 
     async def _get_sfr_embedding_mistral_embeddings(self, text: str) -> List[float]:

@@ -55,9 +55,9 @@ async def test_service_can_index_url(new_snapshot, mocker):
     handle_2.save()
 
     chunk = """
-Chunk: 1/1
+Document chunk: 1/1
 Document summary: document summary...
-Chunk: some content
+Chunk content: some content
 """.strip()
 
     mocker.patch('services.index.opensearch.get_client', return_value=None)
