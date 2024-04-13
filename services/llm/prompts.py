@@ -271,6 +271,6 @@ You are a commentator. Your task is to explain a document.
 """{document}"""
 [INST]
 The document has been presented triple quotes. In clear and concise language, explain what can be found in the
-document, in once sentence.
+document, in once sentence. The explanation must be in the same language as the source document.
 [/INST]
 '''.strip()
