@@ -27,6 +27,7 @@ class Message(BaseModel):
     class Sender:
         STUDENT = 'student'
         ASSISTANT = 'assistant'
+        FEEDBACK = 'feedback'
 
     class States:
         """

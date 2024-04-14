@@ -5,12 +5,14 @@ from db.models import Faq, Feedback
 
 def test_feedback_questions_can_be_returned(api_client, authenticated_session):
     question_1 = FeedbackQuestion(
+        trigger="chat:2:message:4",
         question_en="Good?",
         question_sv="Bra?",
         extra_data_en={'choices': ['yes', 'no']},
         extra_data_sv={'choices': ['ja', 'nej']},
     )
     question_2 = FeedbackQuestion(
+        trigger="chat:2:message:4",
         question_en="fast?",
         question_sv="snabb?",
         extra_data_en={'choices': ['very fast', 'slugish']},
@@ -38,6 +40,7 @@ def test_feedback_questions_can_be_returned(api_client, authenticated_session):
 
 def test_user_can_submit_feedback_for_message(api_client, authenticated_session, new_chat):
     question_1 = FeedbackQuestion(
+        trigger="chat:2:message:4",
         question_en="Good?",
         question_sv="Bra?",
         extra_data_en={'choices': ['yes', 'no']},
@@ -68,6 +71,7 @@ def test_user_can_submit_feedback_for_message(api_client, authenticated_session,
 
 def test_user_can_check_if_question_has_been_answered(api_client, authenticated_session, new_chat):
     question_1 = FeedbackQuestion(
+        trigger="chat:2:message:4",
         question_en="Good?",
         question_sv="Bra?",
         extra_data_en={'choices': ['yes', 'no']},

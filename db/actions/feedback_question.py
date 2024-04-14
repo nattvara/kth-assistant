@@ -7,3 +7,8 @@ def get_all_active_feedback_questions():
 def find_feedback_question_by_public_id(feedback_question_id: str):
     from db.models.feedback_question import FeedbackQuestion
     return FeedbackQuestion.select().filter(FeedbackQuestion.feedback_question_id == feedback_question_id).first()
+
+
+def find_feedback_questions_with_trigger(trigger: str):
+    from db.models.feedback_question import FeedbackQuestion
+    return FeedbackQuestion.select().filter(FeedbackQuestion.trigger == trigger)

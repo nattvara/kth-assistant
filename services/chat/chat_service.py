@@ -1,12 +1,15 @@
 from typing import List
 import asyncio
 
-from db.actions.faq_snapshot import find_latest_faq_snapshot_for_course
 from services.chat.questions import generate_question_from_messages, generate_keyword_query_from_messages
+from db.models import Chat, Message, Session, Course, Snapshot, FaqSnapshot, FeedbackQuestion, Feedback
 from services.index.supported_indices import IndexType, is_post_processing_index
-from db.models import Chat, Message, Session, Course, Snapshot, FaqSnapshot
+from db.actions.feedback_question import find_feedback_questions_with_trigger
+from db.actions.faq_snapshot import find_latest_faq_snapshot_for_course
+from db.actions.chat import count_chats_with_session
 from services.chat.docs import post_process_document
 from services.crawler.crawler import CrawlerService
+from db.models.feedback import QUESTION_UNANSWERED
 from services.llm.supported_models import LLMModel
 from services.chat.system import get_system_prompt
 from services.index.opensearch import Document
@@ -14,7 +17,6 @@ from services.index.index import IndexService
 from services.llm.llm import LLMService
 import services.llm.prompts as prompts
 from llms.config import Params
-import db.actions.chat_config
 
 
 class ChatServiceException(Exception):
@@ -114,7 +116,7 @@ class ChatService:
         next_message: Message,
         should_post_process_docs: bool
     ) -> Message:
-        messages = [message for message in chat.messages[:-1]]
+        messages = [message for message in chat.get_student_and_assistant_messages()[:-1]]
 
         question = await generate_question_from_messages(messages, chat)
         if 'NO_QUESTION' in question.strip().upper():
@@ -145,7 +147,7 @@ class ChatService:
         embedding_model: LLMModel,
         should_post_process_docs: bool
     ) -> Message:
-        messages = [message for message in chat.messages[:-1]]
+        messages = [message for message in chat.get_student_and_assistant_messages()[:-1]]
 
         question = await generate_question_from_messages(messages, chat)
         if 'NO_QUESTION' in question.strip().upper():
@@ -186,6 +188,8 @@ class ChatService:
         next_message.state = Message.States.READY
         next_message.save()
 
+        ChatService._trigger_feedback_message_if_matching_trigger_exists(chat)
+
         return next_message
 
     @staticmethod
@@ -208,11 +212,13 @@ class ChatService:
         next_message.state = Message.States.READY
         next_message.save()
 
+        ChatService._trigger_feedback_message_if_matching_trigger_exists(chat)
+
         return next_message
 
     @staticmethod
     def _generate_next_message_without_index(chat: Chat, next_message: Message) -> Message:
-        messages = [message for message in chat.messages[:-1]]
+        messages = [message for message in chat.get_student_and_assistant_messages()[:-1]]
         prompt = prompts.prompt_make_next_ai_message(messages)
 
         handle = LLMService.dispatch_prompt(prompt, chat.llm_model_name, chat.llm_model_params)
@@ -222,4 +228,30 @@ class ChatService:
         next_message.prompt_handle = handle
         next_message.save()
 
+        ChatService._trigger_feedback_message_if_matching_trigger_exists(chat)
+
         return next_message
+
+    @staticmethod
+    def _trigger_feedback_message_if_matching_trigger_exists(chat: Chat):
+        number_chats_in_session = count_chats_with_session(chat.session.id)
+        number_messages_in_chat = 0
+        for message in chat.messages:
+            if message.sender == Message.Sender.STUDENT:
+                number_messages_in_chat += 1
+
+        trigger = FeedbackQuestion.make_chat_message_trigger(number_chats_in_session, number_messages_in_chat)
+        for question in find_feedback_questions_with_trigger(trigger):
+            ChatService._create_feedback_message_to_question(chat, question)
+
+    @staticmethod
+    def _create_feedback_message_to_question(chat: Chat, feedback_question: FeedbackQuestion):
+        message = Message(chat=chat, content=None, sender=Message.Sender.FEEDBACK)
+        message.save()
+        feedback = Feedback(
+            feedback_question=feedback_question,
+            message=message,
+            answer=QUESTION_UNANSWERED,
+            language=chat.language
+        )
+        feedback.save()
