@@ -51,7 +51,18 @@ export default function MessageFeed(props: MessageFeedProps) {
 
         {data.messages.map((message, index) => (
           <div key={message.message_id} ref={index === data.messages.length - 1 ? lastMessageRef : null}>
-            <Message initialMessage={message} courseId={courseId} chatId={chatId} />
+            <Message
+              initialMessage={message}
+              courseId={courseId}
+              chatId={chatId}
+              showFeedbackLabel={
+                index !== 0 && message.sender == "feedback" && data.messages[index - 1].sender !== "feedback"
+              }
+              showAfterFeedbackLabel={
+                message.sender == "feedback" &&
+                (index === data.messages.length - 1 || data.messages[index + 1].sender !== "feedback")
+              }
+            />
           </div>
         ))}
       </div>
