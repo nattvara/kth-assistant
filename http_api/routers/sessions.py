@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from starlette import status
 
 from http_api.auth import get_current_session
+import db.actions.chat_config
 from config.logger import log
 from db.models import Session
 
@@ -25,7 +26,14 @@ class ConsentResponse(BaseModel):
 
 @router.post('/session', response_model=SessionResponse)
 async def create_session() -> SessionResponse:
-    session = Session()
+    config = db.actions.chat_config.get_random_chat_config()
+    if config is None:
+        raise HTTPException(status_code=500, detail="couldn't find a chat config to use as default")
+
+    session = Session(
+        default_llm_model_name=config.llm_model_name,
+        default_index_type=config.index_type,
+    )
     session.save()
     return SessionResponse(public_id=session.public_id, message="welcome.", consent=session.consent)
 
