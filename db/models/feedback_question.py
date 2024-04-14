@@ -27,6 +27,7 @@ class FeedbackQuestion(BaseModel):
 
     id = peewee.AutoField()
     feedback_question_id = peewee.CharField(null=False, index=True, unique=True, default=generate_id)
+    trigger = peewee.CharField(null=False, index=True)
     is_active = peewee.BooleanField(default=True)
     question_en = peewee.TextField(null=False)
     question_sv = peewee.TextField(null=False)
@@ -48,3 +49,7 @@ class FeedbackQuestion(BaseModel):
             }
         else:
             raise ValueError(f"Unsupported language {language}")
+
+    @staticmethod
+    def make_chat_message_trigger(chat_number: int, message_number: int) -> str:
+        return f'chat:{chat_number}:message:{message_number}'

@@ -12,6 +12,8 @@ warnings.filterwarnings(
     module='peewee'
 )
 
+QUESTION_UNANSWERED = 'UNANSWERED'
+
 
 class Feedback(BaseModel):
     class Meta:
@@ -20,6 +22,6 @@ class Feedback(BaseModel):
 
     id = peewee.AutoField()
     language = peewee.CharField(null=False, index=True, max_length=4)
-    answer = peewee.CharField(null=False, index=True, max_length=512)
+    answer = peewee.CharField(null=False, index=True, max_length=512, default=QUESTION_UNANSWERED)
     feedback_question = peewee.ForeignKeyField(FeedbackQuestion, null=True, backref='feedbacks', on_delete='CASCADE')
     message = peewee.ForeignKeyField(Message, null=True, backref='feedbacks', on_delete='CASCADE')
