@@ -43,4 +43,5 @@ class Chat(BaseModel):
             elif message.sender == message.Sender.ASSISTANT:
                 out.append(message)
 
+        out = sorted(out, key=lambda msg: msg.id)
         return out
