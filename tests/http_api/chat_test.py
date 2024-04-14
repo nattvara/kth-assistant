@@ -1,4 +1,4 @@
-from db.models import Chat, Message, PromptHandle, ChatConfig, Faq
+from db.models import Chat, Message, PromptHandle, ChatConfig, Faq, Session
 from services.index.supported_indices import IndexType
 from services.llm.supported_models import LLMModel
 from services.chat.chat_service import ChatService
@@ -193,3 +193,18 @@ def test_first_message_in_chat_can_be_created_from_faq(api_client, authenticated
     # both messages should reference the faq
     assert new_chat.chat.messages[0].faq.id == faq_1.id
     assert new_chat.chat.messages[1].faq.id == faq_1.id
+
+
+def test_chat_cannot_be_started_unless_consent_is_granted(api_client, valid_course):
+    session = Session()
+    session.save()
+    headers = {'X-Session-ID': session.public_id}
+
+    response = api_client.post(f'/course/{valid_course.canvas_id}/chat', headers=headers)
+    assert response.status_code == 400
+
+    session.consent = True
+    session.save()
+
+    response = api_client.post(f'/course/{valid_course.canvas_id}/chat', headers=headers)
+    assert response.status_code == 200

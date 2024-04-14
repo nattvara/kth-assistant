@@ -54,6 +54,12 @@ class MessageRequestBody(BaseModel):
     response_model=ChatResponse
 )
 async def start_new_chat(course_canvas_id: str, session: Session = Depends(get_current_session)) -> ChatResponse:
+    if not session.consent:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot start a chat without granting consent."
+        )
+
     course = find_course_by_canvas_id(course_canvas_id)
     if course is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found")
