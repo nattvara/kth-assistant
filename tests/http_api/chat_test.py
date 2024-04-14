@@ -227,7 +227,11 @@ def test_feedback_messages_contain_feedback_id(api_client, authenticated_session
     assert messages[0]['content'] is None
 
 
-def test_content_in_feedback_message_contains_the_answer_if_given(api_client, authenticated_session, new_chat):
+def test_content_in_feedback_message_contains_the_answer_if_it_has_been_submitted(
+    api_client,
+    authenticated_session,
+    new_chat
+):
     question_1 = FeedbackQuestion(
         trigger="chat:2:message:4",
         question_en="Good?",
@@ -250,5 +254,4 @@ def test_content_in_feedback_message_contains_the_answer_if_given(api_client, au
     response = api_client.get(url, headers=authenticated_session.headers)
 
     messages = response.json()['messages']
-
     assert messages[0]['content'] == 'yes'
