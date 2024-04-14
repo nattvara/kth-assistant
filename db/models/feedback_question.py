@@ -15,9 +15,9 @@ warnings.filterwarnings(
 )
 
 
-def generate_id() -> str:
-    uuid5 = uuid.uuid4()
-    return str(uuid5)
+def _generate_id() -> str:
+    uuid4 = uuid.uuid4()
+    return str(uuid4)
 
 
 class FeedbackQuestion(BaseModel):
@@ -26,7 +26,7 @@ class FeedbackQuestion(BaseModel):
         table_name = 'feedback_questions'
 
     id = peewee.AutoField()
-    feedback_question_id = peewee.CharField(null=False, index=True, unique=True, default=generate_id)
+    feedback_question_id = peewee.CharField(null=False, index=True, unique=True, default=_generate_id)
     trigger = peewee.CharField(null=False, index=True)
     is_active = peewee.BooleanField(default=True)
     question_en = peewee.TextField(null=False)
