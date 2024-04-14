@@ -1,4 +1,4 @@
-from db.models import Chat, Message, PromptHandle, ChatConfig, Faq, Session
+from db.models import Chat, Message, PromptHandle, Faq, Session
 from services.index.supported_indices import IndexType
 from services.llm.supported_models import LLMModel
 from services.chat.chat_service import ChatService
@@ -123,31 +123,18 @@ def test_assistant_messages_returns_prompt_handle_response_if_done_streaming(
     assert response['messages'][1]['content'] == 'foo'
 
 
-def test_chat_config_is_selected_randomly_from_chat_configs(
-    mocker,
+def test_chat_llm_model_and_index_is_selected_from_session_default(
     api_client,
     authenticated_session,
     valid_course,
 ):
-    config_1 = ChatConfig(llm_model_name=LLMModel.MISTRAL_7B_INSTRUCT, index_type=IndexType.NO_INDEX)
-    config_2 = ChatConfig(llm_model_name=LLMModel.OPENAI_GPT4, index_type=IndexType.NO_INDEX)
-    config_1.save()
-    config_2.save()
-    mocker.patch(
-        'db.actions.chat_config.get_random_chat_config',
-        side_effect=[config_1, config_2]
-    )
-
     url = f'/course/{valid_course.canvas_id}/chat'
 
     response = api_client.post(url, headers=authenticated_session.headers)
     chat = Chat.filter(Chat.public_id == response.json()['public_id']).first()
 
-    assert chat.llm_model_name == config_1.llm_model_name
-
-    response = api_client.post(url, headers=authenticated_session.headers)
-    chat = Chat.filter(Chat.public_id == response.json()['public_id']).first()
-    assert chat.llm_model_name == config_2.llm_model_name
+    assert chat.llm_model_name == authenticated_session.session.default_llm_model_name
+    assert chat.index_type == authenticated_session.session.default_index_type
 
 
 def test_chats_inherit_the_language_of_the_course_they_belong_to(api_client, authenticated_session, valid_course):

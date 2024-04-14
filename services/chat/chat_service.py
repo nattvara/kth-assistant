@@ -29,19 +29,15 @@ class ChatService:
 
     @staticmethod
     def start_new_chat_for_session_and_course(session: Session, course: Course) -> Chat:
-        config = db.actions.chat_config.get_random_chat_config()
-        if config is None:
-            raise ChatServiceException("no valid chat config.")
-
         params = Params()
         params.system_prompt = get_system_prompt(course.language, course.name, course.description)
         params.stop_strings = ['<|user|>', '<|user', '<|assistant|>', '<|assistant']
         chat = Chat(
             course=course,
             session=session,
-            llm_model_name=config.llm_model_name,
+            llm_model_name=session.default_llm_model_name,
             llm_model_params=params,
-            index_type=config.index_type,
+            index_type=session.default_index_type,
             language=course.language,
         )
         chat.save()
