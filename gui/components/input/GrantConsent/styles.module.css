@@ -1,0 +1,42 @@
+
+
+.blockquote_container {
+  margin: 3px;
+  max-width: 800px;
+  margin: auto;
+}
+
+@media only screen and (max-width: 375px) {
+  .blockquote_container {
+    margin: 0;
+  }
+  .blockquote {
+    padding: 10px 20px;
+  }
+}
+
+@media only screen and (min-width: 500px) {
+  .blockquote_container {
+    margin: 0;
+  }
+  .blockquote {
+    margin-top: 30px;
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+}
+
+.title {
+  font-size: 1.1rem;
+}
+
+.section {
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+
+.paragraph {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  font-size: .95rem;
+}
