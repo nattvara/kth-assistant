@@ -22,6 +22,11 @@ export default function ChatProperties(props: ChatPropertiesProps) {
     queryFn: () => fetchChat(courseId, chatId),
   });
 
+  useEffect(() => {
+    if (!data) return;
+    console.log(`using model: ${data.llm_model_name}\nusing index: ${data.index_type}`);
+  }, [data]);
+
   if (isError) {
     return <span>Error: {error.message}</span>;
   }
@@ -29,15 +34,6 @@ export default function ChatProperties(props: ChatPropertiesProps) {
   if (data == null) {
     return <></>;
   }
-
-  const modelAndIndexType = t("properties.model_and_index_type", {
-    modelName: data.llm_model_name,
-    indexType: data.index_type,
-  });
-
-  useEffect(() => {
-    console.log(modelAndIndexType);
-  }, [modelAndIndexType]);
 
   return (
     <SimpleGrid cols={1}>

@@ -11,7 +11,6 @@
   "properties": {
     "title": "Information om denna chatt",
     "disclaimer": "Course Copilot kan göra misstag. Om du är osäker eller om råden skiljer sig, följ alltid din lärare eller lärarassistentens vägledning.",
-    "model_and_index_type": "Denna chatt använder modellen {{modelName}} och {{indexType}} som index.",
     "language": "Språket för chatten med det här kursrummet är svenska.",
     "course_room": "Kursrum"
   },
