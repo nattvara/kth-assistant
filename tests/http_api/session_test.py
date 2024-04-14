@@ -4,6 +4,9 @@ from db.models import Session, ChatConfig
 
 
 def test_user_can_be_granted_a_session_by_visiting_auth_url(api_client):
+    config = ChatConfig(llm_model_name=LLMModel.MISTRAL_7B_INSTRUCT, index_type=IndexType.NO_INDEX)
+    config.save()
+
     response = api_client.post('/session')
     data = response.json()
 
@@ -13,7 +16,7 @@ def test_user_can_be_granted_a_session_by_visiting_auth_url(api_client):
 
 
 def test_protected_route_with_valid_session(api_client):
-    valid_session = Session()
+    valid_session = Session(default_llm_model_name=LLMModel.MISTRAL_7B_INSTRUCT, default_index_type=IndexType.NO_INDEX)
     valid_session.save()
 
     headers = {'X-Session-ID': valid_session.public_id, 'Content-Type': 'application/json'}
@@ -32,6 +35,9 @@ def test_protected_route_with_invalid_session(api_client):
 
 
 def test_consent_is_not_given_by_default(api_client):
+    config = ChatConfig(llm_model_name=LLMModel.MISTRAL_7B_INSTRUCT, index_type=IndexType.NO_INDEX)
+    config.save()
+
     response = api_client.post('/session')
     data = response.json()
 
@@ -40,6 +46,9 @@ def test_consent_is_not_given_by_default(api_client):
 
 
 def test_consent_can_be_given(api_client):
+    config = ChatConfig(llm_model_name=LLMModel.MISTRAL_7B_INSTRUCT, index_type=IndexType.NO_INDEX)
+    config.save()
+
     response = api_client.post('/session')
     session = Session.select().filter(Session.public_id == response.json()['public_id']).first()
 

@@ -196,7 +196,7 @@ def test_first_message_in_chat_can_be_created_from_faq(api_client, authenticated
 
 
 def test_chat_cannot_be_started_unless_consent_is_granted(api_client, valid_course):
-    session = Session()
+    session = Session(default_llm_model_name=LLMModel.MISTRAL_7B_INSTRUCT, default_index_type=IndexType.NO_INDEX)
     session.save()
     headers = {'X-Session-ID': session.public_id}
 

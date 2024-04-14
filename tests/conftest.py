@@ -140,7 +140,11 @@ def authenticated_session():
             self.session = session
             self.headers = {'X-Session-ID': valid_session.public_id}
 
-    valid_session = Session(consent=True)
+    valid_session = Session(
+        consent=True,
+        default_llm_model_name=LLMModel.MISTRAL_7B_INSTRUCT,
+        default_index_type=IndexType.NO_INDEX,
+    )
     valid_session.save()
 
     return AuthenticatedSession(valid_session)
