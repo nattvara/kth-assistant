@@ -9,8 +9,8 @@
     }
   },
   "properties": {
-    "title": "Chat Properties",
-    "model_and_index_type": "This chat is using the model <strong>{{modelName}}</strong> and <strong>{{indexType}}</strong> as index.",
+    "title": "Chat Information",
+    "disclaimer": "Course Copilot can make mistakes. If you're unsure or if the advice differs, always follow your teacher or teaching assistant's guidance.",
     "language": "The language of the chat with this course-room is English.",
     "course_room": "Courseroom"
   },

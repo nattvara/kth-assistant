@@ -1,9 +1,9 @@
-import { Alert, AppShell, Burger, Button, Group, MantineProvider, SimpleGrid, Skeleton } from "@mantine/core";
+import { Alert, AppShell, MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { useDisclosure } from "@mantine/hooks";
 import { Notifications } from "@mantine/notifications";
 import "@mantine/notifications/styles.css";
-import { IconMessageCircle, IconPlugConnectedX } from "@tabler/icons-react";
+import { IconPlugConnectedX } from "@tabler/icons-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { appWithTranslation, useTranslation } from "next-i18next";
@@ -11,6 +11,8 @@ import { AppProps } from "next/app";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
+
+import { HeaderNavbar } from "@/components/navigation";
 
 import { HttpError } from "@/api/http";
 import { getSession, startSession } from "@/api/session";
@@ -25,10 +27,6 @@ function App({ Component, pageProps }: AppProps) {
   const queryClient = new QueryClient();
   const [hasValidSession, setValidSession] = useState<null | boolean>(null);
   const sessionInitiated = useRef(false);
-
-  const startNewChat = () => {
-    router.push(`/course/${course_id}`);
-  };
 
   useEffect(() => {
     const manageSession = async () => {
@@ -85,28 +83,7 @@ function App({ Component, pageProps }: AppProps) {
           }}
           padding="0"
         >
-          <AppShell.Header>
-            <SimpleGrid cols={2} h="100%" w="100%" px="md">
-              <Group>
-                <Burger opened={opened} onClick={toggle} size="sm" />
-                {t("header.app_name")}
-              </Group>
-              <Group justify="flex-end">
-                {course_id !== undefined && (
-                  <Button variant="light" rightSection={<IconMessageCircle />} onClick={() => startNewChat()}>
-                    {t("header.new_chat")}
-                  </Button>
-                )}
-              </Group>
-            </SimpleGrid>
-          </AppShell.Header>
-
-          <AppShell.Navbar p="md">
-            <Skeleton h={28} mt="sm" animate={false} />
-            <Skeleton h={28} mt="sm" animate={false} />
-            <Skeleton h={28} mt="sm" animate={false} />
-          </AppShell.Navbar>
-
+          <HeaderNavbar opened={opened} toggle={toggle} courseId={course_id as string}></HeaderNavbar>
           <AppShell.Main>
             {hasValidSession && <Component {...pageProps} />}
             {!hasValidSession && hasValidSession !== null && (

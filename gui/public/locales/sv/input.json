@@ -2,5 +2,27 @@
   "prompt": {
     "placeholder": "Skriv ett meddelande till Canvas Copilot...",
     "button_text": "Skicka"
+  },
+  "consent": {
+    "title": "Innan du börjar använda chatten",
+    "subtitle": "Använd gärna chattboten så mycket du vill! Den är en del av forskning om AI-chattbotar. Se förklaringen nedan.",
+    "sections": {
+      "purpose": {
+        "title": "Syftet med studien",
+        "description": "Denna studie utvärderar effektiviteten hos chattbotar och språkmodeller på en digital lärplattform."
+      },
+      "data": {
+        "title": "Datainsamling & Risk",
+        "description": "Genom att delta samtycker du till att dina interaktioner spelas in enbart för forskningsändamål. Du kan bli ombedd att ge feedback. Deltagande innebär inga risker utöver det dagliga livet."
+      },
+      "participation": {
+        "title": "Anonymitet & Deltagande",
+        "description_part_1": "Du är anonym",
+        "description_part_2": " i alla rapporter/publikationer. Deltagandet är frivilligt, avbryt när som helst genom",
+        "description_part_3": " att kontakta forskaren",
+        "description_part_4": " för att radera dina data."
+      }
+    },
+    "button": "Godkänn och starta chatten!"
   }
 }

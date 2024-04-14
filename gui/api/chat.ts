@@ -16,6 +16,12 @@ export interface Chat {
   faqs: Faq[];
 }
 
+export interface Course {
+  canvas_id: string;
+  language: string;
+  name: string;
+}
+
 export const MESSAGE_PENDING = "pending";
 
 export const MESSAGE_READY = "ready";
@@ -35,6 +41,26 @@ export interface Message {
 
 export interface Messages {
   messages: Message[];
+}
+
+export async function fetchCourse(canvasId: string): Promise<Course> {
+  const sessionCookie = Cookies.get("session_id") as string;
+
+  const response = await fetch(makeUrl(`/course/${canvasId}`), {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Session-ID": sessionCookie,
+    },
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.json();
+    throw new HttpError(response, errorBody, response.status);
+  }
+
+  const data = (await response.json()) as Course;
+  return data;
 }
 
 export async function startChat(canvasId: string): Promise<Chat> {

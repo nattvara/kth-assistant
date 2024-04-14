@@ -1,3 +1,5 @@
+from peewee import DoesNotExist
+
 from services.index.index import IndexService
 from config.logger import log
 from db.models import Url
@@ -17,5 +19,7 @@ async def job(url: Url):
         await index_service.index_url(url)
 
         log().info(f"finished indexing url: {url.href}")
+    except DoesNotExist:
+        log().error(f"failed indexing url: {url.href} for snapshot {url.snapshot} no longer exists in the database")
     except Exception:  # noqa
         log().error(f"failed indexing url: {url.href}", exc_info=True)

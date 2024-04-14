@@ -2,5 +2,27 @@
   "prompt": {
     "placeholder": "Message to Canvas Copilot...",
     "button_text": "Send"
+  },
+  "consent": {
+    "title": "Before you start using the chat",
+    "subtitle": "Please use the chatbot as much as you want! It is part of research in AI chatbots. Below is an explanation.",
+    "sections": {
+      "purpose": {
+        "title": "Purpose of the Study",
+        "description": "This study evaluates the effectiveness of chatbots and language models in a digital learning platform."
+      },
+      "data": {
+        "title": "Data Collection & Risk",
+        "description": "By participating, you consent to the recording of your interactions for research purposes only. You may be asked for feedback. Participation holds no risks beyond everyday life."
+      },
+      "participation": {
+        "title": "Anonymity & Participation",
+        "description_part_1": "Your are anonymous",
+        "description_part_2": " in all reports/publications. Participation is voluntary, withdraw anytime by",
+        "description_part_3": " contacting the researcher",
+        "description_part_4": " to erase your data."
+      }
+    },
+    "button": "Consent and start the chat!"
   }
 }

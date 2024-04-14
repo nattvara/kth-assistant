@@ -27,3 +27,4 @@ class Session(BaseModel):
     id = peewee.AutoField()
     is_valid = peewee.BooleanField(default=True)
     public_id = peewee.CharField(null=False, index=True, unique=True, default=generate_id)
+    consent = peewee.BooleanField(default=False)

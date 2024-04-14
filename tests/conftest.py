@@ -140,7 +140,7 @@ def authenticated_session():
             self.session = session
             self.headers = {'X-Session-ID': valid_session.public_id}
 
-    valid_session = Session()
+    valid_session = Session(consent=True)
     valid_session.save()
 
     return AuthenticatedSession(valid_session)
