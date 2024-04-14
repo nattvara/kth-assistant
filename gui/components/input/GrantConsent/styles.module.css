@@ -2,8 +2,12 @@
 
 .blockquote_container {
   margin: 3px;
-  max-width: 800px;
+  max-width: 100%;
   margin: auto;
+}
+
+.blockquote {
+  max-width: 800px;
 }
 
 @media only screen and (max-width: 375px) {
@@ -23,6 +27,14 @@
     margin-top: 30px;
     margin-left: 20px;
     margin-right: 20px;
+  }
+}
+
+@media only screen and (min-width: 800px) {
+  .blockquote {
+    margin-top: 30px;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
 
