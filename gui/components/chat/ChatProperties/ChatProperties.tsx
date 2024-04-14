@@ -2,6 +2,7 @@ import { Alert, Group, Image, LoadingOverlay, SimpleGrid, Space, Text } from "@m
 import { IconBrain } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "next-i18next";
+import { useEffect } from "react";
 
 import { fetchChat } from "@/api/chat";
 
@@ -34,13 +35,17 @@ export default function ChatProperties(props: ChatPropertiesProps) {
     indexType: data.index_type,
   });
 
+  useEffect(() => {
+    console.log(modelAndIndexType);
+  }, [modelAndIndexType]);
+
   return (
     <SimpleGrid cols={1}>
       <Alert variant="light" color="gray" title={t("properties.title")} icon={<IconBrain />} className={styles.alert}>
         <LoadingOverlay visible={isFetching} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
-        <div dangerouslySetInnerHTML={{ __html: modelAndIndexType }} />
+        <div>{t("properties.disclaimer")}</div>
 
-        <Space h="md" />
+        <Space h="xs" />
 
         <div>
           {t("properties.course_room")}: <strong>{data.course_name}</strong>
