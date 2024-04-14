@@ -20,6 +20,8 @@
   "feedback": {
     "label": "Please consider the following statements",
     "done": "Thanks for your answer!",
-    "after": "You can continue chatting as normal!"
+    "after": "You can continue chatting as normal!",
+    "thumbs_up_tooltip": "This was a good response",
+    "thumbs_down_tooltip": "This was a bad response"
   }
 }

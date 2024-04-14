@@ -20,6 +20,8 @@
   "feedback": {
     "label": "Var god ta ställning till följande påståenden",
     "done": "Tack för ditt svar!",
-    "after": "Du kan fortsätta chatta som normalt!"
+    "after": "Du kan fortsätta chatta som normalt!",
+    "thumbs_up_tooltip": "Det här var ett bra svar",
+    "thumbs_down_tooltip": "Det här var ett dåligt svar"
   }
 }

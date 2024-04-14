@@ -4,6 +4,7 @@ import { Message } from "@/api/chat";
 import { fetchFeedbackQuestions } from "@/api/feedback";
 
 import { SelectFeedback } from "./SelectFeedback";
+import { ThumbsFeedback } from "./ThumbsFeedback";
 
 export interface FeedbackProps {
   message: Message;
@@ -39,6 +40,10 @@ export default function Feedback(props: FeedbackProps) {
         chatId={chatId}
       />
     );
+  }
+
+  if (questionQuery.data.extra_data.type === "thumbs") {
+    return <ThumbsFeedback message={message} feedback={questionQuery.data} courseId={courseId} chatId={chatId} />;
   }
 
   return <>Error: Unknown feedback type.</>;
