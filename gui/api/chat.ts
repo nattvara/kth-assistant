@@ -37,6 +37,7 @@ export interface Message {
   streaming: boolean;
   websocket: string | null;
   from_faq: boolean;
+  feedback_id: string | null;
 }
 
 export interface Messages {
