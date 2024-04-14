@@ -14,6 +14,12 @@ from db.actions.chat import find_chat_by_id
 router = APIRouter()
 
 
+class CourseResponse(BaseModel):
+    canvas_id: str
+    language: str
+    name: str
+
+
 class Faq(BaseModel):
     faq_id: str
     question: str
@@ -46,6 +52,23 @@ class MessagesResponse(BaseModel):
 class MessageRequestBody(BaseModel):
     content: Optional[constr(min_length=1, max_length=2048)] = None
     faq_id: Optional[str] = None
+
+
+@router.get(
+    '/course/{course_canvas_id}',
+    dependencies=[Depends(get_current_session)],
+    response_model=CourseResponse
+)
+async def get_course_details(course_canvas_id: str) -> CourseResponse:
+    course = find_course_by_canvas_id(course_canvas_id)
+    if course is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found")
+
+    return CourseResponse(
+        canvas_id=course.canvas_id,
+        language=course.language,
+        name=course.name,
+    )
 
 
 @router.post(
@@ -83,7 +106,7 @@ async def start_new_chat(course_canvas_id: str, session: Session = Depends(get_c
     dependencies=[Depends(get_current_session)],
     response_model=ChatResponse
 )
-async def get_chat_details(course_canvas_id: str, chat_id: str,) -> ChatResponse:
+async def get_chat_details(course_canvas_id: str, chat_id: str) -> ChatResponse:
     course = find_course_by_canvas_id(course_canvas_id)
     if course is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found")
