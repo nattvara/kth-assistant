@@ -14,6 +14,8 @@ warnings.filterwarnings(
     module='peewee'
 )
 
+FAQ_TRIGGER = 'from_faq'
+
 
 def _generate_id() -> str:
     uuid4 = uuid.uuid4()

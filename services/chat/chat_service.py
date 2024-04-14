@@ -1,6 +1,7 @@
 from typing import List
 import asyncio
 
+from db.models.feedback_question import FAQ_TRIGGER
 from services.chat.questions import generate_question_from_messages, generate_keyword_query_from_messages
 from db.models import Chat, Message, Session, Course, Snapshot, FaqSnapshot, FeedbackQuestion, Feedback
 from services.index.supported_indices import IndexType, is_post_processing_index
@@ -234,6 +235,13 @@ class ChatService:
 
     @staticmethod
     def _trigger_feedback_message_if_matching_trigger_exists(chat: Chat):
+        ChatService._trigger_on_chat_and_message_number(chat)
+        ChatService._trigger_on_faq(chat)
+
+    @staticmethod
+    def _trigger_on_chat_and_message_number(chat: Chat):
+        # e.g. "chat:1:message:2" style triggers
+
         number_chats_in_session = count_chats_with_session(chat.session.id)
         number_messages_in_chat = 0
         for message in chat.messages:
@@ -242,6 +250,25 @@ class ChatService:
 
         trigger = FeedbackQuestion.make_chat_message_trigger(number_chats_in_session, number_messages_in_chat)
         for question in find_feedback_questions_with_trigger(trigger):
+            ChatService._create_feedback_message_to_question(chat, question)
+
+    @staticmethod
+    def _trigger_on_faq(chat: Chat):
+        # e.g. "faq" style triggers
+        messages = chat.get_student_and_assistant_messages()
+
+        if len(messages) > 2:
+            return
+
+        from_faq = False
+        for message in messages:
+            if message.faq is not None:
+                from_faq = True
+
+        if not from_faq:
+            return
+
+        for question in find_feedback_questions_with_trigger(FAQ_TRIGGER):
             ChatService._create_feedback_message_to_question(chat, question)
 
     @staticmethod
