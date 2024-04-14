@@ -1,4 +1,5 @@
-from db.models import Chat, Message, PromptHandle, Faq, Session
+from db.models import Chat, Message, PromptHandle, Faq, Session, Feedback, FeedbackQuestion
+from db.models.feedback import QUESTION_UNANSWERED
 from services.index.supported_indices import IndexType
 from services.llm.supported_models import LLMModel
 from services.chat.chat_service import ChatService
@@ -195,3 +196,31 @@ def test_chat_cannot_be_started_unless_consent_is_granted(api_client, valid_cour
 
     response = api_client.post(f'/course/{valid_course.canvas_id}/chat', headers=headers)
     assert response.status_code == 200
+
+
+def test_feedback_messages_contain_feedback_id(api_client, authenticated_session, new_chat):
+    question_1 = FeedbackQuestion(
+        trigger="chat:2:message:4",
+        question_en="Good?",
+        question_sv="Bra?",
+        extra_data_en={'choices': ['yes', 'no']},
+        extra_data_sv={'choices': ['ja', 'nej']},
+    )
+    question_1.save()
+
+    message = Message(chat=new_chat.chat, content=None, sender=Message.Sender.FEEDBACK)
+    message.save()
+    feedback = Feedback(
+        feedback_question=question_1,
+        message=message,
+        answer=QUESTION_UNANSWERED,
+        language=new_chat.chat.language,
+    )
+    feedback.save()
+
+    url = f'/course/{new_chat.course.canvas_id}/chat/{new_chat.chat.public_id}/messages'
+    response = api_client.get(url, headers=authenticated_session.headers)
+
+    messages = response.json()['messages']
+
+    assert messages[0]['feedback_id'] == feedback.feedback_id

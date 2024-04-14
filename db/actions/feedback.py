@@ -6,3 +6,10 @@ def find_feedback_by_private_feedback_question_id_and_message_id(feedback_questi
     ).filter(
         Feedback.message == message_id
     ).first()
+
+
+def find_feedback_by_message_private_id(message_id: int):
+    from db.models.feedback import Feedback
+    return Feedback.select().filter(
+        Feedback.message_id == message_id
+    ).first()
