@@ -109,20 +109,6 @@ class ChatService:
                                             f" it is not supported")
 
     @staticmethod
-    def _generate_next_message_without_index(chat: Chat, next_message: Message) -> Message:
-        messages = [message for message in chat.messages[:-1]]
-        prompt = prompts.prompt_make_next_ai_message(messages)
-
-        handle = LLMService.dispatch_prompt(prompt, chat.llm_model_name, chat.llm_model_params)
-
-        next_message.refresh()
-        next_message.state = Message.States.READY
-        next_message.prompt_handle = handle
-        next_message.save()
-
-        return next_message
-
-    @staticmethod
     async def _generate_next_message_with_full_text_search_index(
         chat: Chat,
         next_message: Message,
@@ -220,6 +206,20 @@ class ChatService:
         next_message.refresh()
         next_message.prompt_handle = handle
         next_message.state = Message.States.READY
+        next_message.save()
+
+        return next_message
+
+    @staticmethod
+    def _generate_next_message_without_index(chat: Chat, next_message: Message) -> Message:
+        messages = [message for message in chat.messages[:-1]]
+        prompt = prompts.prompt_make_next_ai_message(messages)
+
+        handle = LLMService.dispatch_prompt(prompt, chat.llm_model_name, chat.llm_model_params)
+
+        next_message.refresh()
+        next_message.state = Message.States.READY
+        next_message.prompt_handle = handle
         next_message.save()
 
         return next_message
