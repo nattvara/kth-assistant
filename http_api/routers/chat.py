@@ -7,6 +7,7 @@ from db.actions.feedback import find_feedback_by_message_private_id
 from db.actions.message import all_messages_in_chat, find_message_by_chat_private_id_and_message_public_id
 from db.actions.course import find_course_by_canvas_id
 from db.models import Session, Message, PromptHandle
+from db.models.feedback import QUESTION_UNANSWERED
 from services.chat.chat_service import ChatService
 from db.actions.faq import find_faq_by_public_id
 from http_api.auth import get_current_session
@@ -231,7 +232,10 @@ async def get_messages(
             feedback = find_feedback_by_message_private_id(msg.id)
             if feedback is None:
                 raise HTTPException(status_code=500, detail="failed to find feedback for feedback message")
+
             feedback_id = feedback.feedback_id
+            if feedback.answer != QUESTION_UNANSWERED and feedback.answer is not None:
+                content = feedback.answer
 
         out.append(MessageResponse(
             message_id=msg.message_id,
@@ -290,7 +294,10 @@ async def get_message(
         feedback = find_feedback_by_message_private_id(msg.id)
         if feedback is None:
             raise HTTPException(status_code=500, detail="failed to find feedback for feedback message")
+
         feedback_id = feedback.feedback_id
+        if feedback.answer != QUESTION_UNANSWERED and feedback.answer is not None:
+            content = feedback.answer
 
     return MessageResponse(
         message_id=msg.message_id,

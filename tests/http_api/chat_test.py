@@ -224,3 +224,31 @@ def test_feedback_messages_contain_feedback_id(api_client, authenticated_session
     messages = response.json()['messages']
 
     assert messages[0]['feedback_id'] == feedback.feedback_id
+    assert messages[0]['content'] is None
+
+
+def test_content_in_feedback_message_contains_the_answer_if_given(api_client, authenticated_session, new_chat):
+    question_1 = FeedbackQuestion(
+        trigger="chat:2:message:4",
+        question_en="Good?",
+        question_sv="Bra?",
+        extra_data_en={'choices': ['yes', 'no']},
+        extra_data_sv={'choices': ['ja', 'nej']},
+    )
+    question_1.save()
+    message = Message(chat=new_chat.chat, content=None, sender=Message.Sender.FEEDBACK)
+    message.save()
+    feedback = Feedback(
+        feedback_question=question_1,
+        message=message,
+        answer='yes',  # answer provided here
+        language=new_chat.chat.language,
+    )
+    feedback.save()
+
+    url = f'/course/{new_chat.course.canvas_id}/chat/{new_chat.chat.public_id}/messages'
+    response = api_client.get(url, headers=authenticated_session.headers)
+
+    messages = response.json()['messages']
+
+    assert messages[0]['content'] == 'yes'
