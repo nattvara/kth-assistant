@@ -17,11 +17,11 @@ def create_chat_simulation(valid_course, authenticated_session):
 
             def add_messages(self, number_of_messages: int):
                 for _ in range(number_of_messages):
-                    msg_student = Message(sender=Message.Sender.STUDENT, content=f'Hello from student!', chat=self.chat)
+                    msg_student = Message(sender=Message.Sender.STUDENT, content='Hello from student!', chat=self.chat)
                     msg_student.save()
                     handle = PromptHandle(prompt="hi", llm_model_name=self.chat.llm_model_name, response="hello")
                     handle.save()
-                    msg_assistant = Message(sender=Message.Sender.ASSISTANT, content=f'Hello student!', chat=self.chat)
+                    msg_assistant = Message(sender=Message.Sender.ASSISTANT, content='Hello student!', chat=self.chat)
                     msg_assistant.prompt_handle = handle
                     msg_assistant.save()
 

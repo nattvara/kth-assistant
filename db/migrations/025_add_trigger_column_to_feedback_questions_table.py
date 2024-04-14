@@ -2,7 +2,7 @@ from peewee_migrate import Migrator
 import peewee as pw
 
 from db.migrations import column_exists, is_sqlite
-from db.models import FeedbackQuestion, Feedback
+from db.models import FeedbackQuestion
 
 
 def migrate(migrator: Migrator, database: pw.Database, fake=False, **kwargs):
