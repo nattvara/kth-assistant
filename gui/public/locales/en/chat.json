@@ -18,8 +18,8 @@
     "title": "Example questions other students asked"
   },
   "feedback": {
-    "title": "Share Your Anonymous Feedback",
-    "subtitle": "Our study aims to enhance the quality of responses provided by chatbots such as this one. We value your input on the model's answers. Please respond to the following questions. Rest assured, your feedback remains entirely anonymous.",
-    "done": "Thank you for your feedback!"
+    "label": "Please consider the following statements",
+    "done": "Thanks for your answer!",
+    "after": "You can continue chatting as normal!"
   }
 }
