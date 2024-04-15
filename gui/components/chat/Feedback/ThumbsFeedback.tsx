@@ -46,6 +46,8 @@ export function ThumbsFeedback(props: ThumbsFeedbackProps) {
     <Grid className={styles.thumbs_feedback}>
       <Center inline>
         <Text className={`${styles.question} ${styles.thumbs_feedback_question}`}>{feedback.question}</Text>
+      </Center>
+      <Center inline>
         <Group className={styles.question_group}>
           {feedback.extra_data.choices.map((value, index) => (
             <Tooltip
@@ -67,12 +69,14 @@ export function ThumbsFeedback(props: ThumbsFeedbackProps) {
             </Tooltip>
           ))}
         </Group>
-        {answered && (
-          <span className={`${styles.question} ${styles.thumbs_done} ${styles.thumbs_feedback_question}`}>
-            {t("feedback.done")}
-          </span>
-        )}
       </Center>
+      {answered && (
+        <Center inline>
+          <Text className={`${styles.question} ${styles.thumbs_done} ${styles.thumbs_feedback_question}`}>
+            {t("feedback.done")}
+          </Text>
+        </Center>
+      )}
     </Grid>
   );
 }
