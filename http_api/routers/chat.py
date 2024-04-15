@@ -43,6 +43,7 @@ class ChatModel(BaseModel):
     llm_model_name: str
     index_type: str
     user_id: str
+    created_at: str
 
 
 class ChatsResponse(BaseModel):
@@ -136,8 +137,11 @@ async def get_chats_in_course(course_canvas_id: str, session: Session = Depends(
             chat_id=chat.public_id,
             llm_model_name=chat.llm_model_name,
             index_type=chat.index_type,
-            user_id=chat.session.get_user_id()
+            user_id=chat.session.get_user_id(),
+            created_at=str(chat.created_at)
         ))
+
+    chats = sorted(chats, key=lambda c: c.created_at, reverse=True)
 
     return ChatsResponse(chats=chats)
 
