@@ -4,8 +4,8 @@ from services.index.index import IndexService
 from config.logger import log
 from db.models import Url
 
-# 20 minute timeout
-TIMEOUT = 20 * 60
+# 2hr timeout
+TIMEOUT = 2 * 60 * 60
 
 
 async def job(url: Url):

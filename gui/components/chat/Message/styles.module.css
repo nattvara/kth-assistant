@@ -1,6 +1,12 @@
-.root {
+.normal_message {
   width: 100%;
   padding: 20px;
+}
+
+.feedback_message {
+  width: 100%;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
 .content {

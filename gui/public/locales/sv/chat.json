@@ -18,8 +18,10 @@
     "title": "Frågor andra studenter har ställt"
   },
   "feedback": {
-    "title": "Dela din anonyma feedback",
-    "subtitle": "Vår studie syftar till att förbättra kvaliteten på svaren som ges av chattrobotar som denna. Vi uppskattar dina synpunkter på modellens svar. Vänligen svara på följande frågor. Din återkoppling är helt anonym.",
-    "done": "Tack för din feedback!"
+    "label": "Var god ta ställning till följande påståenden",
+    "done": "Tack för ditt svar!",
+    "after": "Du kan fortsätta chatta som normalt!",
+    "thumbs_up_tooltip": "Det här var ett bra svar",
+    "thumbs_down_tooltip": "Det här var ett dåligt svar"
   }
 }

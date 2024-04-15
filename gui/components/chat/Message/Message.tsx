@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "next-i18next";
 import React, { useEffect, useRef, useState } from "react";
 
-import { FeedbackQuestions } from "@/components/chat";
+import { Feedback } from "@/components/chat";
 
 import { MESSAGE_PENDING, MESSAGE_READY, Message as MessageType, fetchMessage } from "@/api/chat";
 import { makeWebsocketUrl } from "@/api/http";
@@ -21,10 +21,12 @@ interface MessageProps {
   initialMessage: MessageType;
   courseId: string;
   chatId: string;
+  showFeedbackLabel: boolean;
+  showAfterFeedbackLabel: boolean;
 }
 
 export default function Message(props: MessageProps) {
-  const { initialMessage, courseId, chatId } = props;
+  const { initialMessage, courseId, chatId, showFeedbackLabel, showAfterFeedbackLabel } = props;
   const { t } = useTranslation("chat");
   const queryClient = useQueryClient();
   const [message, setMessage] = useState<MessageType>(initialMessage);
@@ -142,47 +144,61 @@ export default function Message(props: MessageProps) {
   }, [numberOfWords]);
 
   return (
-    <SimpleGrid cols={1} className={styles.root}>
-      <Grid>
-        <strong>
-          {message.sender === "student" && <>{t("message.student")}</>}
-          {message.sender === "assistant" && <>{t("message.assistant")}</>}
-        </strong>
-      </Grid>
-      <Grid>
-        {message.state === MESSAGE_PENDING && shouldRefetch && (
-          <SimpleGrid cols={1} className={styles.pending}>
-            <span>
-              <Loader className={styles.loader} color="black" type="dots" />
-              <span className={styles.pending_text}>{t("message.pending")}</span>
-            </span>
-          </SimpleGrid>
-        )}
-        {message.state === MESSAGE_PENDING && !shouldRefetch && (
-          <Alert
-            className={styles.error}
-            variant="light"
-            color="red"
-            title={t("message.failed.title")}
-            icon={<IconExclamationCircle />}
-          >
-            {t("message.failed.text")}
-          </Alert>
-        )}
-        {message.state === MESSAGE_READY && (
-          <>
-            <span className={styles.content} dangerouslySetInnerHTML={{ __html: displayedContent }}></span>
-            {showLoading && (
-              <span>
-                <Loader className={styles.loader} ref={loadingRef} color="black" size={12} />
-              </span>
+    <>
+      {message.feedback_id === null && (
+        <SimpleGrid cols={1} className={styles.normal_message}>
+          <Grid>
+            <strong>
+              {message.sender === "student" && <>{t("message.student")}</>}
+              {message.sender === "assistant" && <>{t("message.assistant")}</>}
+            </strong>
+          </Grid>
+          <Grid>
+            {message.state === MESSAGE_PENDING && shouldRefetch && (
+              <SimpleGrid cols={1} className={styles.pending}>
+                <span>
+                  <Loader className={styles.loader} color="black" type="dots" />
+                  <span className={styles.pending_text}>{t("message.pending")}</span>
+                </span>
+              </SimpleGrid>
             )}
-          </>
-        )}
-      </Grid>
-      {message.from_faq && message.sender === "assistant" && message.state === MESSAGE_READY && !message.streaming && (
-        <FeedbackQuestions message={message} />
+            {message.state === MESSAGE_PENDING && !shouldRefetch && (
+              <Alert
+                className={styles.error}
+                variant="light"
+                color="red"
+                title={t("message.failed.title")}
+                icon={<IconExclamationCircle />}
+              >
+                {t("message.failed.text")}
+              </Alert>
+            )}
+            {message.state === MESSAGE_READY && (
+              <>
+                <span className={styles.content} dangerouslySetInnerHTML={{ __html: displayedContent }}></span>
+                {showLoading && (
+                  <span>
+                    <Loader className={styles.loader} ref={loadingRef} color="black" size={12} />
+                  </span>
+                )}
+              </>
+            )}
+          </Grid>
+        </SimpleGrid>
       )}
-    </SimpleGrid>
+      {message.feedback_id !== null && (
+        <SimpleGrid cols={1} className={styles.feedback_message}>
+          <Grid>
+            <Feedback
+              message={message}
+              withLabel={showFeedbackLabel}
+              withPostLabel={showAfterFeedbackLabel}
+              courseId={courseId}
+              chatId={chatId}
+            />
+          </Grid>
+        </SimpleGrid>
+      )}
+    </>
   );
 }

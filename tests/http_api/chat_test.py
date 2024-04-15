@@ -1,4 +1,5 @@
-from db.models import Chat, Message, PromptHandle, ChatConfig, Faq, Session
+from db.models import Chat, Message, PromptHandle, Faq, Session, Feedback, FeedbackQuestion
+from db.models.feedback import QUESTION_UNANSWERED
 from services.index.supported_indices import IndexType
 from services.llm.supported_models import LLMModel
 from services.chat.chat_service import ChatService
@@ -123,31 +124,18 @@ def test_assistant_messages_returns_prompt_handle_response_if_done_streaming(
     assert response['messages'][1]['content'] == 'foo'
 
 
-def test_chat_config_is_selected_randomly_from_chat_configs(
-    mocker,
+def test_chat_llm_model_and_index_is_selected_from_session_default(
     api_client,
     authenticated_session,
     valid_course,
 ):
-    config_1 = ChatConfig(llm_model_name=LLMModel.MISTRAL_7B_INSTRUCT, index_type=IndexType.NO_INDEX)
-    config_2 = ChatConfig(llm_model_name=LLMModel.OPENAI_GPT4, index_type=IndexType.NO_INDEX)
-    config_1.save()
-    config_2.save()
-    mocker.patch(
-        'db.actions.chat_config.get_random_chat_config',
-        side_effect=[config_1, config_2]
-    )
-
     url = f'/course/{valid_course.canvas_id}/chat'
 
     response = api_client.post(url, headers=authenticated_session.headers)
     chat = Chat.filter(Chat.public_id == response.json()['public_id']).first()
 
-    assert chat.llm_model_name == config_1.llm_model_name
-
-    response = api_client.post(url, headers=authenticated_session.headers)
-    chat = Chat.filter(Chat.public_id == response.json()['public_id']).first()
-    assert chat.llm_model_name == config_2.llm_model_name
+    assert chat.llm_model_name == authenticated_session.session.default_llm_model_name
+    assert chat.index_type == authenticated_session.session.default_index_type
 
 
 def test_chats_inherit_the_language_of_the_course_they_belong_to(api_client, authenticated_session, valid_course):
@@ -196,7 +184,7 @@ def test_first_message_in_chat_can_be_created_from_faq(api_client, authenticated
 
 
 def test_chat_cannot_be_started_unless_consent_is_granted(api_client, valid_course):
-    session = Session()
+    session = Session(default_llm_model_name=LLMModel.MISTRAL_7B_INSTRUCT, default_index_type=IndexType.NO_INDEX)
     session.save()
     headers = {'X-Session-ID': session.public_id}
 
@@ -208,3 +196,62 @@ def test_chat_cannot_be_started_unless_consent_is_granted(api_client, valid_cour
 
     response = api_client.post(f'/course/{valid_course.canvas_id}/chat', headers=headers)
     assert response.status_code == 200
+
+
+def test_feedback_messages_contain_feedback_id(api_client, authenticated_session, new_chat):
+    question_1 = FeedbackQuestion(
+        trigger="chat:2:message:4",
+        question_en="Good?",
+        question_sv="Bra?",
+        extra_data_en={'choices': ['yes', 'no']},
+        extra_data_sv={'choices': ['ja', 'nej']},
+    )
+    question_1.save()
+
+    message = Message(chat=new_chat.chat, content=None, sender=Message.Sender.FEEDBACK)
+    message.save()
+    feedback = Feedback(
+        feedback_question=question_1,
+        message=message,
+        answer=QUESTION_UNANSWERED,
+        language=new_chat.chat.language,
+    )
+    feedback.save()
+
+    url = f'/course/{new_chat.course.canvas_id}/chat/{new_chat.chat.public_id}/messages'
+    response = api_client.get(url, headers=authenticated_session.headers)
+
+    messages = response.json()['messages']
+
+    assert messages[0]['feedback_id'] == feedback.feedback_id
+    assert messages[0]['content'] is None
+
+
+def test_content_in_feedback_message_contains_the_answer_if_it_has_been_submitted(
+    api_client,
+    authenticated_session,
+    new_chat
+):
+    question_1 = FeedbackQuestion(
+        trigger="chat:2:message:4",
+        question_en="Good?",
+        question_sv="Bra?",
+        extra_data_en={'choices': ['yes', 'no']},
+        extra_data_sv={'choices': ['ja', 'nej']},
+    )
+    question_1.save()
+    message = Message(chat=new_chat.chat, content=None, sender=Message.Sender.FEEDBACK)
+    message.save()
+    feedback = Feedback(
+        feedback_question=question_1,
+        message=message,
+        answer='yes',  # answer provided here
+        language=new_chat.chat.language,
+    )
+    feedback.save()
+
+    url = f'/course/{new_chat.course.canvas_id}/chat/{new_chat.chat.public_id}/messages'
+    response = api_client.get(url, headers=authenticated_session.headers)
+
+    messages = response.json()['messages']
+    assert messages[0]['content'] == 'yes'

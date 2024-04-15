@@ -33,3 +33,15 @@ class Chat(BaseModel):
     llm_model_params = ModelParamsField(null=True)
     index_type = IndexTypeField(null=False, index=True)
     language = peewee.CharField(null=False, max_length=4, default='en')
+
+    def get_student_and_assistant_messages(self) -> list:
+        out = []
+
+        for message in self.messages:
+            if message.sender == message.Sender.STUDENT:
+                out.append(message)
+            elif message.sender == message.Sender.ASSISTANT:
+                out.append(message)
+
+        out = sorted(out, key=lambda msg: msg.id)
+        return out

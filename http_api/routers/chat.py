@@ -3,9 +3,11 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from pydantic import BaseModel, constr
 
+from db.actions.feedback import find_feedback_by_message_private_id
 from db.actions.message import all_messages_in_chat, find_message_by_chat_private_id_and_message_public_id
 from db.actions.course import find_course_by_canvas_id
 from db.models import Session, Message, PromptHandle
+from db.models.feedback import QUESTION_UNANSWERED
 from services.chat.chat_service import ChatService
 from db.actions.faq import find_faq_by_public_id
 from http_api.auth import get_current_session
@@ -43,6 +45,7 @@ class MessageResponse(BaseModel):
     websocket: Optional[str]
     created_at: str
     from_faq: bool
+    feedback_id: Optional[str] = None
 
 
 class MessagesResponse(BaseModel):
@@ -224,6 +227,16 @@ async def get_messages(
                 websocket = None
                 content = msg.prompt_handle.response
 
+        feedback_id = None
+        if msg.sender == Message.Sender.FEEDBACK:
+            feedback = find_feedback_by_message_private_id(msg.id)
+            if feedback is None:
+                raise HTTPException(status_code=500, detail="failed to find feedback for feedback message")
+
+            feedback_id = feedback.feedback_id
+            if feedback.answer != QUESTION_UNANSWERED and feedback.answer is not None:
+                content = feedback.answer
+
         out.append(MessageResponse(
             message_id=msg.message_id,
             content=content,
@@ -233,6 +246,7 @@ async def get_messages(
             streaming=streaming,
             websocket=websocket,
             from_faq=msg.faq is not None,
+            feedback_id=feedback_id
         ))
 
     return MessagesResponse(messages=out)
@@ -275,6 +289,16 @@ async def get_message(
             websocket = None
             content = msg.prompt_handle.response
 
+    feedback_id = None
+    if msg.sender == Message.Sender.FEEDBACK:
+        feedback = find_feedback_by_message_private_id(msg.id)
+        if feedback is None:
+            raise HTTPException(status_code=500, detail="failed to find feedback for feedback message")
+
+        feedback_id = feedback.feedback_id
+        if feedback.answer != QUESTION_UNANSWERED and feedback.answer is not None:
+            content = feedback.answer
+
     return MessageResponse(
         message_id=msg.message_id,
         content=content,
@@ -283,5 +307,6 @@ async def get_message(
         created_at=str(msg.created_at),
         streaming=streaming,
         websocket=websocket,
+        feedback_id=feedback_id,
         from_faq=msg.faq is not None,
     )

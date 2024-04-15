@@ -1,9 +1,41 @@
 import pytest
 
+from db.models import Message, Course, ChatConfig, Chat, FeedbackQuestion, Feedback, PromptHandle, FaqSnapshot, Faq
 from services.index.supported_indices import IndexType
+from db.models.feedback_question import FAQ_TRIGGER
+from db.models.feedback import QUESTION_UNANSWERED
 from services.chat.chat_service import ChatService
 from services.llm.supported_models import LLMModel
-from db.models import Message, Course, ChatConfig
+
+
+@pytest.fixture
+def create_chat_simulation(valid_course, authenticated_session):
+    def func():
+        class ChatSimulation:
+            def __init__(self, chat: Chat, course: Course):
+                self.course = course
+                self.chat = chat
+
+            def add_messages(self, number_of_messages: int):
+                for _ in range(number_of_messages):
+                    msg_student = Message(sender=Message.Sender.STUDENT, content='Hello from student!', chat=self.chat)
+                    msg_student.save()
+                    handle = PromptHandle(prompt="hi", llm_model_name=self.chat.llm_model_name, response="hello")
+                    handle.save()
+                    msg_assistant = Message(sender=Message.Sender.ASSISTANT, content='Hello student!', chat=self.chat)
+                    msg_assistant.prompt_handle = handle
+                    msg_assistant.save()
+
+        c = Chat(
+            course=valid_course,
+            session=authenticated_session.session,
+            llm_model_name=authenticated_session.session.default_llm_model_name,
+            index_type=authenticated_session.session.default_index_type
+        )
+        c.save()
+
+        return ChatSimulation(c, valid_course)
+    return func
 
 
 @pytest.mark.asyncio
@@ -70,3 +102,91 @@ async def test_chat_service_can_retrieve_the_most_recent_faq_snapshot(valid_cour
     snapshot = ChatService.get_most_recent_faq_snapshot(valid_course)
 
     assert snapshot.id == snapshot3.id
+
+
+@pytest.mark.asyncio
+async def test_chat_service_can_trigger_feedback_message_on_message_number_in_chat_number(create_chat_simulation):
+    question_1 = FeedbackQuestion(
+        trigger="chat:2:message:4",
+        question_en="Good?",
+        question_sv="Bra?",
+        extra_data_en={'choices': ['yes', 'no']},
+        extra_data_sv={'choices': ['ja', 'nej']},
+    )
+    question_1.save()
+
+    chat_1 = create_chat_simulation()
+    chat_1.add_messages(13)
+    chat_2 = create_chat_simulation()
+    chat_2.add_messages(3)
+
+    # At this point no feedback should have been triggered
+    assert len(chat_2.chat.messages) == 6
+
+    msg = Message(chat=chat_2.chat, content='some question', sender=Message.Sender.STUDENT)
+    msg.save()
+    next_message = Message(
+        chat=chat_2.chat,
+        content=None,
+        sender=Message.Sender.ASSISTANT,
+        state=Message.States.PENDING
+    )
+    next_message.save()
+
+    await ChatService.start_next_message(chat_2.chat, next_message)
+
+    # should be 3 new messages added
+    assert len(chat_2.chat.messages) == 9
+    assert chat_2.chat.messages[-1].sender == Message.Sender.FEEDBACK
+
+    # Empty feedback should have been recorded
+    feedback = Feedback.select().filter(
+        Feedback.feedback_question == question_1
+    ).filter(
+        Feedback.message == chat_2.chat.messages[-1]
+    )
+    assert feedback.exists()
+    assert feedback.first().answer == QUESTION_UNANSWERED
+
+
+@pytest.mark.asyncio
+async def test_chat_service_can_trigger_feedback_message_on_faq_messages(create_chat_simulation):
+    question_1 = FeedbackQuestion(
+        trigger=FAQ_TRIGGER,
+        question_en="Good?",
+        question_sv="Bra?",
+        extra_data_en={'type': 'thumbs', 'choices': ['thumbs_up', 'thumbs_down']},
+        extra_data_sv={'type': 'thumbs', 'choices': ['thumbs_up', 'thumbs_down']},
+    )
+    question_1.save()
+
+    chat_1 = create_chat_simulation()
+    faq_snapshot = FaqSnapshot(course=chat_1.course)
+    faq_snapshot.save()
+    faq = Faq(question="some question", snapshot=faq_snapshot)
+    faq.save()
+
+    msg = Message(chat=chat_1.chat, content="some question", sender=Message.Sender.STUDENT, faq=faq)
+    msg.save()
+    next_message = Message(
+        chat=chat_1.chat,
+        content=None,
+        sender=Message.Sender.ASSISTANT,
+        state=Message.States.PENDING
+    )
+    next_message.save()
+
+    await ChatService.start_next_message(chat_1.chat, next_message)
+
+    # an extra message should've been added
+    assert len(chat_1.chat.messages) == 3
+    assert chat_1.chat.messages[-1].sender == Message.Sender.FEEDBACK
+
+    # Empty feedback should have been recorded
+    feedback = Feedback.select().filter(
+        Feedback.feedback_question == question_1
+    ).filter(
+        Feedback.message == chat_1.chat.messages[-1]
+    )
+    assert feedback.exists()
+    assert feedback.first().answer == QUESTION_UNANSWERED
