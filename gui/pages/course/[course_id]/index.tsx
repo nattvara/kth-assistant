@@ -44,11 +44,13 @@ const CoursePage = () => {
   useEffect(() => {
     if (!sessionQuery.data) return;
     setGrantedConsent(sessionQuery.data.consent);
+  }, [sessionQuery.data]);
 
-    if (startChatQuery.data && startChatQuery.data.public_id) {
+  useEffect(() => {
+    if (grantedConsent && startChatQuery.data && startChatQuery.data.public_id) {
       router.push(`/course/${course_id}/chat/${startChatQuery.data.public_id}`);
     }
-  }, [startChatQuery.data, sessionQuery.data, course_id, router, grantedConsent]);
+  }, [startChatQuery.data, grantedConsent, course_id, router]);
 
   if (grantedConsent === false) {
     return <GrantConsent></GrantConsent>;
