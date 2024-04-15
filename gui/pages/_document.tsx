@@ -16,7 +16,7 @@ export default function Document() {
             (function() {
               var u="//matomo.kthgpt.com/";
               _paq.push(['setTrackerUrl', u+'matomo.php']);
-              _paq.push(['setSiteId', '1']);
+              _paq.push(['setSiteId', '3']);
               var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
               g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
             })();
