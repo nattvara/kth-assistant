@@ -3,7 +3,7 @@ from typing import List
 from llms.openai import get_tokeniser
 
 
-def split_text_with_overlap(text: str, chunk_size: int = 1200, overlap: int = 100) -> List[str]:
+def split_text_with_overlap(text: str, chunk_size: int = 1800, overlap: int = 100) -> List[str]:
     # using the openai tokeniser which won't be the same for all models, but for this case
     # the particular tokeniser doesn't matter. And it's the easiest and fastest to load
     tokeniser = get_tokeniser()
