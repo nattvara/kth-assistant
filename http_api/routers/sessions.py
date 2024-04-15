@@ -72,7 +72,7 @@ async def grant_consent(
     return ConsentResponse(granted=session.consent)
 
 
-@router.get(
+@router.post(
     '/session/grant_admin/{course_admin_token}',
     dependencies=[Depends(get_current_session)],
     response_model=GrantAdminResponse

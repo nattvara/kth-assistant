@@ -113,7 +113,7 @@ def test_user_can_be_granted_admin_of_a_course_and_view_their_chats(
     response = api_client.get(url, headers=admin_headers)
     assert response.status_code == 404
 
-    response = api_client.get(f'/session/grant_admin/{valid_course.admin_token}', headers=admin_headers)
+    response = api_client.post(f'/session/grant_admin/{valid_course.admin_token}', headers=admin_headers)
     assert response.status_code == 200
 
     # now the chats should be found
