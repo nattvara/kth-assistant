@@ -1,11 +1,13 @@
-import { AppShell, Burger, Button, Group, Pill, SimpleGrid, Skeleton } from "@mantine/core";
-import { IconMessageCircle } from "@tabler/icons-react";
+import { AppShell, Burger, Button, Group, Pill, SimpleGrid } from "@mantine/core";
+import { IconMail, IconMessageCircle } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
 import { MouseEventHandler, useEffect } from "react";
 
 import { getSession } from "@/api/session";
+
+const ContactEmail = "ludwigkr@kth.se";
 
 interface HeaderNavbarProps {
   opened: boolean;
@@ -54,9 +56,9 @@ export default function HeaderNavbar(props: HeaderNavbarProps) {
       </AppShell.Header>
 
       <AppShell.Navbar p="md">
-        <Skeleton h={28} mt="sm" animate={false} />
-        <Skeleton h={28} mt="sm" animate={false} />
-        <Skeleton h={28} mt="sm" animate={false} />
+        <Button leftSection={<IconMail size={14} />} variant="default" component="a" href={`mailto:${ContactEmail}`}>
+          {t("header.contact_researcher")}
+        </Button>
       </AppShell.Navbar>
     </>
   );
