@@ -86,3 +86,46 @@ def test_user_is_assigned_a_default_llm_model_and_index_type_when_session_is_sta
     session = Session.select().filter(Session.public_id == response.json()['public_id']).first()
     assert config_2.llm_model_name == session.default_llm_model_name
     assert config_2.index_type == session.default_index_type
+
+
+def test_user_can_be_granted_admin_of_a_course_and_view_their_chats(
+    api_client,
+    valid_course,
+    new_chat
+):
+    admin_session = Session(
+        consent=True,
+        default_llm_model_name=LLMModel.MISTRAL_7B_INSTRUCT,
+        default_index_type=IndexType.NO_INDEX,
+    )
+    admin_session.save()
+    admin_headers = {'X-Session-ID': admin_session.public_id}
+
+    valid_course.admin_token = "some-token"
+    valid_course.save()
+
+    # this endpoint shouldn't be unauthorised
+    response = api_client.get(f'/course/{valid_course.canvas_id}/chat', headers=admin_headers)
+    assert response.status_code == 401
+
+    # this chat shouldn't be found
+    url = f'/course/{valid_course.canvas_id}/chat/{new_chat.chat.public_id}/messages'
+    response = api_client.get(url, headers=admin_headers)
+    assert response.status_code == 404
+
+    response = api_client.get(f'/session/grant_admin/{valid_course.admin_token}', headers=admin_headers)
+    assert response.status_code == 200
+
+    # now the chats should be found
+    response = api_client.get(f'/course/{valid_course.canvas_id}/chat', headers=admin_headers)
+    assert response.status_code == 200
+
+    # and the chat should be found
+    url = f'/course/{valid_course.canvas_id}/chat/{new_chat.chat.public_id}'
+    response = api_client.get(url, headers=admin_headers)
+    assert response.status_code == 200
+    assert response.json()['read_only'] is True
+
+    url += '/messages'
+    response = api_client.get(url, headers=admin_headers)
+    assert response.status_code == 200

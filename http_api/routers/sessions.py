@@ -1,7 +1,10 @@
+import asyncio
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from starlette import status
 
+from db.actions.course import find_course_by_admin_token
 from http_api.auth import get_current_session
 import db.actions.chat_config
 from config.logger import log
@@ -22,6 +25,10 @@ class ConsentRequestBody(BaseModel):
 
 class ConsentResponse(BaseModel):
     granted: bool
+
+
+class GrantAdminResponse(BaseModel):
+    ok: bool
 
 
 @router.post('/session', response_model=SessionResponse)
@@ -63,3 +70,33 @@ async def grant_consent(
     session.consent = body.granted
     session.save()
     return ConsentResponse(granted=session.consent)
+
+
+@router.get(
+    '/session/grant_admin/{course_admin_token}',
+    dependencies=[Depends(get_current_session)],
+    response_model=GrantAdminResponse
+)
+async def grant_admin_access(
+    course_admin_token: str,
+    session: Session = Depends(get_current_session)
+) -> GrantAdminResponse:
+
+    # add brief delay to mitigate brute-forcing
+    await asyncio.sleep(.2)
+
+    course = find_course_by_admin_token(course_admin_token)
+    if course is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="bad admin token"
+        )
+
+    log().info(f"granting the user {session.public_id} admin access to course {course.canvas_id}.")
+
+    if course.canvas_id not in session.admin_courses:
+        session.admin_courses.append(course.canvas_id)
+
+    session.save()
+
+    return GrantAdminResponse(ok=True)
