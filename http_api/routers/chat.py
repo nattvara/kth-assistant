@@ -133,6 +133,8 @@ async def get_chats_in_course(course_canvas_id: str, session: Session = Depends(
 
     chats = []
     for chat in course.chats:
+        if len(chat.messages) == 0:
+            continue
         chats.append(ChatModel(
             chat_id=chat.public_id,
             llm_model_name=chat.llm_model_name,
