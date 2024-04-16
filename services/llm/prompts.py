@@ -262,15 +262,23 @@ Here is the HTML, extract the content in the same language as it is written:
 """
 
 
-def prompt_create_document_summary(document: str) -> str:
+def prompt_create_document_summary(document: str, language: str) -> str:
+    if language == 'en':
+        language = 'English'
+    elif language == 'sv':
+        language = 'Swedish'
+    else:
+        raise ValueError(f"Unsupported language: {language}")
+
     return f'''
 <s>
-You are a commentator. Your task is to explain a document.
+You are a commentator. Your task is to explain a document given in triple quotes.
 
-# Document:
+Document:
 """{document}"""
+
 [INST]
 The document has been presented triple quotes. In clear and concise language, explain what can be found in the
-document, in once sentence. The explanation must be in the same language as the source document.
+document, in once sentence. The explanation must be in {language}.
 [/INST]
 '''.strip()

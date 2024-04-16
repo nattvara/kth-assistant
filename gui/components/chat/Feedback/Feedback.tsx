@@ -12,10 +12,11 @@ export interface FeedbackProps {
   withPostLabel: boolean;
   courseId: string;
   chatId: string;
+  readOnly: boolean;
 }
 
 export default function Feedback(props: FeedbackProps) {
-  const { message, withLabel, withPostLabel, courseId, chatId } = props;
+  const { message, withLabel, withPostLabel, courseId, chatId, readOnly } = props;
   const questionQuery = useQuery({
     queryKey: ["feedback_questions", message.feedback_id],
     queryFn: () => fetchFeedbackQuestions(message.feedback_id as string),
@@ -38,12 +39,21 @@ export default function Feedback(props: FeedbackProps) {
         withPostLabel={withPostLabel}
         courseId={courseId}
         chatId={chatId}
+        readOnly={readOnly}
       />
     );
   }
 
   if (questionQuery.data.extra_data.type === "thumbs") {
-    return <ThumbsFeedback message={message} feedback={questionQuery.data} courseId={courseId} chatId={chatId} />;
+    return (
+      <ThumbsFeedback
+        message={message}
+        feedback={questionQuery.data}
+        courseId={courseId}
+        chatId={chatId}
+        readOnly={readOnly}
+      />
+    );
   }
 
   return <>Error: Unknown feedback type.</>;

@@ -15,10 +15,11 @@ interface ThumbsFeedbackProps {
   feedback: FeedbackData;
   courseId: string;
   chatId: string;
+  readOnly: boolean;
 }
 
 export function ThumbsFeedback(props: ThumbsFeedbackProps) {
-  const { message, feedback, courseId, chatId } = props;
+  const { message, feedback, courseId, chatId, readOnly } = props;
   const { t } = useTranslation("chat");
   const queryClient = useQueryClient();
 
@@ -43,7 +44,7 @@ export function ThumbsFeedback(props: ThumbsFeedbackProps) {
   });
 
   return (
-    <Grid className={styles.thumbs_feedback}>
+    <Grid className={`${styles.thumbs_feedback} ${readOnly ? styles.no_pointer : ""}`}>
       <Center inline>
         <Text className={`${styles.question} ${styles.thumbs_feedback_question}`}>{feedback.question}</Text>
       </Center>

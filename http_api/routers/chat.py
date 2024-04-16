@@ -12,6 +12,7 @@ from services.chat.chat_service import ChatService
 from db.actions.faq import find_faq_by_public_id
 from http_api.auth import get_current_session
 from db.actions.chat import find_chat_by_id
+from config.logger import log
 
 router = APIRouter()
 
@@ -34,6 +35,19 @@ class ChatResponse(BaseModel):
     language: str
     course_name: str
     faqs: List[Faq]
+    read_only: bool = False
+
+
+class ChatModel(BaseModel):
+    chat_id: str
+    llm_model_name: str
+    index_type: str
+    user_id: str
+    created_at: str
+
+
+class ChatsResponse(BaseModel):
+    chats: List[ChatModel]
 
 
 class MessageResponse(BaseModel):
@@ -105,17 +119,67 @@ async def start_new_chat(course_canvas_id: str, session: Session = Depends(get_c
 
 
 @router.get(
+    '/course/{course_canvas_id}/chat',
+    dependencies=[Depends(get_current_session)],
+    response_model=ChatsResponse
+)
+async def get_chats_in_course(course_canvas_id: str, session: Session = Depends(get_current_session)) -> ChatsResponse:
+    course = find_course_by_canvas_id(course_canvas_id)
+    if course is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found")
+
+    if course.canvas_id not in session.admin_courses:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not admin for this course.")
+
+    chats = []
+    for chat in course.chats:
+        if len(chat.messages) == 0:
+            continue
+        chats.append(ChatModel(
+            chat_id=chat.public_id,
+            llm_model_name=chat.llm_model_name,
+            index_type=chat.index_type,
+            user_id=chat.session.get_user_id(),
+            created_at=str(chat.created_at)
+        ))
+
+    chats = sorted(chats, key=lambda c: c.created_at, reverse=True)
+
+    return ChatsResponse(chats=chats)
+
+
+@router.get(
     '/course/{course_canvas_id}/chat/{chat_id}',
     dependencies=[Depends(get_current_session)],
     response_model=ChatResponse
 )
-async def get_chat_details(course_canvas_id: str, chat_id: str) -> ChatResponse:
+async def get_chat_details(
+    course_canvas_id: str,
+    chat_id: str,
+    session: Session = Depends(get_current_session)
+) -> ChatResponse:
     course = find_course_by_canvas_id(course_canvas_id)
     if course is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found")
 
     chat = find_chat_by_id(chat_id)
     if chat is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Chat not found")
+
+    access = False
+    read_only = False
+    if course.canvas_id in session.admin_courses:
+        log().warn(f"admin user {session.public_id} fetched chat details for chat {chat.public_id}")
+        access = True
+        if chat.session.id != session.id:
+            read_only = True
+
+    if not access and chat.session.id != session.id:
+        log().warn("user tried to get chat thad didn't belong to the user")
+    else:
+        access = True
+
+    if not access:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Chat not found")
 
     snapshot = ChatService.get_most_recent_faq_snapshot(course)
@@ -127,6 +191,7 @@ async def get_chat_details(course_canvas_id: str, chat_id: str) -> ChatResponse:
         language=chat.language,
         course_name=chat.course.name,
         faqs=[faq.to_dict() for faq in snapshot.faqs],
+        read_only=read_only
     )
 
 
@@ -140,7 +205,8 @@ async def send_message(
     course_canvas_id: str,
     chat_id: str,
     body: MessageRequestBody,
-    background_tasks: BackgroundTasks
+    background_tasks: BackgroundTasks,
+    session: Session = Depends(get_current_session),
 ) -> MessageResponse:
     course = find_course_by_canvas_id(course_canvas_id)
     if course is None:
@@ -148,6 +214,10 @@ async def send_message(
 
     chat = find_chat_by_id(chat_id)
     if chat is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Chat not found")
+
+    if chat.session.id != session.id:
+        log().warn("user tried to send message in chat thad didn't belong to the user")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Chat not found")
 
     if body.faq_id is None and body.content is None:
@@ -198,6 +268,7 @@ async def send_message(
 async def get_messages(
     course_canvas_id: str,
     chat_id: str,
+    session: Session = Depends(get_current_session)
 ) -> MessagesResponse:
     course = find_course_by_canvas_id(course_canvas_id)
     if course is None:
@@ -205,6 +276,19 @@ async def get_messages(
 
     chat = find_chat_by_id(chat_id)
     if chat is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Chat not found")
+
+    access = False
+    if course.canvas_id in session.admin_courses:
+        log().warn(f"admin user {session.public_id} fetched chat details for chat {chat.public_id}")
+        access = True
+
+    if not access and chat.session.id != session.id:
+        log().warn("user tried to get messages in chat thad didn't belong to the user")
+    else:
+        access = True
+
+    if not access:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Chat not found")
 
     messages = all_messages_in_chat(chat.id)
@@ -262,6 +346,7 @@ async def get_message(
     course_canvas_id: str,
     chat_id: str,
     message_id: str,
+    session: Session = Depends(get_current_session)
 ) -> MessageResponse:
     course = find_course_by_canvas_id(course_canvas_id)
     if course is None:
@@ -269,6 +354,19 @@ async def get_message(
 
     chat = find_chat_by_id(chat_id)
     if chat is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Chat not found")
+
+    access = False
+    if course.canvas_id in session.admin_courses:
+        log().warn(f"admin user {session.public_id} fetched chat details for chat {chat.public_id}")
+        access = True
+
+    if not access and chat.session.id != session.id:
+        log().warn("user tried to get message in chat thad didn't belong to the user")
+    else:
+        access = True
+
+    if not access:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Chat not found")
 
     msg = find_message_by_chat_private_id_and_message_public_id(chat.id, message_id)

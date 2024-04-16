@@ -1,4 +1,6 @@
 import warnings
+import secrets
+import string
 
 import peewee
 
@@ -11,6 +13,12 @@ warnings.filterwarnings(
     category=DeprecationWarning,
     module='peewee'
 )
+
+
+def _generate_admin_token():
+    alphabet = string.ascii_letters + string.digits
+    secure_string = ''.join(secrets.choice(alphabet) for _ in range(42))
+    return secure_string
 
 
 class Course(BaseModel):
@@ -28,3 +36,4 @@ class Course(BaseModel):
     language = peewee.CharField(null=False, max_length=4, default='en')
     name = peewee.CharField(null=False, default='Untitled Course Room')
     description = peewee.TextField(null=False, default='Course room has not got any description')
+    admin_token = peewee.CharField(null=False, index=True, unique=True, default=_generate_admin_token)

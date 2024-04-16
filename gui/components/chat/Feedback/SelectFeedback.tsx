@@ -17,10 +17,11 @@ interface SelectFeedbackProps {
   withPostLabel: boolean;
   courseId: string;
   chatId: string;
+  readOnly: boolean;
 }
 
 export function SelectFeedback(props: SelectFeedbackProps) {
-  const { message, feedback, withLabel, withPostLabel, courseId, chatId } = props;
+  const { message, feedback, withLabel, withPostLabel, courseId, chatId, readOnly } = props;
   const { t } = useTranslation("chat");
   const queryClient = useQueryClient();
 
@@ -47,7 +48,7 @@ export function SelectFeedback(props: SelectFeedbackProps) {
   return (
     <SimpleGrid cols={1} className={styles.feedback}>
       {withLabel && <p className={styles.label}>{t("feedback.label")}</p>}
-      <Collapse in={answered} transitionDuration={300}>
+      <Collapse in={answered && !readOnly} transitionDuration={300}>
         <Notification
           title={t("feedback.done")}
           withCloseButton={false}
@@ -55,7 +56,7 @@ export function SelectFeedback(props: SelectFeedbackProps) {
           className={styles.done}
         ></Notification>
       </Collapse>
-      <Collapse in={!answered} transitionDuration={300}>
+      <Collapse in={!answered || readOnly} transitionDuration={300}>
         <Paper shadow="sm" p="xs" className={styles.paper} withBorder>
           <Text className={styles.question}>{feedback.question}</Text>
           <Group className={styles.question_group}>
@@ -65,7 +66,7 @@ export function SelectFeedback(props: SelectFeedbackProps) {
                 variant="light"
                 color="teal"
                 size="xs"
-                className={styles.button}
+                className={`${styles.button} ${readOnly ? styles.no_pointer : ""} ${message.content === value ? styles.selected : ""}`}
                 onClick={() => sendMutation.mutate(value)}
                 loading={sendMutation.isPending}
               >

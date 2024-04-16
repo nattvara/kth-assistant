@@ -11,7 +11,7 @@ def count_chats_with_session(session_id: int) -> int:
 
     # Only count chats that have at least one message
     query = (Chat
-             .select(fn.COUNT(Chat.id).distinct().alias('chat_count'))
+             .select(fn.COUNT(Chat.id).alias('chat_count'))
              .join(Message, on=(Chat.id == Message.chat))
              .where(Chat.session == session_id)
              .group_by(Chat.id))

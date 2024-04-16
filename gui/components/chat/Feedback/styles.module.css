@@ -62,3 +62,8 @@
 .thumbs_done {
   margin-left: 10px;
 }
+
+.selected {
+  background-color: var(--mantine-color-teal-4);
+  color: var(--mantine-color-teal-10);
+}

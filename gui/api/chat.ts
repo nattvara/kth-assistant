@@ -14,6 +14,19 @@ export interface Chat {
   language: string;
   course_name: string;
   faqs: Faq[];
+  read_only: boolean;
+}
+
+export interface ChatOverview {
+  chat_id: string;
+  llm_model_name: string;
+  index_type: string;
+  user_id: string;
+  created_at: string;
+}
+
+export interface Chats {
+  chats: ChatOverview[];
 }
 
 export interface Course {
@@ -44,6 +57,13 @@ export interface Messages {
   messages: Message[];
 }
 
+export class ChatNotFoundError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ChatNotFoundError";
+  }
+}
+
 export async function fetchCourse(canvasId: string): Promise<Course> {
   const sessionCookie = Cookies.get("session_id") as string;
 
@@ -61,6 +81,26 @@ export async function fetchCourse(canvasId: string): Promise<Course> {
   }
 
   const data = (await response.json()) as Course;
+  return data;
+}
+
+export async function fetchChats(canvasId: string): Promise<Chats> {
+  const sessionCookie = Cookies.get("session_id") as string;
+
+  const response = await fetch(makeUrl(`/course/${canvasId}/chat`), {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Session-ID": sessionCookie,
+    },
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.json();
+    throw new HttpError(response, errorBody, response.status);
+  }
+
+  const data = (await response.json()) as Chats;
   return data;
 }
 
@@ -94,6 +134,10 @@ export async function fetchChat(canvasId: string, chatId: string): Promise<Chat>
       "X-Session-ID": sessionCookie,
     },
   });
+
+  if (response.status === 404) {
+    throw new ChatNotFoundError("chat not found");
+  }
 
   if (!response.ok) {
     const errorBody = await response.json();

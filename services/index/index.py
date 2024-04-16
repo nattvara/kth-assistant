@@ -21,7 +21,7 @@ class IndexService:
         if not search.index_exists(self.client, url.snapshot.id):
             search.create_index(self.client, url.snapshot.id)
 
-        summary = await self._create_document_summary(url.content.text)
+        summary = await self._create_document_summary(url.content.text, url.snapshot.course.language)
 
         chunks = split_text_with_overlap(url.content.text)
         for idx, chunk in enumerate(chunks):
@@ -42,7 +42,7 @@ class IndexService:
         url.state = Url.States.INDEXED
         url.save()
 
-    async def _create_document_summary(self, text: str) -> str:
+    async def _create_document_summary(self, text: str, language: str) -> str:
         # using the openai tokeniser, which may not yield the same token count as
         # the model set in MODEL_USED_FOR_SUMMARIES. However, it's a decent estimate
         truncated_text = truncate_text_to_token_limit(text, 7500)
@@ -56,7 +56,7 @@ class IndexService:
 
         model = get_enum_from_enum_value(settings.get_settings().MODEL_USED_FOR_SUMMARIES)
 
-        prompt = prompt_create_document_summary(truncated_text)
+        prompt = prompt_create_document_summary(truncated_text, language)
         handle = llm.LLMService.dispatch_prompt(prompt, model, params)
         handle = await llm.LLMService.wait_for_handle(handle)
 

@@ -12,6 +12,10 @@ export interface Consent {
   granted: boolean;
 }
 
+export interface GrantAdmin {
+  ok: boolean;
+}
+
 export async function startSession(): Promise<Session> {
   const response = await fetch(makeUrl(`/session`), {
     method: "POST",
@@ -69,5 +73,25 @@ export async function grantConsent(): Promise<Consent> {
   }
 
   const data = (await response.json()) as Consent;
+  return data;
+}
+
+export async function grantAdminAccess(adminToken: string): Promise<GrantAdmin> {
+  const sessionCookie = Cookies.get("session_id") as string;
+
+  const response = await fetch(makeUrl(`/session/grant_admin/${adminToken}`), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Session-ID": sessionCookie,
+    },
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.json();
+    throw new HttpError(response, errorBody, response.status);
+  }
+
+  const data = (await response.json()) as GrantAdmin;
   return data;
 }
