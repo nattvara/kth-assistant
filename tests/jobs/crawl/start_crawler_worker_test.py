@@ -17,13 +17,17 @@ async def test_start_crawler_worker_will_checkout_url_and_crawl_url(
     mocker.patch("jobs.crawl.start_crawler_worker.get_crawler_service", return_value=crawler_service.service)
     mocker.patch("jobs.crawl.start_crawler_worker.get_download_service", return_value=download_service.service)
     mocker.patch("services.crawler.content_extraction.get_all_links_from_page", return_value=[])
+    mocker.patch("services.download.pdf.download_content", return_value=('/tmp/file.pdf', 'somefile.pdf'))
+    mocker.patch("pdfminer.high_level.extract_text", return_value="pdf content...")
 
     url = new_snapshot.add_unvisited_url()
+    url.is_download = True
+    url.save()
 
     await job()
 
     url.refresh()
-    assert url.state == Url.States.VISITED
+    assert url.state == Url.States.WAITING_TO_INDEX
 
 
 @pytest.mark.asyncio
