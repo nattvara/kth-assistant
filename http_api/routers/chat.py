@@ -169,7 +169,8 @@ async def get_chat_details(
     if course.canvas_id in session.admin_courses:
         log().warn(f"admin user {session.public_id} fetched chat details for chat {chat.public_id}")
         access = True
-        read_only = True
+        if chat.session.id != session.id:
+            read_only = True
 
     if not access and chat.session.id != session.id:
         log().warn("user tried to get chat thad didn't belong to the user")
