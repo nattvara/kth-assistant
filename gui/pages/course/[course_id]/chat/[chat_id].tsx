@@ -42,7 +42,7 @@ const ChatPage = () => {
     router.push(`/course/${course_id}`);
   }
 
-  return <ChatWindow courseId={course_id as string} chatId={chat_id as string} />;
+  return <ChatWindow courseId={course_id as string} chatId={chat_id as string} readOnly={data.read_only} />;
 };
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {

@@ -11,10 +11,11 @@ import styles from "./styles.module.css";
 interface MessageFeedProps {
   courseId: string;
   chatId: string;
+  readOnly: boolean;
 }
 
 export default function MessageFeed(props: MessageFeedProps) {
-  const { courseId, chatId } = props;
+  const { courseId, chatId, readOnly } = props;
   const lastMessageRef = useRef<HTMLDivElement>(null);
 
   const { isError, data, error } = useQuery({
@@ -55,6 +56,7 @@ export default function MessageFeed(props: MessageFeedProps) {
               initialMessage={message}
               courseId={courseId}
               chatId={chatId}
+              readOnly={readOnly}
               showFeedbackLabel={
                 index !== 0 && message.sender == "feedback" && data.messages[index - 1].sender !== "feedback"
               }

@@ -23,10 +23,11 @@ interface MessageProps {
   chatId: string;
   showFeedbackLabel: boolean;
   showAfterFeedbackLabel: boolean;
+  readOnly: boolean;
 }
 
 export default function Message(props: MessageProps) {
-  const { initialMessage, courseId, chatId, showFeedbackLabel, showAfterFeedbackLabel } = props;
+  const { initialMessage, courseId, chatId, showFeedbackLabel, showAfterFeedbackLabel, readOnly } = props;
   const { t } = useTranslation("chat");
   const queryClient = useQueryClient();
   const [message, setMessage] = useState<MessageType>(initialMessage);
@@ -195,6 +196,7 @@ export default function Message(props: MessageProps) {
               withPostLabel={showAfterFeedbackLabel}
               courseId={courseId}
               chatId={chatId}
+              readOnly={readOnly}
             />
           </Grid>
         </SimpleGrid>
