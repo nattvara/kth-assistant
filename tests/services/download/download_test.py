@@ -101,7 +101,11 @@ async def test_download_service_can_download_content_from_power_point_urls(mocke
 
 
 @pytest.mark.asyncio
-async def test_download_service_can_download_content_from_word_document_urls(mocker, get_download_service, new_snapshot):
+async def test_download_service_can_download_content_from_word_document_urls(
+    mocker,
+    get_download_service,
+    new_snapshot
+):
     mocker.patch("services.download.pdf.download_content", return_value=('/tmp/somefile.docx', 'somefile.docx'))
     mocker.patch("pdfminer.high_level.extract_text", side_effect=PDFSyntaxError)
     mocker.patch("pptx.Presentation", side_effect=ValueError)
