@@ -57,6 +57,13 @@ export interface Messages {
   messages: Message[];
 }
 
+export class ChatNotFoundError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ChatNotFoundError";
+  }
+}
+
 export async function fetchCourse(canvasId: string): Promise<Course> {
   const sessionCookie = Cookies.get("session_id") as string;
 
@@ -127,6 +134,10 @@ export async function fetchChat(canvasId: string, chatId: string): Promise<Chat>
       "X-Session-ID": sessionCookie,
     },
   });
+
+  if (response.status === 404) {
+    throw new ChatNotFoundError("chat not found");
+  }
 
   if (!response.ok) {
     const errorBody = await response.json();
