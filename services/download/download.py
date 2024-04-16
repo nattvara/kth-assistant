@@ -1,3 +1,5 @@
+from typing import Union
+
 from playwright.async_api import Browser, BrowserContext, Page
 from pdfminer.pdfparser import PDFSyntaxError
 
@@ -5,6 +7,8 @@ from services.crawler.url_filters import domain_is_canvas, domain_is_kattis
 from db.actions.url import find_url_referencing_content_in_snapshot
 from db.actions.content import find_content_with_sha
 import services.download.canvas as canvas
+import services.download.pptx as pptx
+import services.download.docx as docx
 from services.download import kattis
 from services.download.text import (
     extract_text_from_html,
@@ -41,11 +45,19 @@ class DownloadService:
                                            f"downloaded, url was in {url.state}")
 
         if url.is_download:
-            try:
-                log().info("trying to save content from url as a pdf")
-                content = await self._save_pdf_url_content(url)
-            except PDFSyntaxError:
-                log().info("failed to interpret download as pdf, trying as plaintext file")
+            log().info("trying to save content from url as a pdf")
+            content = await self._save_pdf_url_content(url)
+
+            if content is None:
+                log().info("failed to interpret download as pdf, trying as power point file")
+                content = await self._save_pptx_url_content(url)
+
+            if content is None:
+                log().info("failed to interpret download as pptx, trying as word document")
+                content = await self._save_docx_url_content(url)
+
+            if content is None:
+                log().info("failed to interpret download as word document, trying as plaintext file")
                 content = await self._download_plaintext_url_content(url)
 
         elif domain_is_canvas(url.href):
@@ -70,13 +82,34 @@ class DownloadService:
         url.state = Url.States.DOWNLOADED
         url.save()
 
-    async def _save_pdf_url_content(self, url: Url):
-        content_filepath, filename = pdf.download_content(url)
-        text = extract_text_from_pdf_file(content_filepath)
-        content = Content(text=text, name=filename)
-        return content
+    async def _save_pdf_url_content(self, url: Url) -> Union[Content, None]:
+        try:
+            content_filepath, filename = pdf.download_content(url)
+            text = extract_text_from_pdf_file(content_filepath)
+            content = Content(text=text, name=filename)
+            return content
+        except PDFSyntaxError:
+            return None
 
-    async def _download_plaintext_url_content(self, url: Url):
+    async def _save_pptx_url_content(self, url: Url) -> Union[Content, None]:
+        try:
+            content_filepath, filename = pdf.download_content(url)
+            text = pptx.extract_text(content_filepath)
+            content = Content(text=text, name=filename)
+            return content
+        except ValueError:
+            return None
+
+    async def _save_docx_url_content(self, url: Url) -> Union[Content, None]:
+        try:
+            content_filepath, filename = pdf.download_content(url)
+            text = docx.extract_text(content_filepath)
+            content = Content(text=text, name=filename)
+            return content
+        except ValueError:
+            return None
+
+    async def _download_plaintext_url_content(self, url: Url) -> Content:
         content_filepath, filename = pdf.download_content(url)
         text = extract_text_from_plaintext_file(content_filepath)
         content = Content(text=text, name=filename)

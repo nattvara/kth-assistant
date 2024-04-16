@@ -52,19 +52,26 @@ async def run_worker():
 
                 url.refresh()
                 if url.state == Url.States.VISITED:
-                    await download_service.save_url_content(url)
+                    try:
+                        await download_service.save_url_content(url)
 
-                    url.refresh()
+                        url.refresh()
 
-                    if url.content_is_duplicate:
-                        url.state = Url.States.NOT_ADDED_TO_INDEX
-                        url.save()
-                    elif url.response_was_ok or url.is_download:
-                        url.state = Url.States.WAITING_TO_INDEX
-                        url.save()
-                        dispatch_index_url(url)
-                    else:
-                        url.state = Url.States.NOT_ADDED_TO_INDEX
+                        if url.content_is_duplicate:
+                            url.state = Url.States.NOT_ADDED_TO_INDEX
+                            url.save()
+                        elif url.response_was_ok or url.is_download:
+                            url.state = Url.States.WAITING_TO_INDEX
+                            url.save()
+                            dispatch_index_url(url)
+                        else:
+                            url.state = Url.States.NOT_ADDED_TO_INDEX
+                            url.save()
+                    except Exception as e:
+                        log().error(e)
+                        log().error(f"failed to download url: {url.href}")
+                        url.refresh()
+                        url.state = Url.States.FAILED
                         url.save()
 
             except LockAlreadyAcquiredException:
