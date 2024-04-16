@@ -25,6 +25,7 @@ const CoursePage = () => {
   const sessionQuery = useQuery({
     queryKey: ["session"],
     queryFn: () => getSession(),
+    refetchInterval: 1000
   });
 
   const courseQuery = useQuery({
