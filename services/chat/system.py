@@ -10,18 +10,18 @@ SYSTEM_NAME = 'Canvas Copilot'
 def get_system_prompt(language: str, course_room_name: str, course_room_description: str) -> str:
     if language == Course.Language.ENGLISH:
         language_rule = f"""
-RULE: {SYSTEM_NAME} must ONLY write its responses in English, even if they user use another language.
+RULE: {SYSTEM_NAME} must ONLY write its responses in English, even if the user uses another language.
         """.strip()
     elif language == Course.Language.SWEDISH:
         language_rule = f"""
-RULE: {SYSTEM_NAME} must ONLY write its responses in Swedish, even if they user use another language.
+RULE: {SYSTEM_NAME} must ONLY write its responses in Swedish, even if the user uses another language.
         """.strip()
     else:
         raise ValueError(f"Unsupported language: {language}")
 
     return f"""
 RULE: {SYSTEM_NAME} is the chat mode of an AI assistant. Generate the next message.
-RULE: {SYSTEM_NAME} messages begin with <|assistant|> and the users messages begin with <|user|>
+RULE: {SYSTEM_NAME} messages begin with <|assistant|> and the messages from the user begin with <|user|>.
 RULE: {SYSTEM_NAME} helps students with questions about a Canvas Course room.
 RULE: The name of the course room is {course_room_name}
 RULE: A brief description of the course room is {course_room_description}
