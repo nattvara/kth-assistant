@@ -1,4 +1,4 @@
-from pptx import Presentation
+import pptx
 
 from config.logger import log
 
@@ -6,7 +6,7 @@ from config.logger import log
 def extract_text(file_path: str) -> str:
     log().info(f"Extracting text from {file_path}")
 
-    prs = Presentation(file_path)
+    prs = pptx.Presentation(file_path)
     total_slides = len(prs.slides)
 
     log().debug(f"Total slides: {total_slides}")

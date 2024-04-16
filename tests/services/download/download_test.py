@@ -101,6 +101,27 @@ async def test_download_service_can_download_content_from_power_point_urls(mocke
 
 
 @pytest.mark.asyncio
+async def test_download_service_can_download_content_from_word_document_urls(mocker, get_download_service, new_snapshot):
+    mocker.patch("services.download.pdf.download_content", return_value=('/tmp/somefile.docx', 'somefile.docx'))
+    mocker.patch("pdfminer.high_level.extract_text", side_effect=PDFSyntaxError)
+    mocker.patch("pptx.Presentation", side_effect=ValueError)
+    mocker.patch("services.download.docx.extract_text", return_value="document content...")
+    download_service = await get_download_service
+
+    url = new_snapshot.add_visited_url()
+    url.is_download = True
+    url.save()
+
+    await download_service.service.save_url_content(url)
+
+    url.refresh()
+
+    assert url.content is not None
+    assert url.content.text == 'document content...'
+    assert url.content.name == 'somefile.docx'
+
+
+@pytest.mark.asyncio
 async def test_download_service_marks_url_as_duplicate_if_content_already_exists(
     mocker,
     get_download_service,
