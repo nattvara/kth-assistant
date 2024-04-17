@@ -17,7 +17,7 @@ import styles from "./styles.module.css";
 const REFETCH_TIMEOUT = 1000 * 60 * 10;
 
 const markdownLinkPattern = /\[([^\]]+)\]\(([^)]+)\)/g;
-const markdownBoldPattern = /\*\*([^\*]+)\*\*/g;
+const markdownBoldPattern = /\*\*([^*]+)\*\*/g;
 
 interface MessageProps {
   initialMessage: MessageType;
