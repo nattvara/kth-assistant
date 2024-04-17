@@ -14,6 +14,8 @@ COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 
+RUN apt-get update && apt-get install -y curl
+
 EXPOSE 80
 
 CMD ["yarn", "start", "-p", "80"]
