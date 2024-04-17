@@ -1,6 +1,7 @@
 import { Alert, Grid, Loader, SimpleGrid } from "@mantine/core";
 import { IconExclamationCircle } from "@tabler/icons-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import DOMPurify from "dompurify";
 import { useTranslation } from "next-i18next";
 import React, { useEffect, useRef, useState } from "react";
 
@@ -11,7 +12,6 @@ import { makeWebsocketUrl } from "@/api/http";
 import { TERMINATION_STRING } from "@/api/websocket";
 
 import styles from "./styles.module.css";
-import DOMPurify from "dompurify";
 
 // 10 minutes
 const REFETCH_TIMEOUT = 1000 * 60 * 10;
@@ -87,7 +87,10 @@ export default function Message(props: MessageProps) {
         setDisplayedContent((prevContent) => {
           let newContent = prevContent + event.data;
           newContent = newContent.replace(/\n/g, "<br>");
-          newContent = newContent.replace(markdownLinkPattern, (match, p1, p2) => `<a href="${p2}" target="_blank">${p1}</a>`);
+          newContent = newContent.replace(
+            markdownLinkPattern,
+            (match, p1, p2) => `<a href="${p2}" target="_blank">${p1}</a>`,
+          );
           newContent = newContent.replace(markdownBoldPattern, (match, p1) => `<strong>${p1}</strong>`);
 
           setNumberOfWords(newContent.split(" ").length);
@@ -121,7 +124,10 @@ export default function Message(props: MessageProps) {
     } else if (!message.streaming) {
       let initialContent = message.content || "";
       initialContent = initialContent.replace(/\n/g, "<br>");
-      initialContent = initialContent.replace(markdownLinkPattern, (match, p1, p2) => `<a href="${p2}" target="_blank">${p1}</a>`);
+      initialContent = initialContent.replace(
+        markdownLinkPattern,
+        (match, p1, p2) => `<a href="${p2}" target="_blank">${p1}</a>`,
+      );
       initialContent = initialContent.replace(markdownBoldPattern, (match, p1) => `<strong>${p1}</strong>`);
       setDisplayedContent(initialContent);
       setNumberOfWords(0);
