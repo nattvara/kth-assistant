@@ -16,6 +16,7 @@ import styles from "./styles.module.css";
 const REFETCH_TIMEOUT = 1000 * 60 * 10;
 
 const markdownLinkPattern = /\[([^\]]+)\]\(([^)]+)\)/g;
+const markdownBoldPattern = /\*\*([^\*]+)\*\*/g;
 
 interface MessageProps {
   initialMessage: MessageType;
@@ -85,9 +86,8 @@ export default function Message(props: MessageProps) {
         setDisplayedContent((prevContent) => {
           let newContent = prevContent + event.data;
           newContent = newContent.replace(/\n/g, "<br>");
-          newContent = newContent.replace(markdownLinkPattern, (match, p1, p2) => {
-            return `<a href="${p2}" target="_blank">${p1}</a>`;
-          });
+          newContent = newContent.replace(markdownLinkPattern, (match, p1, p2) => `<a href="${p2}" target="_blank">${p1}</a>`);
+          newContent = newContent.replace(markdownBoldPattern, (match, p1) => `<strong>${p1}</strong>`);
 
           setNumberOfWords(newContent.split(" ").length);
           return newContent;
@@ -120,9 +120,8 @@ export default function Message(props: MessageProps) {
     } else if (!message.streaming) {
       let initialContent = message.content || "";
       initialContent = initialContent.replace(/\n/g, "<br>");
-      initialContent = initialContent.replace(markdownLinkPattern, (match, p1, p2) => {
-        return `<a href="${p2}" target="_blank">${p1}</a>`;
-      });
+      initialContent = initialContent.replace(markdownLinkPattern, (match, p1, p2) => `<a href="${p2}" target="_blank">${p1}</a>`);
+      initialContent = initialContent.replace(markdownBoldPattern, (match, p1) => `<strong>${p1}</strong>`);
       setDisplayedContent(initialContent);
       setNumberOfWords(0);
       setShowLoading(false);
