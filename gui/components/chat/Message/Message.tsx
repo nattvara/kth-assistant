@@ -11,6 +11,7 @@ import { makeWebsocketUrl } from "@/api/http";
 import { TERMINATION_STRING } from "@/api/websocket";
 
 import styles from "./styles.module.css";
+import DOMPurify from "dompurify";
 
 // 10 minutes
 const REFETCH_TIMEOUT = 1000 * 60 * 10;
@@ -143,6 +144,8 @@ export default function Message(props: MessageProps) {
     }
   }, [numberOfWords]);
 
+  const sanitisedHtml = DOMPurify.sanitize(displayedContent);
+
   return (
     <>
       {message.feedback_id === null && (
@@ -175,7 +178,7 @@ export default function Message(props: MessageProps) {
             )}
             {message.state === MESSAGE_READY && (
               <>
-                <span className={styles.content} dangerouslySetInnerHTML={{ __html: displayedContent }}></span>
+                <span className={styles.content} dangerouslySetInnerHTML={{ __html: sanitisedHtml }}></span>
                 {showLoading && (
                   <span>
                     <Loader className={styles.loader} ref={loadingRef} color="black" size={12} />
