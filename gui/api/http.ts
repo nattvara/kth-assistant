@@ -14,11 +14,8 @@ export function getSessionId() {
 }
 
 export function setSessionId(sessionId: string) {
-  try {
-    Cookies.set("session_id", sessionId, { expires: 365, secure: true, sameSite: "None" });
-  } catch (e) {
-    localStorage.setItem("session_id", sessionId);
-  }
+  Cookies.set("session_id", sessionId, { expires: 365, secure: true, sameSite: "None" });
+  localStorage.setItem("session_id", sessionId);
 }
 
 export class HttpError extends Error {
