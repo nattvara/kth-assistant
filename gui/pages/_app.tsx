@@ -38,7 +38,11 @@ function App({ Component, pageProps }: AppProps) {
           console.log("Starting new session");
 
           const newSession = await startSession();
-          Cookies.set("session_id", newSession.public_id, { expires: 365 });
+          Cookies.set("session_id", newSession.public_id, {
+            expires: 365,
+            sameSite: 'None',
+            secure: true
+          });
           setValidSession(true);
         };
 
