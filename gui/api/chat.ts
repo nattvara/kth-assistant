@@ -1,6 +1,4 @@
-import Cookies from "js-cookie";
-
-import { HttpError, makeUrl } from "@/api/http";
+import { HttpError, getSessionId, makeUrl } from "@/api/http";
 
 export interface Faq {
   faq_id: string;
@@ -65,7 +63,7 @@ export class ChatNotFoundError extends Error {
 }
 
 export async function fetchCourse(canvasId: string): Promise<Course> {
-  const sessionCookie = Cookies.get("session_id") as string;
+  const sessionCookie = getSessionId() as string;
 
   const response = await fetch(makeUrl(`/course/${canvasId}`), {
     method: "GET",
@@ -85,7 +83,7 @@ export async function fetchCourse(canvasId: string): Promise<Course> {
 }
 
 export async function fetchChats(canvasId: string): Promise<Chats> {
-  const sessionCookie = Cookies.get("session_id") as string;
+  const sessionCookie = getSessionId() as string;
 
   const response = await fetch(makeUrl(`/course/${canvasId}/chat`), {
     method: "GET",
@@ -105,7 +103,7 @@ export async function fetchChats(canvasId: string): Promise<Chats> {
 }
 
 export async function startChat(canvasId: string): Promise<Chat> {
-  const sessionCookie = Cookies.get("session_id") as string;
+  const sessionCookie = getSessionId() as string;
 
   const response = await fetch(makeUrl(`/course/${canvasId}/chat`), {
     method: "POST",
@@ -125,7 +123,7 @@ export async function startChat(canvasId: string): Promise<Chat> {
 }
 
 export async function fetchChat(canvasId: string, chatId: string): Promise<Chat> {
-  const sessionCookie = Cookies.get("session_id") as string;
+  const sessionCookie = getSessionId() as string;
 
   const response = await fetch(makeUrl(`/course/${canvasId}/chat/${chatId}`), {
     method: "GET",
@@ -149,7 +147,7 @@ export async function fetchChat(canvasId: string, chatId: string): Promise<Chat>
 }
 
 export async function fetchMessages(canvasId: string, chatId: string): Promise<Messages> {
-  const sessionCookie = Cookies.get("session_id") as string;
+  const sessionCookie = getSessionId() as string;
 
   const response = await fetch(makeUrl(`/course/${canvasId}/chat/${chatId}/messages`), {
     method: "GET",
@@ -169,7 +167,7 @@ export async function fetchMessages(canvasId: string, chatId: string): Promise<M
 }
 
 export async function fetchMessage(canvasId: string, chatId: string, messageId: string): Promise<Message> {
-  const sessionCookie = Cookies.get("session_id") as string;
+  const sessionCookie = getSessionId() as string;
 
   const response = await fetch(makeUrl(`/course/${canvasId}/chat/${chatId}/messages/${messageId}`), {
     method: "GET",
@@ -189,7 +187,7 @@ export async function fetchMessage(canvasId: string, chatId: string, messageId: 
 }
 
 export async function sendMessage(canvasId: string, chatId: string, content: string): Promise<Message> {
-  const sessionCookie = Cookies.get("session_id") as string;
+  const sessionCookie = getSessionId() as string;
 
   const response = await fetch(makeUrl(`/course/${canvasId}/chat/${chatId}/messages`), {
     method: "POST",
@@ -212,7 +210,7 @@ export async function sendMessage(canvasId: string, chatId: string, content: str
 }
 
 export async function sendMessageUsingFaq(canvasId: string, chatId: string, faqId: string): Promise<Message> {
-  const sessionCookie = Cookies.get("session_id") as string;
+  const sessionCookie = getSessionId() as string;
 
   const response = await fetch(makeUrl(`/course/${canvasId}/chat/${chatId}/messages`), {
     method: "POST",

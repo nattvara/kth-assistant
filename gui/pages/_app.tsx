@@ -5,7 +5,6 @@ import { Notifications } from "@mantine/notifications";
 import "@mantine/notifications/styles.css";
 import { IconPlugConnectedX } from "@tabler/icons-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import Cookies from "js-cookie";
 import { appWithTranslation, useTranslation } from "next-i18next";
 import { AppProps } from "next/app";
 import Head from "next/head";
@@ -14,7 +13,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { HeaderNavbar } from "@/components/navigation";
 
-import { HttpError } from "@/api/http";
+import { HttpError, getSessionId, setSessionId } from "@/api/http";
 import { getSession, startSession } from "@/api/session";
 
 import { theme } from "../theme";
@@ -33,12 +32,13 @@ function App({ Component, pageProps }: AppProps) {
       if (!sessionInitiated.current) {
         sessionInitiated.current = true;
 
-        const sessionCookie = Cookies.get("session_id");
+        const sessionCookie = getSessionId() as string;
         const startNewSession = async () => {
           console.log("Starting new session");
 
           const newSession = await startSession();
-          Cookies.set("session_id", newSession.public_id, { expires: 365 });
+          console.log(newSession);
+          setSessionId(newSession.public_id);
           setValidSession(true);
         };
 

@@ -1,3 +1,23 @@
+import Cookies from "js-cookie";
+
+export function getSessionId() {
+  let sessionId = Cookies.get("session_id");
+
+  if (!sessionId) {
+    const local = localStorage.getItem("session_id");
+    if (local) {
+      sessionId = local;
+    }
+  }
+
+  return sessionId;
+}
+
+export function setSessionId(sessionId: string) {
+  Cookies.set("session_id", sessionId, { expires: 365, secure: true, sameSite: "None" });
+  localStorage.setItem("session_id", sessionId);
+}
+
 export class HttpError extends Error {
   public statusCode: number;
   public statusText: string;

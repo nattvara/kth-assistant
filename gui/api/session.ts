@@ -1,6 +1,4 @@
-import Cookies from "js-cookie";
-
-import { HttpError, makeUrl } from "./http";
+import { HttpError, getSessionId, makeUrl } from "./http";
 
 export interface Session {
   public_id: string;
@@ -34,7 +32,7 @@ export async function startSession(): Promise<Session> {
 }
 
 export async function getSession(): Promise<Session> {
-  const sessionCookie = Cookies.get("session_id") as string;
+  const sessionCookie = getSessionId() as string;
 
   const response = await fetch(makeUrl(`/session/me`), {
     method: "GET",
@@ -54,7 +52,7 @@ export async function getSession(): Promise<Session> {
 }
 
 export async function grantConsent(): Promise<Consent> {
-  const sessionCookie = Cookies.get("session_id") as string;
+  const sessionCookie = getSessionId() as string;
 
   const response = await fetch(makeUrl(`/session/consent`), {
     method: "POST",
@@ -77,7 +75,7 @@ export async function grantConsent(): Promise<Consent> {
 }
 
 export async function grantAdminAccess(adminToken: string): Promise<GrantAdmin> {
-  const sessionCookie = Cookies.get("session_id") as string;
+  const sessionCookie = getSessionId() as string;
 
   const response = await fetch(makeUrl(`/session/grant_admin/${adminToken}`), {
     method: "POST",

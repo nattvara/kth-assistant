@@ -1,6 +1,4 @@
-import Cookies from "js-cookie";
-
-import { HttpError, makeUrl } from "@/api/http";
+import { HttpError, getSessionId, makeUrl } from "@/api/http";
 
 export const UNANSWERED = "UNANSWERED";
 
@@ -14,7 +12,7 @@ export interface Feedback {
 }
 
 export async function fetchFeedbackQuestions(feedbackId: string): Promise<Feedback> {
-  const sessionCookie = Cookies.get("session_id") as string;
+  const sessionCookie = getSessionId() as string;
 
   const response = await fetch(makeUrl(`/feedback/${feedbackId}`), {
     method: "GET",
@@ -34,7 +32,7 @@ export async function fetchFeedbackQuestions(feedbackId: string): Promise<Feedba
 }
 
 export async function sendFeedback(feedback_id: string, choice: string): Promise<Feedback> {
-  const sessionCookie = Cookies.get("session_id") as string;
+  const sessionCookie = getSessionId() as string;
 
   const response = await fetch(makeUrl(`/feedback/${feedback_id}`), {
     method: "POST",
