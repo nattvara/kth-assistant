@@ -9,6 +9,9 @@ class LLMModel(Enum):
     # https://huggingface.co/google/gemma-7b
     GOOGLE_GEMMA_7B = 'google/gemma-7b'
 
+    # https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct
+    META_LLAMA_3_8B_INSTRUCT = 'meta-llama/Meta-Llama-3-8B-Instruct'
+
     # https://huggingface.co/tiiuae/falcon-7b
     FALCON_7B = 'tiiuae/falcon-7b'
 
