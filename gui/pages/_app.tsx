@@ -40,8 +40,8 @@ function App({ Component, pageProps }: AppProps) {
           const newSession = await startSession();
           Cookies.set("session_id", newSession.public_id, {
             expires: 365,
-            sameSite: 'None',
-            secure: true
+            sameSite: "None",
+            secure: true,
           });
           setValidSession(true);
         };
