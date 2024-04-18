@@ -37,16 +37,20 @@ export default function HeaderNavbar(props: HeaderNavbarProps) {
     return <></>;
   }
 
+  if (!sessionQuery.data.consent) {
+    return <></>;
+  }
+
   return (
     <>
       <AppShell.Header>
         <SimpleGrid cols={2} h="100%" w="100%" px="md">
           <Group>
-            {sessionQuery.data.consent && <Burger opened={opened} onClick={toggle} size="sm" />}
+            <Burger opened={opened} onClick={toggle} size="sm" />
             <Pill size="xl">{t("header.app_name")}</Pill>
           </Group>
           <Group justify="flex-end">
-            {courseId !== undefined && sessionQuery.data.consent && (
+            {courseId !== undefined && (
               <Button variant="light" rightSection={<IconMessageCircle />} onClick={() => startNewChat()}>
                 {t("header.new_chat")}
               </Button>
