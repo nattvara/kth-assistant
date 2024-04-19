@@ -6,7 +6,7 @@ import { AboutTheStudy, Demo, FeatureShowcase, Footer, Header, HowItWorks, Jumbo
 
 const IndexPage = () => {
   return (
-    <SimpleGrid cols={1}>
+    <SimpleGrid cols={1} style={{ overflowX: "hidden" }}>
       <Header />
       <Jumbo />
       <Demo />
