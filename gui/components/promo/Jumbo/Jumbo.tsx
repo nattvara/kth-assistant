@@ -38,7 +38,7 @@ const Jumbo = () => {
               </Button>
 
               <Button variant="default" radius="lg" size="md" onClick={() => router.push("#features")}>
-                Examples it can help with
+                What it can help with
               </Button>
             </div>
           )}
@@ -57,7 +57,7 @@ const Jumbo = () => {
               <Space h="lg" />
               <div className={styles.buttons}>
                 <Button variant="default" radius="lg" size="md" onClick={() => router.push("#features")}>
-                  Examples it can help with
+                  What it can help with
                 </Button>
               </div>
             </>
