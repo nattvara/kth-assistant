@@ -1,14 +1,11 @@
 import { AppShell, Badge, Button, Center, SimpleGrid } from "@mantine/core";
-import { IconMail, IconMovie } from "@tabler/icons-react";
-import { useRouter } from "next/router";
+import { IconMail } from "@tabler/icons-react";
 
 import styles from "./styles.module.css";
 
 const ContactEmail = "ludwigkr@kth.se";
 
 export default function HeaderNavbar() {
-  const router = useRouter();
-
   return (
     <AppShell.Header p="md">
       <SimpleGrid cols={2}>
