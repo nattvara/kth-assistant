@@ -13,7 +13,7 @@ const IndexPage = () => {
       <div id="features"></div>
       <FeatureShowcase
         title="Course Logistics Support"
-        description="Course Copilot smoothly handles queries about deadlines, lab assignments, and more."
+        description="Course Copilot smoothly handles queries about deadlines, exams, lab assignments, and more."
         imageUrl="/images/feature_1.png"
         imageAlt="Illustration of Course Copilot answering a student's question about course deadlines"
         side={"right"}
