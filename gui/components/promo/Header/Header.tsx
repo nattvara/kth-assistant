@@ -1,8 +1,10 @@
 import { AppShell, Badge, Button, Center, SimpleGrid } from "@mantine/core";
-import { IconMovie } from "@tabler/icons-react";
+import { IconMail, IconMovie } from "@tabler/icons-react";
 import { useRouter } from "next/router";
 
 import styles from "./styles.module.css";
+
+const ContactEmail = "ludwigkr@kth.se";
 
 export default function HeaderNavbar() {
   const router = useRouter();
@@ -16,12 +18,13 @@ export default function HeaderNavbar() {
 
         <Center>
           <Button
-            color="blue"
+            leftSection={<IconMail size={14} />}
             className={styles.button}
-            rightSection={<IconMovie />}
-            onClick={() => router.push("#demo")}
+            color="blue"
+            component="a"
+            href={`mailto:${ContactEmail}`}
           >
-            Look at the demo
+            Contact The Researcher
           </Button>
         </Center>
       </SimpleGrid>
