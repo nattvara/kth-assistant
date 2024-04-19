@@ -3,7 +3,8 @@ import { Head, Html, Main, NextScript } from "next/document";
 
 export default function Document() {
   const title = "Course Copilot | An AI Powered Assistant in Canvas";
-  const description = "Canvas AI Copilot is a smart assistant in Canvas course rooms, designed to answer student questions effectively. This tool is part of a master thesis on how chatbots can enhance E-learning.";
+  const description =
+    "Canvas AI Copilot is a smart assistant in Canvas course rooms, designed to answer student questions effectively. This tool is part of a master thesis on how chatbots can enhance E-learning.";
 
   return (
     <Html lang="en">
