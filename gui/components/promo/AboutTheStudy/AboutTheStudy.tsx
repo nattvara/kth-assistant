@@ -4,7 +4,7 @@ import styles from "./styles.module.css";
 
 const AboutTheStudy = () => {
   return (
-    <section id="about-the-study">
+    <section id="about-the-study" className={styles.section}>
       <Container>
         <SimpleGrid cols={1}>
           <Title order={1} className={styles.title}>

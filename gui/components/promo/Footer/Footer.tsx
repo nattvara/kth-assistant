@@ -10,17 +10,12 @@ const Footer = () => {
     <footer className={styles.footer}>
       <Container>
         <Grid gutter={0}>
-          <Grid.Col span={5}>
+          <Grid.Col span={12}>
             <Space h="xl" />
             <Text size="xl" mb="md">
               Course Copilot
             </Text>
             <Text mb="xs">This project is part of a master&apos;s thesis at KTH Royal Institute of Technology.</Text>
-            <Space h="xl" />
-            <Space h="xl" />
-          </Grid.Col>
-          <Grid.Col span={5} offset={2}>
-            <Space h="xl" />
             <Space h="xl" />
             <Button
               leftSection={<IconMail size={14} />}
@@ -28,7 +23,7 @@ const Footer = () => {
               component="a"
               href={`mailto:${ContactEmail}`}
             >
-              Contact Researcher
+              Contact the researcher
             </Button>
           </Grid.Col>
         </Grid>
