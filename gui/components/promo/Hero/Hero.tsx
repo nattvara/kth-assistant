@@ -21,8 +21,10 @@ const Hero = () => {
 
           <div className={styles.description_text}>
             <Text size="xl">
-              Canvas AI Copilot is a smart assistant in Canvas course rooms, designed to answer student questions
-              effectively. This tool is part of a master thesis on how chatbots can enhance E-learning.
+              Canvas AI Copilot is a smart assistant integrated into Canvas course rooms, designed to enhance the
+              E-learning experience by creating a favorable learning environment. This tool is part of a master thesis
+              at KTH IT exploring how chatbots can facilitate E-learning, conducted during
+              <strong> the spring term of 2024</strong>.
             </Text>
           </div>
 
