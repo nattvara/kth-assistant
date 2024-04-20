@@ -1,0 +1,6 @@
+
+.footer {
+  background-color: var(--mantine-color-gray-2);
+  padding-top: 100px;
+  padding-bottom: 200px;
+}

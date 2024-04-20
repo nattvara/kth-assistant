@@ -19,6 +19,7 @@ export default function HeaderNavbar(props: HeaderNavbarProps) {
   const { opened, toggle, courseId } = props;
   const { t } = useTranslation("common");
   const router = useRouter();
+  const isPromoPage = router.pathname === "/";
 
   const sessionQuery = useQuery({
     queryKey: ["session"],
@@ -34,6 +35,10 @@ export default function HeaderNavbar(props: HeaderNavbarProps) {
   }, [router.pathname, sessionQuery]);
 
   if (!sessionQuery.data) {
+    return <></>;
+  }
+
+  if (isPromoPage) {
     return <></>;
   }
 
