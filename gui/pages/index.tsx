@@ -2,13 +2,13 @@ import { SimpleGrid } from "@mantine/core";
 import { GetServerSidePropsContext } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
-import { AboutTheStudy, Demo, FeatureShowcase, Footer, Header, HowItWorks, Jumbo } from "@/components/promo";
+import { AboutTheStudy, Demo, FeatureShowcase, Footer, Header, Hero, HowItWorks } from "@/components/promo";
 
 const IndexPage = () => {
   return (
     <SimpleGrid cols={1} style={{ overflowX: "hidden" }}>
       <Header />
-      <Jumbo />
+      <Hero />
       <Demo />
       <div id="features"></div>
       <FeatureShowcase

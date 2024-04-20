@@ -1,9 +1,9 @@
-.jumbo {
+.hero {
   padding: 50px 20px;
   text-align: center;
 }
 
-.jumbo_content {
+.hero_content {
   max-width: 960px;
   margin: 0 auto;
 }

@@ -5,14 +5,14 @@ import { useRouter } from "next/router";
 
 import styles from "./styles.module.css";
 
-const Jumbo = () => {
+const Hero = () => {
   const router = useRouter();
   const isLargeScreen = useMediaQuery("(min-width: 56.25em)");
 
   return (
-    <section id="jumbo" className={styles.jumbo}>
+    <section id="hero" className={styles.hero}>
       <Container fluid>
-        <div className={styles.jumbo_content}>
+        <div className={styles.hero_content}>
           <div className={styles.title}>
             <Title className={styles.title_text}>
               <span className={styles.primary_color}>Canvas AI Copilot</span> - an AI Powered Assistant in Canvas.
@@ -68,4 +68,4 @@ const Jumbo = () => {
   );
 };
 
-export default Jumbo;
+export default Hero;
