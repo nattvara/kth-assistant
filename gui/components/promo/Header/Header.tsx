@@ -3,8 +3,6 @@ import { IconMail } from "@tabler/icons-react";
 
 import styles from "./styles.module.css";
 
-const ContactEmail = "ludwigkr@kth.se";
-
 export default function HeaderNavbar() {
   return (
     <AppShell.Header p="md">
@@ -19,9 +17,9 @@ export default function HeaderNavbar() {
             className={styles.button}
             color="blue"
             component="a"
-            href={`mailto:${ContactEmail}`}
+            href="#contact"
           >
-            Contact The Researcher
+            Contact
           </Button>
         </Center>
       </SimpleGrid>

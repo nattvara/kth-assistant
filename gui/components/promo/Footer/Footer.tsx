@@ -1,13 +1,14 @@
-import { Button, Container, Grid, Space, Text } from "@mantine/core";
-import { IconMail } from "@tabler/icons-react";
+import { Anchor, Container, Grid, SimpleGrid, Space, Text } from "@mantine/core";
 
 import styles from "./styles.module.css";
 
 const ContactEmail = "ludwigkr@kth.se";
+const SupervisorOneProfile = "https://www.kth.se/profile/mwelle";
+const SupervisorTwoProfile = "https://www.kth.se/profile/fen";
 
 const Footer = () => {
   return (
-    <footer className={styles.footer}>
+    <footer id="contact" className={styles.footer}>
       <Container>
         <Grid gutter={0}>
           <Grid.Col span={12}>
@@ -17,14 +18,26 @@ const Footer = () => {
             </Text>
             <Text mb="xs">This project is part of a master&apos;s thesis at KTH Royal Institute of Technology.</Text>
             <Space h="xl" />
-            <Button
-              leftSection={<IconMail size={14} />}
-              variant="default"
-              component="a"
-              href={`mailto:${ContactEmail}`}
-            >
-              Contact the researcher
-            </Button>
+            <SimpleGrid cols={1}>
+              <span>
+                <strong>Student</strong>: Ludwig Kristoffersson <span> </span>
+                <Anchor href={`mailto:${ContactEmail}`} target="_blank">
+                  {ContactEmail}
+                </Anchor>
+              </span>
+              <span>
+                <strong>Supervisor</strong>:{" "}
+                <Anchor href={SupervisorOneProfile} target="_blank">
+                  Michael Welle
+                </Anchor>
+              </span>
+              <span>
+                <strong>Supervisor</strong>:{" "}
+                <Anchor href={SupervisorTwoProfile} target="_blank">
+                  Fredrik Enoksson
+                </Anchor>
+              </span>
+            </SimpleGrid>
           </Grid.Col>
         </Grid>
       </Container>
