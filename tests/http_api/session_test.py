@@ -1,6 +1,6 @@
 from services.index.supported_indices import IndexType
 from services.llm.supported_models import LLMModel
-from db.models import Session, ChatConfig
+from db.models import Session, ChatConfig, Chat, Message
 
 
 def test_user_can_be_granted_a_session_by_visiting_auth_url(api_client):
@@ -129,3 +129,52 @@ def test_user_can_be_granted_admin_of_a_course_and_view_their_chats(
     url += '/messages'
     response = api_client.get(url, headers=admin_headers)
     assert response.status_code == 200
+
+
+def test_chats_from_test_users_is_not_included_in_the_chats(
+    api_client,
+    valid_course,
+    authenticated_session,
+):
+    real_session = Session(
+        consent=True,
+        default_llm_model_name=LLMModel.MISTRAL_7B_INSTRUCT,
+        default_index_type=IndexType.NO_INDEX,
+        admin_courses=[]
+    )
+    real_session.save()
+    test_session = Session(
+        consent=True,
+        default_llm_model_name=LLMModel.MISTRAL_7B_INSTRUCT,
+        default_index_type=IndexType.NO_INDEX,
+        admin_courses=[],
+        is_test_user=True
+    )
+    test_session.save()
+
+    chat_from_real_user = Chat(
+        course=valid_course,
+        session=real_session,
+        llm_model_name=LLMModel.MISTRAL_7B_INSTRUCT,
+        index_type=IndexType.NO_INDEX
+    )
+    chat_from_real_user.save()
+    chat_from_test_user = Chat(
+        course=valid_course,
+        session=test_session,
+        llm_model_name=LLMModel.MISTRAL_7B_INSTRUCT,
+        index_type=IndexType.NO_INDEX
+    )
+    chat_from_test_user.save()
+    msg1 = Message(sender=Message.Sender.STUDENT, content="student says hello", chat=chat_from_real_user)
+    msg1.save()
+    msg2 = Message(sender=Message.Sender.STUDENT, content="student says hello", chat=chat_from_test_user)
+    msg2.save()
+
+    authenticated_session.session.admin_courses.append(valid_course.canvas_id)
+    authenticated_session.session.save()
+
+    response = api_client.get(f'/course/{valid_course.canvas_id}/chat', headers=authenticated_session.headers)
+    assert response.status_code == 200
+    assert len(response.json()['chats']) == 1
+    assert response.json()['chats'][0]['chat_id'] == chat_from_real_user.public_id

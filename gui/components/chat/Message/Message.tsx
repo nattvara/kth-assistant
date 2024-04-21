@@ -184,6 +184,7 @@ export default function Message(props: MessageProps) {
             )}
             {message.state === MESSAGE_READY && (
               <>
+                {message.sender === "assistant" && <span data-test-key="assistant-message"></span>}
                 <span className={styles.content} dangerouslySetInnerHTML={{ __html: sanitisedHtml }}></span>
                 {showLoading && (
                   <span>
