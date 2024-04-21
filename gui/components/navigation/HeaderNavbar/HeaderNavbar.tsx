@@ -5,6 +5,8 @@ import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
 import { MouseEventHandler, useEffect } from "react";
 
+import { CourseList } from "@/components/navigation";
+
 import { getSession } from "@/api/session";
 
 const ContactEmail = "ludwigkr@kth.se";
@@ -19,6 +21,7 @@ export default function HeaderNavbar(props: HeaderNavbarProps) {
   const { opened, toggle, courseId } = props;
   const { t } = useTranslation("common");
   const router = useRouter();
+  const isPromoPage = router.pathname === "/";
 
   const sessionQuery = useQuery({
     queryKey: ["session"],
@@ -34,6 +37,10 @@ export default function HeaderNavbar(props: HeaderNavbarProps) {
   }, [router.pathname, sessionQuery]);
 
   if (!sessionQuery.data) {
+    return <></>;
+  }
+
+  if (isPromoPage) {
     return <></>;
   }
 
@@ -63,6 +70,8 @@ export default function HeaderNavbar(props: HeaderNavbarProps) {
         <Button leftSection={<IconMail size={14} />} variant="default" component="a" href={`mailto:${ContactEmail}`}>
           {t("header.contact_researcher")}
         </Button>
+
+        <CourseList />
       </AppShell.Navbar>
     </>
   );

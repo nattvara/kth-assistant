@@ -9,6 +9,7 @@ from http_api.routers import (
     sessions,
     health,
     index,
+    admin,
     chat,
 )
 from config.logger import log
@@ -29,6 +30,7 @@ def get_app():
     app.include_router(chat.router)
     app.include_router(health.router)
     app.include_router(feedback.router)
+    app.include_router(admin.router)
 
     return app
 

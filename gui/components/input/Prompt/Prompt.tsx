@@ -73,6 +73,7 @@ export default function Prompt(props: PromptProps) {
         disabled={sendMutation.isPending}
         loading={sendMutation.isPending}
         loaderProps={{ type: "dots" }}
+        data-test-key="send-button"
       >
         {t("prompt.button_text")}
       </Button>

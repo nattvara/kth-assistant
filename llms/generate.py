@@ -6,10 +6,13 @@ import torch
 
 from .sampling_strategies import top_k_sampling, top_p_sampling, top_k_and_p_sampling
 from config.settings import get_settings
+from config.logger import log
 from .config import Params
 
 
 def load_hf_model(model_path: str, device: str) -> (AutoModelForCausalLM, AutoTokenizer):
+    log().debug(f"loading model {model_path} with token {get_settings().HUGGINGFACE_ACCESS_TOKEN}")
+
     tokenizer = AutoTokenizer.from_pretrained(model_path, token=get_settings().HUGGINGFACE_ACCESS_TOKEN)
     model = AutoModelForCausalLM.from_pretrained(
         model_path,

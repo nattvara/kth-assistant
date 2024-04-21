@@ -144,6 +144,7 @@ def authenticated_session():
         consent=True,
         default_llm_model_name=LLMModel.MISTRAL_7B_INSTRUCT,
         default_index_type=IndexType.NO_INDEX,
+        admin_courses=[]
     )
     valid_session.save()
 
