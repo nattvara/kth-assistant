@@ -33,6 +33,7 @@ class Session(BaseModel):
     default_llm_model_name = ModelNameField(null=False, index=True)
     default_index_type = IndexTypeField(null=False, index=True)
     admin_courses = CoursesListField(null=False, default=[])
+    is_test_user = peewee.BooleanField(default=False)
 
     def get_user_id(self):
         # make user id from public_id, which although poorly named, is like the users private key
