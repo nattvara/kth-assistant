@@ -115,6 +115,7 @@ class Worker:
                 start_time = time.time()
                 found_less_than = False
                 found_less_than_and_pipe = False
+                found_less_than_and_slash = False
                 async for token in self.text_generator(self.model, self.tokenizer, self.device, params, prompt):
                     # since the model has a tendency to generate <|user|> strings
                     # this check is here to ensure the model doesn't start generating
@@ -127,12 +128,20 @@ class Worker:
                         token = f'<|{token}'
                         found_less_than_and_pipe = False
 
+                    if found_less_than_and_slash:
+                        token = f'</{token}'
+                        found_less_than_and_slash = False
+
                     if token == '<':
                         found_less_than = True
                         continue
 
                     if token == '<|':
                         found_less_than_and_pipe = True
+                        continue
+
+                    if token == '</':
+                        found_less_than_and_slash = True
                         continue
 
                     await websocket.send(token)

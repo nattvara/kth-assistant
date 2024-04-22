@@ -34,7 +34,7 @@ class ChatService:
     def start_new_chat_for_session_and_course(session: Session, course: Course) -> Chat:
         params = Params()
         params.system_prompt = get_system_prompt(course.language, course.name, course.description)
-        params.stop_strings = ['<|user|>', '<|user', '<|assistant|>', '<|assistant', '<|ass']
+        params.stop_strings = ['<|user|>', '<|user', '<|assistant|>', '</s>', '<|ass']
         chat = Chat(
             course=course,
             session=session,
