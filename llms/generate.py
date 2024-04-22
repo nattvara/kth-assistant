@@ -4,8 +4,8 @@ import asyncio
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 
+from services.llm.supported_models import TORCH_DATATYPE_MAP, get_enum_from_enum_value
 from .sampling_strategies import top_k_sampling, top_p_sampling, top_k_and_p_sampling
-from services.llm.supported_models import TORCH_DATATYPE_MAP
 from config.settings import get_settings
 from config.logger import log
 from .config import Params
@@ -14,8 +14,8 @@ from .config import Params
 def load_hf_model(model_path: str, device: str) -> (AutoModelForCausalLM, AutoTokenizer):
     log().debug(f"loading model {model_path} with token {get_settings().HUGGINGFACE_ACCESS_TOKEN}")
 
-    if model_path in TORCH_DATATYPE_MAP:
-        dtype = TORCH_DATATYPE_MAP[model_path]
+    if get_enum_from_enum_value(model_path) in TORCH_DATATYPE_MAP:
+        dtype = TORCH_DATATYPE_MAP[get_enum_from_enum_value(model_path)]
     else:
         dtype = torch.float16
 
