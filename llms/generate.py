@@ -140,6 +140,8 @@ def should_stop_generating(
 ) -> bool:
     if token_id in [tokenizer.eos_token_id, tokenizer.convert_tokens_to_ids('<|eot_id|>')]:
         return True
+    if token_id in [tokenizer.eos_token_id, tokenizer.convert_tokens_to_ids('<|eot_id|>')]:
+        return True
     if params.stop_strings:
         output = tokenizer.decode(output_token_ids, skip_special_tokens=True)
         if any(stop_str in output for stop_str in params.stop_strings):
