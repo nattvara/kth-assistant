@@ -3,6 +3,7 @@ from typing import Callable
 import websockets
 import asyncio
 import time
+import os
 
 import arrow
 
@@ -18,6 +19,8 @@ from llms.config import Params
 from config.logger import log
 
 TERMINATION_STRING = "<<<END_OF_STREAM>>>"
+
+os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
 
 
 def _get_websocket_url(handle: PromptHandle) -> str:
