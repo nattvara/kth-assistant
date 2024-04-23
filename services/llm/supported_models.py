@@ -1,5 +1,7 @@
 from enum import Enum
 
+import torch
+
 
 class LLMModel(Enum):
 
@@ -8,6 +10,9 @@ class LLMModel(Enum):
 
     # https://huggingface.co/google/gemma-7b
     GOOGLE_GEMMA_7B = 'google/gemma-7b'
+
+    # https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct
+    META_LLAMA_3_8B_INSTRUCT = 'meta-llama/Meta-Llama-3-8B-Instruct'
 
     # https://huggingface.co/tiiuae/falcon-7b
     FALCON_7B = 'tiiuae/falcon-7b'
@@ -35,6 +40,13 @@ EMBEDDING_MODELS = {
 EMBEDDING_MODELS_DIMENSIONS = {
     LLMModel.SALESFORCE_SFR_EMBEDDING_MISTRAL: 4096,
     LLMModel.OPENAI_TEXT_EMBEDDING_3_LARGE: 3072,
+}
+
+TORCH_DATATYPE_MAP = {
+    LLMModel.MISTRAL_7B_INSTRUCT: torch.float16,
+    LLMModel.GOOGLE_GEMMA_7B: torch.float16,
+    LLMModel.FALCON_7B: torch.float16,
+    LLMModel.META_LLAMA_3_8B_INSTRUCT: torch.bfloat16,
 }
 
 

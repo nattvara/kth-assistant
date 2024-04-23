@@ -4,6 +4,7 @@ import asyncio
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 
+from services.llm.supported_models import TORCH_DATATYPE_MAP, get_enum_from_enum_value
 from .sampling_strategies import top_k_sampling, top_p_sampling, top_k_and_p_sampling
 from config.settings import get_settings
 from config.logger import log
@@ -13,10 +14,17 @@ from .config import Params
 def load_hf_model(model_path: str, device: str) -> (AutoModelForCausalLM, AutoTokenizer):
     log().debug(f"loading model {model_path} with token {get_settings().HUGGINGFACE_ACCESS_TOKEN}")
 
+    if get_enum_from_enum_value(model_path) in TORCH_DATATYPE_MAP:
+        dtype = TORCH_DATATYPE_MAP[get_enum_from_enum_value(model_path)]
+    else:
+        dtype = torch.float16
+
+    log().debug(f"loading model with torch_dtype: {dtype}")
+
     tokenizer = AutoTokenizer.from_pretrained(model_path, token=get_settings().HUGGINGFACE_ACCESS_TOKEN)
     model = AutoModelForCausalLM.from_pretrained(
         model_path,
-        torch_dtype=torch.float16,
+        torch_dtype=dtype,
         token=get_settings().HUGGINGFACE_ACCESS_TOKEN
     )
 
@@ -130,7 +138,9 @@ def should_stop_generating(
     params: Params,
     token_id: int
 ) -> bool:
-    if token_id in [tokenizer.eos_token_id]:
+    if token_id in [tokenizer.eos_token_id, tokenizer.convert_tokens_to_ids('<|eot_id|>')]:
+        return True
+    if token_id in [tokenizer.eos_token_id, tokenizer.convert_tokens_to_ids('<|eot_id|>')]:
         return True
     if params.stop_strings:
         output = tokenizer.decode(output_token_ids, skip_special_tokens=True)

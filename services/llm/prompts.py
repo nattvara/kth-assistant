@@ -22,7 +22,10 @@ def prompt_make_next_ai_message(messages: List[Message]) -> str:
 Chat history:
 ===================================
 {format_messages(messages)}
-<|assistant|>
+
+Generate the next assistant message within <s> </s> tags:
+
+<s><|assistant|>
 """.strip()
 
 
@@ -38,7 +41,10 @@ Documents you may source information from if useful (use citations):
 Chat history:
 ===================================
 {format_messages(messages)}
-<|assistant|>
+
+Generate the next assistant message within <s> </s> tags:
+
+<s><|assistant|>
 """.strip()
 
 
@@ -54,7 +60,10 @@ Documents you may source information from if useful (use citations):
 Chat history:
 ===================================
 {format_messages(messages)}
-<|assistant|>
+
+Generate the next assistant message within <s> </s> tags:
+
+<s><|assistant|>
 """.strip()
 
 
