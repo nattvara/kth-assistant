@@ -18,6 +18,7 @@ const REFETCH_TIMEOUT = 1000 * 60 * 10;
 
 const markdownLinkPattern = /\[([^\]]+)\]\(([^)]+)\)/g;
 const markdownBoldPattern = /\*\*([^*]+)\*\*/g;
+const markdownCodePattern = /`([^`]+)`/g;
 
 interface MessageProps {
   initialMessage: MessageType;
@@ -92,6 +93,7 @@ export default function Message(props: MessageProps) {
             (match, p1, p2) => `<a href="${p2}" target="_blank">${p1}</a>`,
           );
           newContent = newContent.replace(markdownBoldPattern, (match, p1) => `<strong>${p1}</strong>`);
+          newContent = newContent.replace(markdownCodePattern, (match, p1) => `<code>${p1}</code>`);
 
           setNumberOfWords(newContent.split(" ").length);
           return newContent;
@@ -129,6 +131,7 @@ export default function Message(props: MessageProps) {
         (match, p1, p2) => `<a href="${p2}" target="_blank">${p1}</a>`,
       );
       initialContent = initialContent.replace(markdownBoldPattern, (match, p1) => `<strong>${p1}</strong>`);
+      initialContent = initialContent.replace(markdownCodePattern, (match, p1) => `<code color="blue">${p1}</code>`);
       setDisplayedContent(initialContent);
       setNumberOfWords(0);
       setShowLoading(false);
