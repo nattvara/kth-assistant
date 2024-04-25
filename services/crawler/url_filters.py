@@ -19,6 +19,7 @@ DOMAIN_DENY_LIST = {
     "support.kattis.com": True,
     "docs.oracle.com": True,
     "oracle.com": True,
+    "intra.kth.se": True,
 }
 
 DENY_URLS_THAT_STARTS_WITH = {
@@ -83,6 +84,10 @@ DENY_URLS_THAT_MATCHES_STRING_EXACTLY = {
     "http://kth.kattis.com/": True,
     "https://kth.kattis.com/courses": True,
     "https://kth.kattis.com/courses/": True,
+    "https://www.kth.se/student": True,
+    "https://www.kth.se/student/": True,
+    "https://www.kth.se": True,
+    "https://www.kth.se/": True,
 }
 
 
