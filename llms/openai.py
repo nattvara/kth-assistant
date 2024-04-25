@@ -69,6 +69,8 @@ async def stream_tokens_async(
     )
     async for chunk in stream:
         token = chunk.choices[0].delta.content or ''
+        if token in params.stop_strings:
+            break
         yield token
 
 
