@@ -10,7 +10,7 @@ from config.logger import log
 
 MODEL = 'gpt-4-turbo'
 EMBEDDING_MODEL = 'text-embedding-3-large'
-MAX_TOKENS = 120000
+MAX_TOKENS = 4096
 
 
 class OpenAiError(Exception):
@@ -50,19 +50,12 @@ async def stream_tokens_async(
     num_tokens = len(encoding.encode(prompt))
     num_tokens -= len(encoding.encode(params.system_prompt))
 
-    remaining_tokens = MAX_TOKENS - num_tokens
-
-    if remaining_tokens <= 0:
-        raise OpenAiError(f"Not enough tokens left to produce a response, got a prompt with size {num_tokens}")
-
-    if remaining_tokens < params.max_new_tokens:
-        max_tokens = remaining_tokens
-    else:
+    max_tokens = MAX_TOKENS
+    if params.max_new_tokens < MAX_TOKENS:
         max_tokens = params.max_new_tokens
 
-    log().debug(f"init openai stream. MAX_TOKENS: {MAX_TOKENS}, prompt_tokens: {num_tokens}, remaining "
-                f"tokens: {remaining_tokens}, params.max_new_tokens: {params.max_new_tokens}, "
-                f"max_tokens used: {max_tokens}")
+    log().debug(f"init openai stream. MAX_TOKENS: {MAX_TOKENS}, prompt_tokens: {num_tokens}, params.max_new_tokens: "
+                f"{params.max_new_tokens}, max_tokens being used: {max_tokens}")
 
     stream = await client.chat.completions.create(
         model=MODEL,
@@ -76,6 +69,8 @@ async def stream_tokens_async(
     )
     async for chunk in stream:
         token = chunk.choices[0].delta.content or ''
+        if token in params.stop_strings:
+            break
         yield token
 
 
