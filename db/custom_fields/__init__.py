@@ -7,3 +7,4 @@ from .index_type import IndexTypeField
 from .embedding import EmbeddingField
 from .feedback_question_extradata import FeedbackQuestionExtraDataField
 from .courses_list import CoursesListField
+from .extra_urls import ExtraUrlsField
