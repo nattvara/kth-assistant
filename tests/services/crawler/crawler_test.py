@@ -20,6 +20,15 @@ def test_creating_new_snapshot_also_creates_the_root_url(valid_course):
     assert len(snapshot.urls) == 1
 
 
+def test_creating_new_snapshot_creates_urls_for_the_extra_urls_added_to_the_course(valid_course):
+    valid_course.extra_urls.append("http://example.com/a-extra-url")
+
+    snapshot = CrawlerService.create_snapshot(valid_course)
+
+    assert Url.select().filter(Url.snapshot == snapshot.id).exists()
+    assert len(snapshot.urls) == 2
+
+
 def test_the_current_snapshot_is_always_the_most_recent_snapshot_without_any_unvisited_urls(mocker, valid_course):
     mocked_time = arrow.get('2024-03-24T00:00:00Z')
 

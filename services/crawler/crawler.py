@@ -58,6 +58,15 @@ class CrawlerService:
         )
         root_url.save()
 
+        for extra_url in course.extra_urls:
+            url = Url(
+                snapshot=snapshot,
+                href=extra_url,
+                root=False,
+                distance=0,
+            )
+            url.save()
+
         return snapshot
 
     @staticmethod
