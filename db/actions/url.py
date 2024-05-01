@@ -19,6 +19,17 @@ def exists_any_unvisited_urls_in_snapshot(snapshot):
     ).exists()
 
 
+def exists_any_urls_waiting_to_be_indexed_in_snapshot(snapshot):
+    from db.models.url import Url
+    return Url.select().filter(
+        Url.state == Url.States.WAITING_TO_INDEX
+    ).filter(
+        Url.snapshot == snapshot
+    ).order_by(
+        Url.created_at.asc()
+    ).exists()
+
+
 def find_url_with_href_sha_in_snapshot(href_sha: str, snapshot):
     from db.models.url import Url
     return Url.select().filter(

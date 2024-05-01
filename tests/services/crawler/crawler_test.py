@@ -61,6 +61,42 @@ def test_the_current_snapshot_is_always_the_most_recent_snapshot_without_any_unv
         assert CrawlerService.current_snapshot(valid_course) == snapshot_3
 
 
+def test_the_current_snapshot_is_always_the_most_recent_snapshot_without_any_urls_waiting_to_index(
+    mocker,
+    valid_course
+):
+    mocked_time = arrow.get('2024-03-24T00:00:00Z')
+
+    with mocker.patch('arrow.now', return_value=mocked_time):
+        snapshot_1 = CrawlerService.create_snapshot(valid_course)
+        snapshot_1.created_at = arrow.now().shift(hours=-2)
+        snapshot_1.save()
+        snapshot_2 = CrawlerService.create_snapshot(valid_course)
+        snapshot_2.created_at = arrow.now().shift(hours=-1)
+        snapshot_2.save()
+
+        with pytest.raises(NoValidSnapshotException):
+            CrawlerService.current_snapshot(valid_course)
+
+        url = snapshot_1.urls[0]
+        url.state = Url.States.INDEXED
+        url.save()
+
+        assert CrawlerService.current_snapshot(valid_course) == snapshot_1
+
+        url = snapshot_2.urls[0]
+        url.state = Url.States.WAITING_TO_INDEX
+        url.save()
+
+        assert CrawlerService.current_snapshot(valid_course) == snapshot_1
+
+        url = snapshot_2.urls[0]
+        url.state = Url.States.INDEXED
+        url.save()
+
+        assert CrawlerService.current_snapshot(valid_course) == snapshot_2
+
+
 @pytest.mark.asyncio
 async def test_next_url_from_service_is_the_most_recent_url(get_crawler_service, new_snapshot):
     crawler_service = await get_crawler_service
