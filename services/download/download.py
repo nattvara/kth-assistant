@@ -3,9 +3,10 @@ from typing import Union
 from playwright.async_api import Browser, BrowserContext, Page
 from pdfminer.pdfparser import PDFSyntaxError
 
-from services.crawler.url_filters import domain_is_canvas, domain_is_kattis
+from services.crawler.url_filters import domain_is_canvas, domain_is_kattis, domain_is_google_docs
 from db.actions.url import find_url_referencing_content_in_snapshot
 from db.actions.content import find_content_with_sha
+import services.download.google_docs as google_docs
 import services.download.canvas as canvas
 import services.download.pptx as pptx
 import services.download.docx as docx
@@ -64,6 +65,8 @@ class DownloadService:
             content = await self._save_canvas_url_content(url)
         elif domain_is_kattis(url.href):
             content = await self._save_kattis_url_content(url)
+        elif domain_is_google_docs(url.href):
+            content = await self._save_google_docs_url_content(url)
         else:
             content = await self._save_web_url_content(url)
 
@@ -131,6 +134,19 @@ class DownloadService:
                 return content
             except Exception as e:  # noqa
                 log().error("Failed to parse kattis page custom instructions parser, using fallback", e)
+        return await self._save_web_url_content(url)
+
+    async def _save_google_docs_url_content(self, url: Url):
+        if google_docs.can_be_exported(url):
+            log().info("Found a google doc that can be exported")
+            try:
+                content_filepath, filename = google_docs.download_doc_as_pdf(url)
+                text = extract_text_from_pdf_file(content_filepath)
+                content = Content(text=text, name=filename)
+                return content
+            except Exception as e:  # noqa
+                log().error("Failed to parse google doc, using fallback", e)
+
         return await self._save_web_url_content(url)
 
     async def _save_web_url_content(self, url: Url):
