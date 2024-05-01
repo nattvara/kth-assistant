@@ -63,7 +63,7 @@ class CrawlerService:
                 snapshot=snapshot,
                 href=extra_url,
                 root=False,
-                distance=0,
+                distance=1,
             )
             url.save()
 
