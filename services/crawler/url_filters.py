@@ -88,6 +88,10 @@ DENY_URLS_THAT_MATCHES_STRING_EXACTLY = {
     "https://www.kth.se/student/": True,
     "https://www.kth.se": True,
     "https://www.kth.se/": True,
+    "https://www.kth.se/en": True,
+    "https://www.kth.se/en/": True,
+    "https://www.kth.se/en/student": True,
+    "https://www.kth.se/en/student/": True,
 }
 
 
