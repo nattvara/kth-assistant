@@ -1,7 +1,7 @@
 from playwright.async_api import Browser, BrowserContext, Page
 from playwright.async_api import Playwright
 
-from services.crawler.url_filters import CANVAS_DOMAIN, CANVAS_PROFILE_PAGE
+from services.crawler.url_filters import CANVAS_DOMAIN, CANVAS_PROFILE_PAGE, KTH_GITHUB_DOMAIN
 from db.actions.cookie import find_cookie_by_identifier
 import config.settings as settings
 from config.logger import log
@@ -25,17 +25,24 @@ async def get_logged_in_browser_context_and_page(playwright: Playwright) -> (Bro
                                         f"with identifier: {settings.get_settings().COOKIE_IDENTIFIER}")
 
     cookies = cookie.value.split('; ')
-
     prepared_cookies = []
+    domains_with_cookies = [CANVAS_DOMAIN, KTH_GITHUB_DOMAIN]
     for cookie in cookies:
         name, value = cookie.strip().split('=', 1)
-        prepared_cookies.append({
-            'name': name,
-            'value': value,
-            'domain': CANVAS_DOMAIN,
-            'path': '/',
-            'expires': -1
-        })
+
+        secure = False
+        if name.startswith('__Host-'):
+            secure = True
+
+        for domain in domains_with_cookies:
+            prepared_cookies.append({
+                'name': name.strip(),
+                'value': value,
+                'domain': domain,
+                'path': '/',
+                'expires': -1,
+                'secure': secure
+            })
 
     await context.add_cookies(prepared_cookies)
 

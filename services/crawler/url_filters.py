@@ -4,6 +4,8 @@ import re
 
 CANVAS_DOMAIN = "canvas.kth.se"
 
+KTH_GITHUB_DOMAIN = "gits-15.sys.kth.se"
+
 KATTIS_KTH_DOMAIN = "kth.kattis.com"
 
 KATTIS_OPEN_DOMAIN = "open.kattis.com"
