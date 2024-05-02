@@ -76,6 +76,9 @@ async def run_worker():
 
             except LockAlreadyAcquiredException:
                 log().debug("Found a lock on the url. Skipping.")
+            except Exception as e:
+                log().error("Encountered an exception while crawling.")
+                log().error(e)
 
         await redis.aclose()
 
