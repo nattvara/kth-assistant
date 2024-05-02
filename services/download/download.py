@@ -1,4 +1,5 @@
 from typing import Union
+import os
 
 from playwright.async_api import Browser, BrowserContext, Page
 from pdfminer.pdfparser import PDFSyntaxError
@@ -22,7 +23,14 @@ from db.models import Url, Content
 from config.logger import log
 
 
+MAX_DOWNLOAD_FILESIZE_MB = 100
+
+
 class InvalidUrlStateException(Exception):
+    pass
+
+
+class FilesizeTooLargeException(Exception):
     pass
 
 
@@ -46,6 +54,13 @@ class DownloadService:
                                            f"downloaded, url was in {url.state}")
 
         if url.is_download:
+            filesize = self._get_filesize(url)
+            log().debug(f"downloaded filesize was {filesize}MB")
+
+            if filesize > MAX_DOWNLOAD_FILESIZE_MB:
+                raise FilesizeTooLargeException("Filesize was too large, cannot index files that exceed limit of"
+                                                f" {MAX_DOWNLOAD_FILESIZE_MB}MB")
+
             log().info("trying to save content from url as a pdf")
             content = await self._save_pdf_url_content(url)
 
@@ -84,6 +99,12 @@ class DownloadService:
         url.content = content
         url.state = Url.States.DOWNLOADED
         url.save()
+
+    def _get_filesize(self, url: Url) -> float:
+        content_filepath, _ = pdf.download_content(url)
+        filesize_bytes = os.path.getsize(content_filepath)
+        filesize_mb = filesize_bytes / (1024 * 1024)
+        return round(filesize_mb, 4)
 
     async def _save_pdf_url_content(self, url: Url) -> Union[Content, None]:
         try:

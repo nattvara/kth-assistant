@@ -64,6 +64,7 @@ async def test_download_service_can_download_content_from_non_canvas_url(mocker,
 @pytest.mark.asyncio
 async def test_download_service_can_download_content_from_pdf_urls(mocker, get_download_service, new_snapshot):
     mocker.patch("services.download.pdf.download_content", return_value=('/tmp/file.pdf', 'somefile.pdf'))
+    mocker.patch("services.download.download.DownloadService._get_filesize", return_value=10)
     mocker.patch("pdfminer.high_level.extract_text", return_value="pdf content...")
     download_service = await get_download_service
 
@@ -84,6 +85,7 @@ async def test_download_service_can_download_content_from_pdf_urls(mocker, get_d
 async def test_download_service_can_download_content_from_power_point_urls(mocker, get_download_service, new_snapshot):
     mocker.patch("services.download.pdf.download_content", return_value=('/tmp/slide.pptx', 'somefile.pptx'))
     mocker.patch("pdfminer.high_level.extract_text", side_effect=PDFSyntaxError)
+    mocker.patch("services.download.download.DownloadService._get_filesize", return_value=10)
     mocker.patch("services.download.pptx.extract_text", return_value="presentation content...")
     download_service = await get_download_service
 
@@ -109,6 +111,7 @@ async def test_download_service_can_download_content_from_word_document_urls(
     mocker.patch("services.download.pdf.download_content", return_value=('/tmp/somefile.docx', 'somefile.docx'))
     mocker.patch("pdfminer.high_level.extract_text", side_effect=PDFSyntaxError)
     mocker.patch("pptx.Presentation", side_effect=ValueError)
+    mocker.patch("services.download.download.DownloadService._get_filesize", return_value=10)
     mocker.patch("services.download.docx.extract_text", return_value="document content...")
     download_service = await get_download_service
 
