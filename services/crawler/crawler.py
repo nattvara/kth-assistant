@@ -12,9 +12,9 @@ import services.crawler.url_filters as url_filters
 from db.models import Course, Snapshot, Url
 from config.logger import log
 from db.actions.url import (
+    get_most_recent_url, exists_any_urls_waiting_to_be_indexed_in_snapshot,
     exists_any_unvisited_urls_in_snapshot,
     find_url_with_href_sha_in_snapshot,
-    get_most_recent_url,
 )
 import cache.mutex as mutex
 
@@ -58,6 +58,15 @@ class CrawlerService:
         )
         root_url.save()
 
+        for extra_url in course.extra_urls:
+            url = Url(
+                snapshot=snapshot,
+                href=extra_url,
+                root=False,
+                distance=1,
+            )
+            url.save()
+
         return snapshot
 
     @staticmethod
@@ -76,6 +85,8 @@ class CrawlerService:
         snapshots = all_snapshots_of_course_in_most_recent_order(course)
         for snapshot in snapshots:
             if exists_any_unvisited_urls_in_snapshot(snapshot) is True:
+                continue
+            elif exists_any_urls_waiting_to_be_indexed_in_snapshot(snapshot) is True:
                 continue
             else:
                 return snapshot

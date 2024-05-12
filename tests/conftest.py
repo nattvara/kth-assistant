@@ -156,7 +156,7 @@ def valid_course():
     config = ChatConfig(llm_model_name=LLMModel.MISTRAL_7B_INSTRUCT, index_type=IndexType.NO_INDEX)
     config.save()
 
-    course = Course(canvas_id="41428", snapshot_lifetime_in_mins=60)
+    course = Course(canvas_id="41428", snapshot_lifetime_in_mins=60, extra_urls=[])
     course.save()
 
     snapshot = FaqSnapshot(course=course)

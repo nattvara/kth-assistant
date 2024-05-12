@@ -4,6 +4,7 @@ import string
 
 import peewee
 
+from db.custom_fields import ExtraUrlsField
 from . import BaseModel
 
 # Suppress specific DeprecationWarning about db_table, this is needed for migrations to work
@@ -37,3 +38,4 @@ class Course(BaseModel):
     name = peewee.CharField(null=False, default='Untitled Course Room')
     description = peewee.TextField(null=False, default='Course room has not got any description')
     admin_token = peewee.CharField(null=False, index=True, unique=True, default=_generate_admin_token)
+    extra_urls = ExtraUrlsField(null=False, default=[])

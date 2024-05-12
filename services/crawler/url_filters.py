@@ -4,9 +4,13 @@ import re
 
 CANVAS_DOMAIN = "canvas.kth.se"
 
+KTH_GITHUB_DOMAIN = "gits-15.sys.kth.se"
+
 KATTIS_KTH_DOMAIN = "kth.kattis.com"
 
 KATTIS_OPEN_DOMAIN = "open.kattis.com"
+
+GOOGLE_DOCS = "docs.google.com"
 
 CANVAS_PROFILE_PAGE = f"https://{CANVAS_DOMAIN}/profile"
 
@@ -88,6 +92,10 @@ DENY_URLS_THAT_MATCHES_STRING_EXACTLY = {
     "https://www.kth.se/student/": True,
     "https://www.kth.se": True,
     "https://www.kth.se/": True,
+    "https://www.kth.se/en": True,
+    "https://www.kth.se/en/": True,
+    "https://www.kth.se/en/student": True,
+    "https://www.kth.se/en/student/": True,
 }
 
 
@@ -102,6 +110,10 @@ def domain_is_canvas(url: str) -> bool:
 
 def domain_is_kattis(url: str) -> bool:
     return get_domain(url) == KATTIS_KTH_DOMAIN or get_domain(url) == KATTIS_OPEN_DOMAIN
+
+
+def domain_is_google_docs(url: str) -> bool:
+    return get_domain(url) == GOOGLE_DOCS
 
 
 def link_begins_with_deny_listed_string(url: str) -> bool:

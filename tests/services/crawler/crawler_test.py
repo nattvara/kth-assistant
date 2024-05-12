@@ -20,6 +20,15 @@ def test_creating_new_snapshot_also_creates_the_root_url(valid_course):
     assert len(snapshot.urls) == 1
 
 
+def test_creating_new_snapshot_creates_urls_for_the_extra_urls_added_to_the_course(valid_course):
+    valid_course.extra_urls.append("http://example.com/a-extra-url")
+
+    snapshot = CrawlerService.create_snapshot(valid_course)
+
+    assert Url.select().filter(Url.snapshot == snapshot.id).exists()
+    assert len(snapshot.urls) == 2
+
+
 def test_the_current_snapshot_is_always_the_most_recent_snapshot_without_any_unvisited_urls(mocker, valid_course):
     mocked_time = arrow.get('2024-03-24T00:00:00Z')
 
@@ -59,6 +68,42 @@ def test_the_current_snapshot_is_always_the_most_recent_snapshot_without_any_unv
         url.save()
 
         assert CrawlerService.current_snapshot(valid_course) == snapshot_3
+
+
+def test_the_current_snapshot_is_always_the_most_recent_snapshot_without_any_urls_waiting_to_index(
+    mocker,
+    valid_course
+):
+    mocked_time = arrow.get('2024-03-24T00:00:00Z')
+
+    with mocker.patch('arrow.now', return_value=mocked_time):
+        snapshot_1 = CrawlerService.create_snapshot(valid_course)
+        snapshot_1.created_at = arrow.now().shift(hours=-2)
+        snapshot_1.save()
+        snapshot_2 = CrawlerService.create_snapshot(valid_course)
+        snapshot_2.created_at = arrow.now().shift(hours=-1)
+        snapshot_2.save()
+
+        with pytest.raises(NoValidSnapshotException):
+            CrawlerService.current_snapshot(valid_course)
+
+        url = snapshot_1.urls[0]
+        url.state = Url.States.INDEXED
+        url.save()
+
+        assert CrawlerService.current_snapshot(valid_course) == snapshot_1
+
+        url = snapshot_2.urls[0]
+        url.state = Url.States.WAITING_TO_INDEX
+        url.save()
+
+        assert CrawlerService.current_snapshot(valid_course) == snapshot_1
+
+        url = snapshot_2.urls[0]
+        url.state = Url.States.INDEXED
+        url.save()
+
+        assert CrawlerService.current_snapshot(valid_course) == snapshot_2
 
 
 @pytest.mark.asyncio
