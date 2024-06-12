@@ -21,6 +21,7 @@ This is a repository for the experiments that were conducted in my Master's thes
     - [Chat view](#chat-view)
     - [An example reply](#an-example-reply)
     - [Landing page](#landing-page)
+  - [License](#license)
 
 ## About
 
@@ -257,3 +258,9 @@ An example reply to a user question.
 ![Landing view of the application](docs/images/landing.png)
 
 The landing view of the application.
+
+## License
+
+MIT © Ludwig Kristoffersson
+
+See [LICENSE file](LICENSE) for more information.
